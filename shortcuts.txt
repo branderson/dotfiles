@@ -1,0 +1,1 @@
+alias tkw="tmux kill-window"

@@ -1,0 +1,11 @@
+oh-my-zsh
+z
+cowfiles
+*/*.log*
+*/*/*/*.log*
+vim/bundle
+PyCharm40/system
+cinnamon/spices.cache
+*/gimpswap.*
+
+dotfile_overrides

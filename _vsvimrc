@@ -1,0 +1,131 @@
+filetype off
+
+set rtp+=~/vim/bundle/vundle
+
+" let Vundle manage Vundle
+" required!
+Bundle 'gmarik/vundle'
+
+" The bundles you install will be listed here
+Bundle 'scrooloose/nerdtree'
+Bundle 'klen/python-mode'
+Bundle 'davidhalter/jedi-vim'
+Bundle 'jlanzarotta/bufexplorer'
+Bundle 'msanders/snipmate.vim'
+
+Bundle 'L9'
+Bundle 'FuzzyFinder'
+" Bundle 'taglist.vim'
+
+" Run in python using F9
+autocmd FileType python nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+
+filetype plugin indent on
+
+" Plugins
+" FuzzyFinder
+" Leader-f opens buffer mode
+" :FufFile - file mode
+" 
+" BufferExplorer
+" leader-be - Open explorer
+" leader-bs - Open horizontal split
+" leader-bv - Open vertical split
+" t or Shift-Enter - Open in new tab
+"
+" Snippets
+" type keywords, press tab, get shit done
+"
+" Tag List
+" Leader-t opens tag list
+"
+" SuperTab
+" I think I just press tab and magic happens
+"
+" C-VIm
+" I should get this when I have time to learn it
+"
+" The rest of your config follows here
+" Keybindings
+noremap <space> :
+inoremap ,, <ESC>  
+cnoremap ,, <ESC><ESC> 
+let mapleader=","
+map <leader>w :w<CR>
+map <leader>d :NERDTreeToggle<CR>
+map <leader>fc :FufFileWithCurrentBufferDir<CR>
+map <leader>fb :FufBuffer<CR>
+map <leader>ft :FufTag<CR>
+" map <leader>t :TlistToggle<CR>
+map <leader>v :e ~/_vsvimrc<CR>
+
+" Update vimrc
+map <leader>rr :source ~/_vimrc<CR>
+
+" Documentation
+let g:pymode_doc = 1
+let g:pymode_doc_key = 'K'
+
+" Linting
+let g:pymode_lint = 1
+let g:pymode_lint_checker = "pyflakes,pep8"
+
+" Auto check on save
+let g:pymode_lint_write = 1
+
+" Support virtualenv
+let g:pymode_virtualenv = 1
+
+" Enable breakpoints plugin
+let g:pymode_breakpoint = 1
+let g:pymode_breakpoint_key = '<leader>b'
+
+" Syntax highlighting
+syntax enable
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+let g:pymode_syntax_space_errors = g:pymode_syntax_all
+
+" Don't autofold code
+let g:pymode_folding = 0
+
+colorscheme desert
+set number " Show line numbers
+
+" Allow backspacing over everything
+set backspace=indent,eol,start
+
+" Keep longer history
+set history=700
+
+" Incremental search
+set incsearch
+
+" Smart case insensitive search
+set ignorecase
+set smartcase
+
+" Maintain context around cursor
+set scrolloff=7
+
+
+" Configure tab behavior
+set tabstop=8 softtabstop=4 expandtab shiftwidth=4
+
+" Move between windows
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+" Return to last edit position when opening files (You want this!)
+autocmd BufReadPost *
+     \ if line("'\"") > 0 && line("'\"") <= line("$") |
+     \   exe "normal! g`\"" |
+     \ endif
+" Remember info about open buffers on close
+" set viminfo=%
+
+autocmd BufWrite *.py :call DeleteTrailingWS()
+autocmd BufWrite *.coffee :call DeleteTrailingWS()

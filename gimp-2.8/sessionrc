@@ -1,0 +1,73 @@
+# GIMP sessionrc
+# 
+# This file takes session-specific info (that is info, you want to keep
+# between two GIMP sessions).  You are not supposed to edit it manually, but
+# of course you can do.  The sessionrc will be entirely rewritten every time
+# you quit GIMP.  If this file isn't found, defaults are used.
+
+(session-info "toplevel"
+    (factory-entry "gimp-empty-image-window")
+    (position 573 26)
+    (size 620 200))
+(session-info "toplevel"
+    (factory-entry "gimp-single-image-window")
+    (position 0 26)
+    (size 1366 1261)
+    (open-on-exit)
+    (aux-info
+        (left-docks-width "1")
+        (right-docks-width "270")
+        (maximized "yes"))
+    (gimp-toolbox
+        (side right))
+    (gimp-dock
+        (side right)
+        (position 58)
+        (book
+            (current-page 0)
+            (dockable "gimp-tool-options"
+                (tab-style automatic)
+                (aux-info
+                    (show-button-bar "true")))
+            (dockable "gimp-indexed-palette"
+                (tab-style automatic)
+                (aux-info
+                    (show-button-bar "true")))
+            (dockable "gimp-selection-editor"
+                (tab-style automatic)
+                (aux-info
+                    (show-button-bar "true")))
+            (dockable "gimp-brush-grid"
+                (tab-style automatic)
+                (aux-info
+                    (show-button-bar "true"))))))
+(session-info "toplevel"
+    (factory-entry "gimp-toolbox-color-dialog")
+    (position 599 465))
+(session-info "toplevel"
+    (factory-entry "gimp-file-open-dialog")
+    (position 0 26)
+    (size 732 593))
+(session-info "toplevel"
+    (factory-entry "gimp-preferences-dialog")
+    (position 140 115))
+(session-info "toplevel"
+    (factory-entry "gimp-rotate-tool-dialog")
+    (position 867 80))
+(session-info "toplevel"
+    (factory-entry "gimp-file-save-dialog")
+    (position 427 26)
+    (size 732 593))
+(session-info "toplevel"
+    (factory-entry "gimp-image-new-dialog")
+    (position 520 26))
+(session-info "toplevel"
+    (factory-entry "gimp-file-export-dialog")
+    (position 1366 35)
+    (size 732 593))
+
+(hide-docks no)
+(single-window-mode yes)
+(last-tip-shown 0)
+
+# end of sessionrc

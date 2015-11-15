@@ -1,0 +1,5 @@
+PATH DEFAULT=${PATH}:/opt/java/current-java/bin
+PATH DEFAULT=${PATH}:~/development/pgs4a-0.9.6/android-sdk/tools
+PATH DEFAULT=${PATH}:/opt/android-studio/bin
+ANDROID_HOME DEFAULT=~/Android/Sdk
+JAVA_HOME DEFAULT=/opt/java/current-java
