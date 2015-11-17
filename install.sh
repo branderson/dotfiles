@@ -10,6 +10,7 @@ config
 xinitrc
 xmodmap 
 Xresources 
+urxvt.xresources
 crontab
 bashrc 
 zshrc 
@@ -35,6 +36,7 @@ gitconfig
 GIT="
 rupa/z
 bkendzior/cowfiles
+morhetz/gruvbox-contrib
 "
 PIP2="
 powerline-status

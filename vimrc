@@ -47,7 +47,16 @@ set wildmenu
 set mouse=a
 
 " Configure tab behavior
-set tabstop=8 softtabstop=4 expandtab shiftwidth=4 smartindent "" ai cindent
+set tabstop=8 
+set softtabstop=4 
+set expandtab 
+set shiftwidth=4 
+" set autoindent 
+" set cindent
+set smartindent 
+
+" Linewrap
+set wrap linebreak nolist
 
 " Show current position
 set ruler
@@ -125,7 +134,7 @@ NeoBundle 'sjl/gundo.vim'
 " Much nicer buffer management
 NeoBundle 'jlanzarotta/bufexplorer'
 " Shows indentation level
-NeoBundle 'nathanaelkane/vim-indent-guides'
+" NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'yggdroot/indentLine'
 " Show marks
 NeoBundle 'kshenoy/vim-signature'
@@ -190,6 +199,7 @@ NeoBundle 'sheerun/vim-polyglot'
 
 " - Web -
 NeoBundle 'mattn/emmet-vim'
+NeoBundle 'mattn/webapi-vim'
 
 " - Python -
 NeoBundle 'klen/python-mode'
@@ -352,7 +362,7 @@ let g:pymode_options = 1
 let g:pymode_trim_whitespaces = 1
 
 " PEP8-compatible python indent
-let g:pymode_indent = 1
+" let g:pymode_indent = 1
 
 " Rope support
 let g:pymode_rope = 0
@@ -442,6 +452,23 @@ let $RUST_SRC_PATH="/usr/local/src/rust/src/"
 " ,,f   highlight letters
 " ,,s   bidirectional letter search
 " ,,b   backwards words
+"
+" Pymode
+" zM closes all open folds.
+" zR decreases the foldlevel to zero -- all folds will be open.
+" zo opens a fold at the cursor.
+" zc close a fold at the cursor.
+" zf#j creates a fold from the cursor down # lines.
+" zf/string creates a fold from the cursor to string .
+" zj moves the cursor to the next fold.
+" zk moves the cursor to the previous fold.
+" zO opens all folds at the cursor.
+" zm increases the foldlevel by one.
+" zr decreases the foldlevel by one.
+" zd deletes the fold at the cursor.
+" zE deletes all folds.
+" [z move to start of open fold.
+" ]z move to end of open fold.
 
 " --- Mappings ---
 " - General -
@@ -578,21 +605,21 @@ function! Ranger()
 endfunction
 
 " Return to last edit position when opening files (You want this!)
-autocmd BufReadPost *
-     \ if line("'\"") > 0 && line("'\"") <= line("$") |
-     \   exe "normal! g`\"" |
-     \ endif
+" autocmd BufReadPost *
+"      \ if line("'\"") > 0 && line("'\"") <= line("$") |
+"      \   exe "normal! g`\"" |
+"      \ endif
 " Remember info about open buffers on close
  " set viminfo=%M
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
-func! DeleteTrailingWS()
-    exe "normal mz"
-    %s/\s\+$//ge
-    exe "normal `z"
-endfunc
-autocmd BufWrite *.py :call DeleteTrailingWS()
-autocmd BufWrite *.coffee :call DeleteTrailingWS()
+" func! DeleteTrailingWS()
+"     exe "normal mz"
+"     %s/\s\+$//ge
+"     exe "normal `z"
+" endfunc
+" autocmd BufWrite *.py :call DeleteTrailingWS()
+" autocmd BufWrite *.coffee :call DeleteTrailingWS()
 
 " Local overrides
 let $LOCALFILE=expand("~/.vimrc_local")

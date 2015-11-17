@@ -1,6 +1,9 @@
 #!/bin/sh
 
 userresources=$HOME/.Xresources
+userurxvtresources=$HOME/.urxvt.xresources
+gruvboxresources=$HOME/dotfiles/gruvbox-contrib/xresources/gruvbox-dark.xresources
+gruvboxurxvtresources=$HOME/dotfiles/gruvbox-contrib/urxvt256/gruvbox-urxvt256.xresources
 usermodmap=$HOME/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
 sysmodmap=/etc/X11/xinit/.Xmodmap
@@ -8,15 +11,7 @@ sysmodmap=/etc/X11/xinit/.Xmodmap
 # merge in defaults and keymaps
 
 if [ -f $sysresources ]; then
-
-
-
-
-
-
-
     xrdb -merge $sysresources
-
 fi
 
 if [ -f $sysmodmap ]; then
@@ -24,15 +19,19 @@ if [ -f $sysmodmap ]; then
 fi
 
 if [ -f "$userresources" ]; then
-
-
-
-
-
-
-
     xrdb -merge "$userresources"
+fi
 
+if [ -f "$userurxvtresources" ]; then
+    xrdb -merge "$userurxvtresources"
+fi
+
+if [ -f "$gruvboxresources" ]; then
+    xrdb -merge "$gruvboxresources"
+fi
+
+if [ -f "$gruvboxurxvtresources" ]; then
+    xrdb -merge "$gruvboxurxvtresources"
 fi
 
 if [ -f "$usermodmap" ]; then

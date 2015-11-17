@@ -1,12 +1,13 @@
-oh-my-zsh
-z
-cowfiles
 */*.log*
 */*/*/*.log*
-vim/bundle
-PyCharm40/system
-cinnamon/spices.cache
 */gimpswap.*
 cinnamon
+cinnamon/spices.cache
+cowfiles
+gruvbox-contrib
+oh-my-zsh
+PyCharm40/system
+vim/bundle
+z
 
 dotfile_overrides
