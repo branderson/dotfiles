@@ -1,8 +1,15 @@
 #!/bin/bash
 
+# Ask for the administrator password upfront
+# sudo -v
+
+# Keep-alive: update existing `sudo` time stamp until finished
+# while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 dir=~/dotfiles                    # dotfiles directory
 olddir=~/dotfiles_old             # old dotfiles backup directory
 platform=$(uname)
+pacman_args="--noconfirm --needed"
 
 # list of files/folders to symlink in homedir
 files="
@@ -143,40 +150,47 @@ function link_dotfiles {
 function install_AUR() {
     # install AUR programs if on Arch
     if [ $(program_installed pacman) == 1 ]; then
-        echo -n "Do you want to install AUR programs? (y/n) "
+        echo -n "Do you want to upgrade/install from AUR? (y/n) "
         read response
-        if [ $response == y ] || [ $response == Y ]; then
+        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
             echo "Creating ~/builds to hold AUR programs."
             mkdir -p ~/builds
             echo "Installing git if it's not installed."
-            sudo pacman -S git
+            sudo pacman -Sq $pacman_args git
             echo "Installing base-devel if it's not installed."
-            sudo pacman -S base-devel
+            sudo pacman -Sq $pacman_args base-devel
             echo "Installing yaourt."
             for program in $AUR; do
                 if [[ ! -d ~/builds/$program ]]; then 
                     echo "Git cloning $program to ~/builds/$program ."
                     git clone https://aur.archlinux.org/$program.git ~/builds/$program
                     cd ~/builds/$program
+                    # Problem here with still being root
                     makepkg -sri
                     cd $dir
                 fi
             done
             echo "Installing AUR programs through yaourt."
-            for program in $YAOURT; do
-                if [ $(program_installed $program) == 0 ]; then
-                    yaourt -S --force $program
-                fi
-            done
+            yaourt -Syua $pacman_args
+            echo -n "Would you like to install all AUR programs? (y/n) "
+            read response
+            if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+                echo "Installing AUR programs."
+                for program in $YAOURT; do
+                    # if [ $(program_installed $program) == 0 ]; then
+                        yaourt -Sqa $pacman_args $program
+                    # fi
+                done
+            fi
         fi
     fi
 }
 
 function install_programs() {
     if [ $(program_installed pacman) == 1 ]; then
-        sudo pacman -Syu
+        sudo pacman -Syuq
         for program in $PROGRAMS; do
-            sudo pacman -S $program 
+            sudo pacman -Sq $pacman_args $program 
         done
     elif [ $(program_installed apt-get) == 1 ]; then
         sudo apt-get update
@@ -251,6 +265,18 @@ function install_zsh() {
     # clone zsh-syntax-highlighting
     if [[ ! -d $dir/oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then
         git clone https://github.com/zsh-users/zsh-syntax-highlighting $dir/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    fi
+    # install gibo
+    if [[ ! -d $dir/gibo ]]; then
+        curl -L https://raw.github.com/simonwhitaker/gibo/master/gibo \
+            -so ~/bin/gibo && chmod +x ~/bin/gibo && gibo -u
+    fi
+    # clone gibo completion
+    if [[ ! -d $dir/oh-my-zsh/custom/plugins/gibo ]]; then
+        if [[ -f $dir/gibo/gibo-completion.zsh ]]; then
+            mkdir $dir/oh-my-zsh/custom/plugins/gibo
+            cp $dir/gibo/gibo-completion.zsh $dir/oh-my-zsh/custom/plugins/gibo
+        fi
     fi
 }
 

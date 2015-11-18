@@ -52,8 +52,10 @@ set softtabstop=4
 set expandtab 
 set shiftwidth=4 
 " set autoindent 
-" set cindent
-set smartindent 
+set cindent
+set cinkeys -=0#
+set indentkeys -=0#
+" set smartindent 
 
 " Linewrap
 set wrap linebreak nolist
