@@ -56,7 +56,8 @@ URxvt*buffered: true
 ! URxvt*borderColor: colour
 
 ! Select the fonts to be used. This is a comma separated list of font names that are checked in
-URxvt*font: xft:Source Code Pro for Powerline:medium:size=10
+URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=true:hinting=true
+! URxvt*font: xft:Hack:medium:size=12
 
 ! URxvt*boldFont: fontlist
 
@@ -85,7 +86,7 @@ URxvt*font: xft:Source Code Pro for Powerline:medium:size=10
 ! URxvt*visualBell: boolean
 
 ! True: start as a login shell by prepending a - to argv[0] of the shell; option -ls. False:
-! URxvt*loginShell: boolean
+URxvt*loginShell: true
 
 ! Specify the maximum time in milliseconds between multi-click select events. The default is 500
 ! URxvt*multiClickTime: number

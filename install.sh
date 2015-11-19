@@ -15,30 +15,31 @@ pacman_args="--noconfirm --needed"
 files="
 config
 xinitrc
-xmodmap 
-Xresources 
+xmodmap
+Xresources
 urxvt.xresources
 crontab
-bashrc 
-zshrc 
-vimrc 
-vim 
+bashrc
+zshrc
+vimrc
+vim
 tmux.conf
 tmuxinator
-gitconfig 
-gimp-2.8 
-mednafen 
-PyCharm40 
-themes 
+gitconfig
+gimp-2.8
+mednafen
+PyCharm40
+themes
 profile
-pam_environment"
+pam_environment
+"
 overrides="
 zshrc_local
 vimrc_local
 tmux_local.conf
 gitconfig
 "
-# oh-my-zsh 
+# oh-my-zsh
 # github repos to clone
 GIT="
 rupa/z
@@ -47,6 +48,12 @@ morhetz/gruvbox-contrib
 "
 PIP2="
 powerline-status
+"
+# gems to install
+GEMS="
+tmuxinator
+guard
+bropages
 "
 # install yaourt on Arch Linux
 AUR="
@@ -59,7 +66,6 @@ dmenu2
 compton
 pulseaudio-ctl
 google-chrome
-atom-editor
 dropbox
 dropbox-cli
 thunar-dropbox
@@ -68,6 +74,7 @@ ttf-hack
 virtualbox-ext-oracle
 gtk-theme-arc-git
 "
+# atom-editor
 PROGRAMS="
 i3
 feh
@@ -85,21 +92,22 @@ ctags
 clang
 cmake
 ruby
+rxvt-unicode-patched
 sl
 cowsay
 fortune-mod
 ranger
 highlight
+rust
 "
-# rxvt-unicode-patched
 
 # Returns 1 if program is installed and 0 otherwise
 function program_installed {
-	local return_=1
+    local return_=1
 
-	type $1 >/dev/null 2>&1 || { local return_=0; }
-	
-	echo "$return_"
+    type $1 >/dev/null 2>&1 || { local return_=0; }
+
+    echo "$return_"
 }
 
 function link_dotfiles {
@@ -110,7 +118,7 @@ function link_dotfiles {
     # change to the dotfiles directory
     cd $dir
 
-    # move any existing dotfiles in homedir to dotfiles_old directory, then create symlinks from the 
+    # move any existing dotfiles in homedir to dotfiles_old directory, then create symlinks from the
     # homedir to any files in the ~/dotfiles directory specified in $files
     for file in $files; do
         if [[ -f $file ]]; then
@@ -135,7 +143,7 @@ function link_dotfiles {
         fi
     done
     # create symlink for bin directory
-    if [[ ! -d ~/bin ]]; then 
+    if [[ ! -d ~/bin ]]; then
         ln -s ~/dotfiles/bin ~/bin
     fi
     if [[ ! -f ~/.z ]]; then
@@ -161,7 +169,7 @@ function install_AUR() {
             sudo pacman -Sq $pacman_args base-devel
             echo "Installing yaourt."
             for program in $AUR; do
-                if [[ ! -d ~/builds/$program ]]; then 
+                if [[ ! -d ~/builds/$program ]]; then
                     echo "Git cloning $program to ~/builds/$program ."
                     git clone https://aur.archlinux.org/$program.git ~/builds/$program
                     cd ~/builds/$program
@@ -190,12 +198,12 @@ function install_programs() {
     if [ $(program_installed pacman) == 1 ]; then
         sudo pacman -Syuq
         for program in $PROGRAMS; do
-            sudo pacman -Sq $pacman_args $program 
+            sudo pacman -Sq $pacman_args $program
         done
     elif [ $(program_installed apt-get) == 1 ]; then
         sudo apt-get update
         for program in $PROGRAMS; do
-            sudo apt-get install $program 
+            sudo apt-get install $program
         done
     else
         echo "Cannot install tools, no compatible package manager."
@@ -206,22 +214,22 @@ function install_programs() {
 
     # clone submodules
     for repo in $GIT; do
-        git clone https://github.com/$repo 
+        git clone https://github.com/$repo
     done
 }
 
 function install_gems() {
     if [ $(program_installed ruby) == 1 ]; then
-        gem install tmuxinator
-        gem install guard
-        gem install bropages
+        for program in $GEMS; do
+            gem install $program
+        done
     fi
 }
 
 function install_rust_src () {
     echo "Cloning rust source into /usr/local/src/rust."
     if [[ $platform == 'Linux' ]]; then
-        if [[ ! -d /usr/local/src/rust/ ]]; then 
+        if [[ ! -d /usr/local/src/rust/ ]]; then
             sudo git clone https://github.com/rust-lang/rust.git /usr/local/src/rust
         else
             echo "Rust source is installed"
@@ -246,15 +254,15 @@ function install_zsh() {
         platform=$(uname);
         # If the platform is Linux, try an apt-get to install zsh and then recurse
         if [[ $platform == 'Linux' ]]; then
-	    if [ $(program_installed apt-get) == 1 ]; then
+            if [ $(program_installed apt-get) == 1 ]; then
                 sudo apt-get install zsh
                 install_zsh
             elif [ $(program_installed pacman) == 1 ]; then
                 sudo pacman -S zsh
                 install_zsh
-            else 
+            else
                 echo "Cannot install zsh, no compatible package manager."
-	    fi
+            fi
         # If the platform is OS X, tell the user to install zsh :)
         elif [[ $platform == 'Darwin' ]]; then
             echo "Please install zsh, then re-run this script!"
@@ -275,7 +283,7 @@ function install_zsh() {
     if [[ ! -d $dir/oh-my-zsh/custom/plugins/gibo ]]; then
         if [[ -f $dir/gibo/gibo-completion.zsh ]]; then
             mkdir $dir/oh-my-zsh/custom/plugins/gibo
-            cp $dir/gibo/gibo-completion.zsh $dir/oh-my-zsh/custom/plugins/gibo
+            ln -s $dir/gibo/gibo-completion.zsh $ZSH//custom/plugins/gibo/gibo.plugin.zsh
         fi
     fi
 }

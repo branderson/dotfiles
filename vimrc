@@ -47,15 +47,15 @@ set wildmenu
 set mouse=a
 
 " Configure tab behavior
-set tabstop=8 
-set softtabstop=4 
-set expandtab 
-set shiftwidth=4 
-" set autoindent 
+set tabstop=8
+set softtabstop=4
+set expandtab
+set shiftwidth=4
+" set autoindent
 set cindent
 set cinkeys -=0#
 set indentkeys -=0#
-" set smartindent 
+" set smartindent
 
 " Linewrap
 set wrap linebreak nolist
@@ -416,7 +416,7 @@ let $RUST_SRC_PATH="/usr/local/src/rust/src/"
 " [=           Jump to prev line having a marker of any type
 " m?           Open location list and display markers from current buffer
 " m<BS>        Remove all markers"
-" 
+"
 " CtrlP
 "
 " NerdCommenter
@@ -476,7 +476,7 @@ let $RUST_SRC_PATH="/usr/local/src/rust/src/"
 " - General -
 noremap <space> :
 inoremap ,, <ESC>
-cnoremap ,, <ESC><ESC> 
+cnoremap ,, <ESC><ESC>
 nmap j gj
 nmap k gk
 " imap ,c <C-X><C-O>
@@ -525,7 +525,9 @@ map <leader><leader>ll :set background=dark<CR>
 " Daylight mode
 map <leader><leader>LL :set background=light<CR>
 " Open ranger
-nmap <leader>ra :call Ranger()<cr>
+nmap <leader>ra :call Ranger()<CR>
+" Delete whitespace
+nmap <leader>rw :call DeleteTrailingWS()<CR>
 
 " - Plugins -
 " Open Startify
@@ -606,13 +608,12 @@ function! Ranger()
     redraw!
 endfunction
 
-" Return to last edit position when opening files (You want this!)
-" autocmd BufReadPost *
-"      \ if line("'\"") > 0 && line("'\"") <= line("$") |
-"      \   exe "normal! g`\"" |
-"      \ endif
-" Remember info about open buffers on close
  " set viminfo=%M
+
+" Return to last edit position when opening files (You want this!)
+if has("autocmd")
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
 " func! DeleteTrailingWS()
@@ -622,6 +623,18 @@ endfunction
 " endfunc
 " autocmd BufWrite *.py :call DeleteTrailingWS()
 " autocmd BufWrite *.coffee :call DeleteTrailingWS()
+function! DeleteTrailingWS()
+    if !&binary && &filetype != 'diff'
+        normal mz
+        normal Hmy
+        %s/\s\+$//e
+        normal 'yz<CR>
+        normal `z
+    endif
+    %s/\s\+$//
+endfunction
+
+autocmd FileType c,cpp,java,php,python autocmd BufWritePre <buffer> : call DeleteTrailingWS()
 
 " Local overrides
 let $LOCALFILE=expand("~/.vimrc_local")
