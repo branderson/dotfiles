@@ -59,9 +59,6 @@ bropages
 AUR="
 package-query
 yaourt
-"
-# list of AUR programs to install on Arch Linux
-YAOURT="
 dmenu2
 compton
 pulseaudio-ctl
@@ -73,6 +70,9 @@ numix-icon-theme-git
 ttf-hack
 virtualbox-ext-oracle
 gtk-theme-arc-git
+"
+# list of AUR programs to install on Arch Linux
+YAOURT="
 "
 # atom-editor
 PROGRAMS="
@@ -174,7 +174,7 @@ function install_AUR() {
                     git clone https://aur.archlinux.org/$program.git ~/builds/$program
                     cd ~/builds/$program
                     # Problem here with still being root
-                    makepkg -sri
+                    makepkg -sri $pacman_args
                     cd $dir
                 fi
             done
@@ -227,12 +227,16 @@ function install_gems() {
 }
 
 function install_rust_src () {
-    echo "Cloning rust source into /usr/local/src/rust."
     if [[ $platform == 'Linux' ]]; then
         if [[ ! -d /usr/local/src/rust/ ]]; then
+            echo "Cloning rust source into /usr/local/src/rust."
             sudo git clone https://github.com/rust-lang/rust.git /usr/local/src/rust
         else
-            echo "Rust source is installed"
+            # Update if already installed
+            echo "Updating rust source"
+            cd /usr/local/src/rust
+            sudo git pull
+            cd $dir
         fi
     fi
 }
@@ -332,7 +336,7 @@ function main() {
     echo "[6] Configure system only"
     echo "[7] Install official repository programs only"
     echo "[8] Install AUR programs only"
-    # echo "[9] Clone git repositories only"
+    echo "[9] Install development sources only"
     echo "[10] Install pip programs only"
     echo "[11] Install gems only"
     echo "[0] Quit"
@@ -373,14 +377,16 @@ function main() {
         echo ""
         main
     elif [[ $response == "8" ]]; then
-        echo "Not yet implemented."
-        echo ""
+        install_AUR
         main
     elif [[ $response == "9" ]]; then
+        install_rust_src
+        main
+    elif [[ $response == "10" ]]; then
         install_pip
         echo ""
         main
-    elif [[ $response == "10" ]]; then
+    elif [[ $response == "11" ]]; then
         install_gems
         echo ""
         main

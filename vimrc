@@ -53,9 +53,14 @@ set expandtab
 set shiftwidth=4
 " set autoindent
 set cindent
-set cinkeys -=0#
-set indentkeys -=0#
+set cinkeys-=0#
+set indentkeys-=0#
 " set smartindent
+
+" Code folding
+set foldmethod=syntax
+set foldcolumn=5
+set foldlevel=20
 
 " Linewrap
 set wrap linebreak nolist
@@ -68,6 +73,10 @@ set showmatch
 
 " Load default menus
 source $VIMRUNTIME/menu.vim
+
+" --- Language specific settings ---
+autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set softtabstop=4 | set shiftwidth=4
+autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde set softtabstop=2 | set shiftwidth=2
 
 " ------ Plugins ------
 " Clone vundle if not present
@@ -219,10 +228,20 @@ NeoBundle 'phildawes/racer'
 " - Javascript -
 NeoBundle 'pangloss/vim-javascript'
 
+" - Processing -
+NeoBundle 'sophacles/vim-processing'
+
 " call vundle#end()
 call neobundle#end()
 " Prompt installation of uninstalled plugins
 NeoBundleCheck
+
+" Clone racer if not present
+if empty(glob("~/dotfiles/racer"))
+    !git clone https://github.com/phildawes/racer ~/dotfiles/racer
+    "!cd ~/dotfiles/racer
+    "!cargo build --release
+endif
 
 " ------ Plugin Configuration ------
 " --- General ---
@@ -311,7 +330,7 @@ let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
 
 " --- Language Specific ---
 " - All -
-let g:polyglot_disabled = ['python', 'rust']
+let g:polyglot_disabled = ['python']
 
 " - Web -
 let g:user_emmet_install_global=0
@@ -374,6 +393,11 @@ let g:pymode_rope = 0
 let g:racer_cmd = "~/dotfiles/racer/target/release/racer"
 " Must install Rust source to this location first
 let $RUST_SRC_PATH="/usr/local/src/rust/src/"
+" Rust folding
+let g:rust_fold = 2
+
+" - Processing -
+let g:processing_fold = 1
 
 "------ Keybindings ------
 " Plugins
@@ -479,7 +503,7 @@ inoremap ,, <ESC>
 cnoremap ,, <ESC><ESC>
 nmap j gj
 nmap k gk
-" imap ,c <C-X><C-O>
+imap <tab> <C-X><C-O>
 let mapleader=","
 let maplocalleader="\\"
 " Enable hex mode
@@ -585,10 +609,14 @@ map <leader>a: :Tabularize /:\zs<CR>
 
 " NERD Commenter
 " Enter the NERD Commenter menu which can be tabbed through
-:map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
+map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
 
 " Gundo
 nnoremap <leader>u :GundoToggle<CR>
+
+" --- Language Specific ---
+" - Rust -
+map <localleader>rr :RustRun<CR>
 
 " silent! call repeat#set("\<Plug>(easymotion)", v:count)
 
@@ -616,25 +644,16 @@ if has("autocmd")
 endif
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
-" func! DeleteTrailingWS()
-"     exe "normal mz"
-"     %s/\s\+$//ge
-"     exe "normal `z"
-" endfunc
+func! DeleteTrailingWS()
+    silent! normal mz
+    silent! %s/\s\+$//ge
+    silent! normal `z
+endfunc
 " autocmd BufWrite *.py :call DeleteTrailingWS()
 " autocmd BufWrite *.coffee :call DeleteTrailingWS()
-function! DeleteTrailingWS()
-    if !&binary && &filetype != 'diff'
-        normal mz
-        normal Hmy
-        %s/\s\+$//e
-        normal 'yz<CR>
-        normal `z
-    endif
-    %s/\s\+$//
-endfunction
 
-autocmd FileType c,cpp,java,php,python autocmd BufWritePre <buffer> : call DeleteTrailingWS()
+autocmd FileType c,cpp,java,php,python,rust autocmd BufWritePre <buffer> : call DeleteTrailingWS()
+" autocmd BufWritePre *.rs : call DeleteTrailingWS()
 
 " Local overrides
 let $LOCALFILE=expand("~/.vimrc_local")

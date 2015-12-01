@@ -139,10 +139,14 @@ source ~/bin/tmuxinator.zsh
 # Dircolors
 eval $(dircolors ~/.dircolors)
 
+# Keybindings
+bindkey -M vicmd 'K' run-help
+bindkey -M viins 'K' run-help
+
 # Add user cowpath to COWPATH
 COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
 # Make a random (cow?) with a random face say something
-fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
+# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 alias sl="sl -laF"
 
 # Local overrides
