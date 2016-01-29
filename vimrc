@@ -76,14 +76,14 @@ set showmatch
 " Load default menus
 source $VIMRUNTIME/menu.vim
 
-" Reload vimrc on save
-autocmd! BufWritePost call ReloadVimRC()
-
 " --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
-autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
-autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
-autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm setlocal softtabstop=8 shiftwidth=8
+augroup Enter_Buffer
+    autocmd!
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm setlocal softtabstop=8 shiftwidth=8
+augroup END
 
 " ------ Plugins ------
 " Clone NeoBundle if not present
@@ -127,7 +127,7 @@ NeoBundle 'morhetz/gruvbox'
 " Airline
 NeoBundle 'bling/vim-airline'
 " Bufferline
-NeoBundle 'bling/vim-bufferline'
+" NeoBundle 'bling/vim-bufferline'
 
 " - Views -
 " Start screen
@@ -162,14 +162,6 @@ NeoBundle 'Valloric/YouCompleteMe', {
      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
      \    }
      \ }
-" NeoBundle 'Valloric/YouCompleteMe', {
-"      \ 'build'      : {
-"         \ 'mac'     : './install.py',
-"         \ 'unix'    : './install.py',
-"         \ 'windows' : 'install.py',
-"         \ 'cygwin'  : './install.py'
-"         \ }
-"      \ } 
 
 " - Commenting -
 " Comment toggling with lots of options
@@ -240,7 +232,10 @@ NeoBundle 'pangloss/vim-javascript'
 " - Processing -
 NeoBundle 'sophacles/vim-processing'
 
-" call vundle#end()
+if !has('vim_starting')
+    " Reload plugins
+    call neobundle#call_hook('on_source')
+endif
 call neobundle#end()
 " Prompt installation of uninstalled plugins
 NeoBundleCheck
@@ -270,10 +265,13 @@ let g:gruvbox_improved_warnings=1
 let g:gruvbox_italicize_strings=1
 
 " Rainbow parentheses
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
+augroup Rainbow_Parentheses
+    autocmd!
+    autocmd VimEnter * RainbowParenthesesToggle
+    autocmd Syntax * RainbowParenthesesLoadRound
+    autocmd Syntax * RainbowParenthesesLoadSquare
+    autocmd Syntax * RainbowParenthesesLoadBraces
+augroup END
 
 " Theme
 " colorscheme desert
@@ -298,7 +296,6 @@ let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | co
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)
 
-
 " - Utility -
 " DelimitMate sane bracing
 let delimitMate_expand_cr = 1
@@ -308,8 +305,11 @@ let delimitMate_expand_cr = 1
 let g:indent_guides_enable_on_vim_startup = 0
 let g:indent_guides_start_level = 2
 let g:indent_guides_auto_colors = 0
-autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=darkgreen
-autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=cyan
+augroup Indent_Guides
+    autocmd!
+    autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=darkgreen
+    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=cyan
+augroup END
 
 " Indent Line configuration
 let g:indentLine_leadingSpaceEnabled = 1
@@ -332,6 +332,7 @@ let g:syntastic_check_on_wq = 0
 " YCM configuration
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
 let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
+let g:neobundle#install_process_timeout = 1500
 
 " Powerline configuration
 " let g:powerline_pycmd = "py"
@@ -343,7 +344,10 @@ let g:polyglot_disabled = ['python']
 
 " - Web -
 let g:user_emmet_install_global=0
-autocmd Filetype html,css EmmetInstall
+augroup Emmet
+    autocmd!
+    autocmd Filetype html,css EmmetInstall
+augroup END
 " let g:user_emmet_leader_key='<localleader>'
 
 " - Javascript -
@@ -352,7 +356,10 @@ let g:javascript_enable_dom_htmlcss = 1
 
 " - Python -
 " Run in python using F9
-autocmd FileType python nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+augroup Python
+    autocmd!
+    autocmd FileType python nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+augroup END
 
 " Documentation
 let g:pymode_doc = 1
@@ -512,7 +519,10 @@ inoremap ,, <ESC>
 cnoremap ,, <ESC><ESC>
 nmap j gj
 nmap k gk
-imap <tab> <C-X><C-O>
+" Only set on first run or it overwrites YCM behavior
+" if has('vim_starting')
+"     imap <tab> <C-X><C-O>
+" endif
 let mapleader=","
 let maplocalleader="\\"
 " Enable hex mode
@@ -629,6 +639,7 @@ map <localleader>rr :RustRun<CR>
 
 " silent! call repeat#set("\<Plug>(easymotion)", v:count)
 
+"------ Functions ------
 " Open ranger from within vim
 function! Ranger()
     " Get a temp file name without creating it
@@ -646,11 +657,6 @@ function! Ranger()
 endfunction
 
  " set viminfo=%M
-
-" Return to last edit position when opening files (You want this!)
-if has("autocmd")
-    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
 func! DeleteTrailingWS()
@@ -673,11 +679,28 @@ if !exists("*ReloadVimRC")
     endfunc
 endif
 
-autocmd FileType c,cpp,java,php,python,rust autocmd BufWritePre <buffer> : call DeleteTrailingWS()
+"------ Autocommands ------
+augroup OpenBuffer
+    autocmd!
+    " Return to last edit position when opening files
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+augroup END
+
+augroup SaveBuffer
+    autocmd!
+    autocmd FileType c,cpp,java,php,python,rust autocmd BufWritePre <buffer> : call DeleteTrailingWS()
+    " Reload vimrc on save
+    " autocmd! BufWritePost vimrc,.vimrc : call ReloadVimRC()
+augroup END
 " autocmd BufWritePre *.rs : call DeleteTrailingWS()
 
 " Local overrides
 let $LOCALFILE=expand("~/.vimrc_local")
 if filereadable($LOCALFILE)
     source $LOCALFILE
+endif
+
+if !has('vim_starting')
+    " Reload plugins
+    call neobundle#call_hook('on_post_source')
 endif
