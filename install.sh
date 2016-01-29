@@ -76,6 +76,7 @@ YAOURT="
 "
 # atom-editor
 PROGRAMS="
+atool
 i3
 feh
 imagemagick
@@ -97,6 +98,7 @@ sl
 cowsay
 fortune-mod
 ranger
+thunar
 highlight
 rust
 "

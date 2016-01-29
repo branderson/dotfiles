@@ -117,6 +117,7 @@ alias commands="vim ~/dotfiles/usefulcommands.txt"
 # Chrome HiDPI support
 alias chrome="google-chrome-stable --force-device-scale-factor=1.5"
 alias tmux="tmux -2"
+alias pyinit="~/bin/pyinit/pyinit.sh"
 
 # Syntax highlighting configuration
 ZSH_HIGHLIGHT_STYLES[path]='bold'
@@ -134,19 +135,22 @@ source /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 # fi
 
 # TMuxinator Completion
-source ~/bin/tmuxinator.zsh
+# source ~/bin/tmuxinator.zsh
 
 # Dircolors
 eval $(dircolors ~/.dircolors)
 
 # Keybindings
 bindkey -M vicmd 'K' run-help
-bindkey -M viins 'K' run-help
+# bindkey -M viins 'K' run-help
+
+PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
 
 # Add user cowpath to COWPATH
 COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
 # Make a random (cow?) with a random face say something
 # fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
+
 alias sl="sl -laF"
 
 # Local overrides

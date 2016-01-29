@@ -33,3 +33,4 @@ General
     cd - : Go to previous directory
     pushd/popd : Traverse directory stack
     sudo !! : Repeat last command with sudo
+    screenfetch : Display pretty system info

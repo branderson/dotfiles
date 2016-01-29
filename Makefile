@@ -1,24 +1,63 @@
-#compiler
-CC=gcc
-#compiler options
-OPTS=-Wall -g
-#source files
-SOURCES=$(wildcard *.c SomePath/*.c )
-#object files
-OBJECTS=$(SOURCES:.c=.o)
-#sdl-config or any other library here. 
-#``- ensures that the command between them is executed, and the result is put into LIBS
-LIBS=m# `sdl-config --cflags --libs`
-#executable filename
-EXECUTABLE=out
-#Special symbols used:
-#$^ - is all the dependencies (in this case =$(OBJECTS) )
-#$@ - is the result name (in this case =$(EXECUTABLE) )
+ifdef VERBOSE
+        Q =
+        E = @true 
+else
+        Q = @
+        E = @echo 
+endif
 
-all: $(EXECUTABLE)
+CFILES := $(shell find src -mindepth 1 -maxdepth 4 -name "*.c")
+CXXFILES := $(shell find src -mindepth 1 -maxdepth 4 -name "*.cpp")
 
-$(EXECUTABLE): $(OBJECTS)
-	$(LINK.o) $^ -o $@ $(LIBS)
+INFILES := $(CFILES) $(CXXFILES)
 
+OBJFILES := $(CXXFILES:src/%.cpp=%) $(CFILES:src/%.c=%)
+DEPFILES := $(CXXFILES:src/%.cpp=%) $(CFILES:src/%.c=%)
+OFILES := $(OBJFILES:%=obj/%.o)
+
+BINFILE = projectname
+
+COMMONFLAGS = -Wall -Wextra -pedantic
+LDFLAGS =
+
+ifdef DEBUG
+        COMMONFLAGS := $(COMMONFLAGS) -g
+endif
+CFLAGS = $(COMMONFLAGS) --std=c99
+CXXFLAGS = $(COMMONFLAGS) --std=c++0x
+DEPDIR = deps
+all: $(BINFILE)
+ifeq ($(MAKECMDGOALS),)
+-include Makefile.dep
+endif
+ifneq ($(filter-out clean, $(MAKECMDGOALS)),)
+-include Makefile.dep
+endif
+
+CC = gcc
+CXX = g++
+
+
+-include Makefile.local
+
+.PHONY: clean all depend
+.SUFFIXES:
+obj/%.o: src/%.c
+        $(E)C-compiling $<
+        $(Q)if [ ! -d `dirname $@` ]; then mkdir -p `dirname $@`; fi
+        $(Q)$(CC) -o $@ -c $< $(CFLAGS)
+obj/%.o: src/%.cpp
+        $(E)C++-compiling $<
+        $(Q)if [ ! -d `dirname $@` ]; then mkdir -p `dirname $@`; fi
+        $(Q)$(CXX) -o $@ -c $< $(CXXFLAGS)
+Makefile.dep: $(CFILES) $(CXXFILES)
+        $(E)Depend
+        $(Q)for i in $(^); do $(CXX) $(CXXFLAGS) -MM "$${i}" -MT obj/`basename $${i%.*}`.o; done > $@
+
+        
+$(BINFILE): $(OFILES)
+        $(E)Linking $@
+        $(Q)$(CXX) -o $@ $(OFILES) $(LDFLAGS)
 clean:
-	rm $(EXECUTABLE) $(OBJECTS)
+        $(E)Removing files
+        $(Q)rm -f $(BINFILE) obj/* Makefile.dep

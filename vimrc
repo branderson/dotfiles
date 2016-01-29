@@ -2,7 +2,9 @@
 set nocompatible " Turn off vim compatibility mode
 filetype on " Detect file types
 filetype plugin indent on
-syntax enable " Syntax highlighting
+if !exists("g:syntax_on")
+    syntax enable " Syntax highlighting
+endif
 " Control-X Control-O to open autocomplete box
 set omnifunc=syntaxcomplete#Complete
 " Leave hidden buffers open
@@ -74,16 +76,16 @@ set showmatch
 " Load default menus
 source $VIMRUNTIME/menu.vim
 
+" Reload vimrc on save
+autocmd! BufWritePost call ReloadVimRC()
+
 " --- Language specific settings ---
-autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set softtabstop=4 | set shiftwidth=4
-autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde set softtabstop=2 | set shiftwidth=2
+" autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
+autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
+autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
+autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm setlocal softtabstop=8 shiftwidth=8
 
 " ------ Plugins ------
-" Clone vundle if not present
-" if empty(glob("~/.vim/bundle/vundle"))
-"     !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
-" endif
-"
 " Clone NeoBundle if not present
 if empty(glob("~/.vim/bundle/neobundle.vim"))
     !git clone https://github.com/shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
@@ -100,18 +102,10 @@ set laststatus=2
 " Hide default statusline text
 set noshowmode "
 
-" Set up Vundle
-" set rtp+=~/.vim/bundle/vundle
-" call vundle#begin()
-"
 " Set up NeoBundle
 set rtp+=~/.vim/bundle/neobundle.vim/
 call neobundle#begin(expand('~/.vim/bundle/'))
 
-" let Vundle manage Vundle
-" required!
-" Bundle 'gmarik/vundle'
-"
 " let NeoBundle manage NeoBundle
 NeoBundleFetch 'Shougo/neobundle.vim'
 
@@ -121,13 +115,13 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 " Rainbow parentheses
 NeoBundle 'kien/rainbow_parentheses.vim'
 " Solarized colors for when I want them
-NeoBundle 'altercation/vim-colors-solarized'
+" NeoBundle 'altercation/vim-colors-solarized'
 " Zenburn colors for when I want them
-NeoBundle 'jnurmine/Zenburn'
+" NeoBundle 'jnurmine/Zenburn'
 " Base16 themes
-NeoBundle 'chriskempson/base16-vim'
+" NeoBundle 'chriskempson/base16-vim'
 " Hybrid material theme
-NeoBundle 'kristijanhusak/vim-hybrid-material'
+" NeoBundle 'kristijanhusak/vim-hybrid-material'
 " Gruvbox
 NeoBundle 'morhetz/gruvbox'
 " Airline
@@ -160,7 +154,22 @@ NeoBundle 'xolox/vim-easytags'
 " Awesome on-the-fly syntax checking for tons of languages
 NeoBundle 'scrooloose/syntastic'
 " Awesome autocompletion for almost everything
-NeoBundle 'Valloric/YouCompleteMe'
+NeoBundle 'Valloric/YouCompleteMe', {
+     \ 'build' : {
+     \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+     \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+     \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+     \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
+     \    }
+     \ }
+" NeoBundle 'Valloric/YouCompleteMe', {
+"      \ 'build'      : {
+"         \ 'mac'     : './install.py',
+"         \ 'unix'    : './install.py',
+"         \ 'windows' : 'install.py',
+"         \ 'cygwin'  : './install.py'
+"         \ }
+"      \ } 
 
 " - Commenting -
 " Comment toggling with lots of options
@@ -209,7 +218,7 @@ NeoBundle 'rdnetto/YCM-Generator'
 NeoBundle 'sheerun/vim-polyglot'
 
 " - Web -
-NeoBundle 'mattn/emmet-vim'
+" NeoBundle 'mattn/emmet-vim'
 NeoBundle 'mattn/webapi-vim'
 
 " - Python -
@@ -351,7 +360,7 @@ let g:pymode_doc_key = 'K'
 
 " Linting
 let g:pymode_lint = 1
-let g:pymode_lint_checker = "pyflakes,pep8"
+let g:pymode_lint_checkers = ['pyflakes', 'pep8']
 let g:pymode_lint_message = 1
 
 " Auto check on save
@@ -541,7 +550,7 @@ set splitright
 " Open vimrc
 map <leader>v :e $MYVIMRC<CR>
 " Update vimrc
-map <leader>rr :source ~/.vimrc<CR>
+map <leader>rr :call ReloadVimRC()<CR>;
 " Open GVim menu
 map <leader>m :emenu <C-Z><C-Z>
 " Low-light mode
@@ -651,6 +660,18 @@ func! DeleteTrailingWS()
 endfunc
 " autocmd BufWrite *.py :call DeleteTrailingWS()
 " autocmd BufWrite *.coffee :call DeleteTrailingWS()
+
+" Only define if not defined, otherwise it'll be redefined in the middle of
+" execution
+if !exists("*ReloadVimRC")
+    func! ReloadVimRC()
+        source ~/.vimrc
+        " Need to toggle this twice, once toggles every other time, none turns
+        " it off on reload. I have no idea why this is.
+        RainbowParenthesesToggle
+        RainbowParenthesesToggle
+    endfunc
+endif
 
 autocmd FileType c,cpp,java,php,python,rust autocmd BufWritePre <buffer> : call DeleteTrailingWS()
 " autocmd BufWritePre *.rs : call DeleteTrailingWS()
