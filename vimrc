@@ -59,11 +59,6 @@ set cinkeys-=0#
 set indentkeys-=0#
 " set smartindent
 
-" Code folding
-set foldmethod=syntax
-set foldcolumn=5
-set foldlevel=20
-
 " Linewrap
 set wrap linebreak nolist
 
@@ -72,6 +67,11 @@ set ruler
 
 " Show matching brackets
 set showmatch
+
+" Code folding
+set foldmethod=syntax
+set foldcolumn=5
+set foldlevel=20
 
 " Load default menus
 source $VIMRUNTIME/menu.vim
@@ -113,7 +113,8 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 " --- General ---
 " - Visual -
 " Rainbow parentheses
-NeoBundle 'kien/rainbow_parentheses.vim'
+" NeoBundle 'kien/rainbow_parentheses.vim'
+NeoBundle 'luochen1990/rainbow'
 " Solarized colors for when I want them
 " NeoBundle 'altercation/vim-colors-solarized'
 " Zenburn colors for when I want them
@@ -127,7 +128,7 @@ NeoBundle 'morhetz/gruvbox'
 " Airline
 NeoBundle 'bling/vim-airline'
 " Bufferline
-" NeoBundle 'bling/vim-bufferline'
+NeoBundle 'bling/vim-bufferline'
 
 " - Views -
 " Start screen
@@ -267,10 +268,11 @@ let g:gruvbox_italicize_strings=1
 " Rainbow parentheses
 augroup Rainbow_Parentheses
     autocmd!
-    autocmd VimEnter * RainbowParenthesesToggle
-    autocmd Syntax * RainbowParenthesesLoadRound
-    autocmd Syntax * RainbowParenthesesLoadSquare
-    autocmd Syntax * RainbowParenthesesLoadBraces
+    " autocmd VimEnter * RainbowParenthesesToggle
+    autocmd VimEnter * RainbowToggle
+    " autocmd Syntax * RainbowParenthesesLoadRound
+    " autocmd Syntax * RainbowParenthesesLoadSquare
+    " autocmd Syntax * RainbowParenthesesLoadBraces
 augroup END
 
 " Theme
@@ -292,6 +294,13 @@ set t_ut=
 let g:startify_bookmarks = ["~/dotfiles/vimrc", "~/dotfiles/zshrc", "~/dotfiles/config/i3/config"]
 let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
 let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
+
+" Bufferline
+let g:bufferline_echo = 0
+augroup Bufferline
+    autocmd! VimEnter * let &statusline='%{bufferline#refresh_status()}'
+        \ .bufferline#get_status_string()
+augroup END
 
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)
@@ -671,11 +680,11 @@ endfunc
 " execution
 if !exists("*ReloadVimRC")
     func! ReloadVimRC()
-        source ~/.vimrc
+        source $MYVIMRC
         " Need to toggle this twice, once toggles every other time, none turns
         " it off on reload. I have no idea why this is.
-        RainbowParenthesesToggle
-        RainbowParenthesesToggle
+        RainbowToggle
+        RainbowToggle
     endfunc
 endif
 
@@ -690,7 +699,7 @@ augroup SaveBuffer
     autocmd!
     autocmd FileType c,cpp,java,php,python,rust autocmd BufWritePre <buffer> : call DeleteTrailingWS()
     " Reload vimrc on save
-    " autocmd! BufWritePost vimrc,.vimrc : call ReloadVimRC()
+    " autocmd BufWritePost vimrc,.vimrc : call ReloadVimRC()
 augroup END
 " autocmd BufWritePre *.rs : call DeleteTrailingWS()
 
