@@ -82,7 +82,7 @@ augroup Enter_Buffer
     autocmd!
     autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm setlocal softtabstop=8 shiftwidth=8
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
 augroup END
 
 " ------ Plugins ------
@@ -203,6 +203,8 @@ NeoBundle 'christoomey/vim-tmux-navigator'
 NeoBundle 'xolox/vim-misc'
 " Make . work for plugins
 NeoBundle 'tpope/vim-repeat'
+" Auto reload changed config
+" NeoBundle 'xolox/vim-reload'
 " Make configuration files for YCM
 NeoBundle 'rdnetto/YCM-Generator'
 
@@ -337,6 +339,9 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+let g:syntastic_mode_map = {
+    \ "mode": "active",
+    \ "passive_filetypes": ['asm'] }
 
 " YCM configuration
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
@@ -580,6 +585,8 @@ map <leader><leader>LL :set background=light<CR>
 nmap <leader>ra :call Ranger()<CR>
 " Delete whitespace
 nmap <leader>rw :call DeleteTrailingWS()<CR>
+" Fix syntax highlighting
+noremap <F12> <Esc>:syntax sync fromstart<CR>
 
 " - Plugins -
 " Open Startify
@@ -680,11 +687,21 @@ endfunc
 " execution
 if !exists("*ReloadVimRC")
     func! ReloadVimRC()
+        " IMPORTANT: After way too much messing with this trying to make everything work properly
+        " after a vimrc reload, my advice is DON'T RELOAD THE VIMRC WHILE EDITING A FILE!
+        " Side effects will include: Some syntax highlighting lost until next save, indentline
+        " plugin will break, newly opened buffers will use buffer reloaded on's syntax file for
+        " comment plugins (and possibly other things)
+        " Ommision of 'syntax on' here will prevent anything from breaking inside the current buffer,
+        " however new buffers will be opened without any syntax highlighting
         source $MYVIMRC
         " Need to toggle this twice, once toggles every other time, none turns
         " it off on reload. I have no idea why this is.
         RainbowToggle
         RainbowToggle
+        syntax on
+        " Workaround for indentline turning off on syntax enable
+        IndentLinesReset
     endfunc
 endif
 

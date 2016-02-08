@@ -29,7 +29,8 @@ font pango:Droid Sans 15
 
 # Autostart compton for transparency
 exec --no-startup-id compton --config ~/.config/compton.conf
-exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
+# exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
+exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/Arch
 
 # Start tmux server with base session
 # exec tmux -2 new-session
@@ -49,6 +50,9 @@ bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.5
 
 # start volume mixer
 bindsym $mod+v exec pavucontrol
+
+# take screenshot
+bindsym Print exec scrot -e 'mv $f ~/Downloads'
 
 # kill focused window
 bindsym $mod+Shift+q kill

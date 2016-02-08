@@ -118,6 +118,8 @@ alias commands="vim ~/dotfiles/usefulcommands.txt"
 alias chrome="google-chrome-stable --force-device-scale-factor=1.5"
 alias tmux="tmux -2"
 alias pyinit="~/bin/pyinit/pyinit.sh"
+# Open with default program
+alias xo="xdg-open"
 
 # Syntax highlighting configuration
 ZSH_HIGHLIGHT_STYLES[path]='bold'

@@ -78,10 +78,15 @@ YAOURT="
 PROGRAMS="
 atool
 i3
+evince
+zathura
 feh
+gpicview
 imagemagick
+scrot
 cron
 pavucontrol
+lxappearance
 pulseaudio
 python2-pip
 terminator
