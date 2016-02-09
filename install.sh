@@ -82,6 +82,7 @@ evince
 zathura
 feh
 gpicview
+w3m
 imagemagick
 scrot
 cron
