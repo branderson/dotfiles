@@ -153,6 +153,32 @@ COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
 # Make a random (cow?) with a random face say something
 # fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
+# Make shell cd to ranger directory
+# ranger-cd() {
+#     tempfile=$(mktemp)
+#     ranger --choosedir="$tempfile" "${@:-$(pwd)}" < $TTY
+#     test -f "$tempfile" &&
+#     if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+#         cd -- "$(cat "$tempfile")"
+#     fi
+#     rm -f -- "$tempfile"
+# }
+ranger-cd() {
+    tempfile=$(mktemp)
+    ranger --choosedir="$tempfile" "${@:-$(pwd)}" < $TTY
+    test -f "$tempfile" &&
+    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+        cd $(cat $tempfile)
+        printf '\n'
+        zle reset-prompt
+        # cd -- "$(cat "$tempfile")"
+    fi
+    rm -f -- "$tempfile"
+}
+# This binds Ctrl-O to ranger-cd:
+zle -N ranger-cd
+bindkey '^o' ranger-cd
+
 alias sl="sl -laF"
 
 # Local overrides

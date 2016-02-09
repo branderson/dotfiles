@@ -63,14 +63,14 @@ dmenu2
 compton
 pulseaudio-ctl
 google-chrome
-dropbox
-dropbox-cli
 thunar-dropbox
 numix-icon-theme-git
 ttf-hack
 virtualbox-ext-oracle
 gtk-theme-arc-git
 "
+# dropbox
+# dropbox-cli
 # list of AUR programs to install on Arch Linux
 YAOURT="
 "
