@@ -45,6 +45,9 @@ bindsym $mod+Return exec urxvt # -e 'tmux new-session'
 bindsym $mod+t exec urxvt -e 'tmux new-session -t 0'
 # bindsym $mod+Return exec xfce4-terminal -e 'tmux -2 new-session -t main || tmux -2 new-session -s main' 
 
+# start ranger
+bindsym $mod+o exec urxvt -e 'ranger'
+
 # start chrome
 bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.5
 

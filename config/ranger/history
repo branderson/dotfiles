@@ -3,7 +3,6 @@ open_with vim
 cd  
 rename 
 cd 
-shell 
 
 xo
 set preview_images
@@ -13,3 +12,5 @@ find fq
 find py
 find w
 find a
+shell 
+open_with h

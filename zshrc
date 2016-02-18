@@ -56,7 +56,7 @@ ZSH_THEME="agnoster"
 # # Example format: plugins=(rails git textmate ruby lighthouse)
 # # Add wisely, as too many plugins slow down shell startup.
 # # zsh-syntax-highlighting must come last
-plugins=(git github gitflow tmux archlinux zsh-syntax-highlighting gibo)
+plugins=(colorize command-not-found cp h git github gitflow tmux archlinux zsh-syntax-highlighting gibo)
 #
 # # User configuration
 #
