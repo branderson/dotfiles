@@ -1,0 +1,5 @@
+# Default config
+set recolor
+
+# Keybindings
+map <C-r> toggle recolor

@@ -46,9 +46,9 @@ rupa/z
 bkendzior/cowfiles
 morhetz/gruvbox-contrib
 "
-PIP2="
-powerline-status
-"
+# PIP2="
+# powerline-status
+# "
 # gems to install
 GEMS="
 tmuxinator
@@ -59,6 +59,7 @@ bropages
 AUR="
 package-query
 yaourt
+python-powerline-git
 dmenu2
 compton
 pulseaudio-ctl

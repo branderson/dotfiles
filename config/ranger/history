@@ -6,3 +6,10 @@ cd
 shell 
 
 xo
+set preview_images
+set preview_images false
+set preview_images true
+find fq
+find py
+find w
+find a

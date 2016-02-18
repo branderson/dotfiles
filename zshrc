@@ -130,7 +130,9 @@ ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
 source ~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
-source /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+source /usr/share/zsh/site-contrib/powerline.zsh
+# source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
+# /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 # if [ -d ~/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh ]; then
 # elif [ -d ~/usr/local/lib/python2.7/dist-packages/powerline/bindings ]; then
 #     source /usr/local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
