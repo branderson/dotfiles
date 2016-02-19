@@ -30,10 +30,14 @@ font pango:Droid Sans 15
 # Autostart compton for transparency
 exec --no-startup-id compton --config ~/.config/compton.conf
 # exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
-exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/Arch
+exec --no-startup-id feh --randomize --bg-fill ~/Dropbox/Wallpapers/Arch
 
 # Start tmux server with base session
 # exec tmux -2 new-session
+
+# Start volume mixer and hide it in scratchpad
+exec --no-startup-id pavucontrol
+for_window [class="Pavucontrol"] move scratchpad
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -52,7 +56,9 @@ bindsym $mod+o exec urxvt -e 'ranger'
 bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.5
 
 # start volume mixer
-bindsym $mod+v exec pavucontrol
+bindsym $mod+v [class="Pavucontrol"] scratchpad show
+# open new volume mixer to scratchpad in case of accidental closing
+bindsym $mod+Control+v exec pavucontrol
 
 # take screenshot
 bindsym Print exec scrot -e 'mv $f ~/Downloads'
@@ -131,7 +137,7 @@ workspace_auto_back_and_forth yes
 # switch to next/previous worspace
 bindsym $mod+Tab workspace back_and_forth
 # next_on_output
-bindsym $mod+Shift+Tab workspace prev_on_output
+bindsym $mod+Shift+Tab workspace next_on_output
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -160,6 +166,12 @@ bindsym $mod+Shift+0 move container to workspace 10
 # move focused containter to next/(previous?) workspace
 bindsym $mod+Control+Tab move container to workspace next
 bindsym $mod+Shift+Control+Tab move container to workspace prev
+
+# move focused window to scratchpad
+bindsym $mod+Shift+minus move scratchpad
+
+# move scratchpad window to visible floating window
+bindsym $mod+Control+minus scratchpad show
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
