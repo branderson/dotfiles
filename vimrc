@@ -235,6 +235,9 @@ NeoBundle 'pangloss/vim-javascript'
 " - Processing -
 NeoBundle 'sophacles/vim-processing'
 
+" - Markdown -
+NeoBundle 'shime/vim-livedown'
+
 if !has('vim_starting')
     " Reload plugins
     call neobundle#call_hook('on_source')
@@ -428,6 +431,15 @@ let g:rust_fold = 2
 
 " - Processing -
 let g:processing_fold = 1
+
+" - Markdown -
+let g:livedown_open = 1
+" let g:vim_markdown_preview_hotkey = '<localleader>p'
+" let g:vim_markdown_preview_github = 1
+" let g:vim_markdown_preview_xdg_open = 1
+" let g:vim_markdown_preview_temp_file = 0
+" let g:vim_markdown_preview_browser = 'Firefox'
+" let g:vim_markdown_preview_toggle = 1
 
 "------ Keybindings ------
 " Plugins
@@ -652,6 +664,9 @@ nnoremap <leader>u :GundoToggle<CR>
 " --- Language Specific ---
 " - Rust -
 map <localleader>rr :RustRun<CR>
+
+" - Markdown -
+map <localleader>v :LivedownToggle<CR>
 
 " silent! call repeat#set("\<Plug>(easymotion)", v:count)
 

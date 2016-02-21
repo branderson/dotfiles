@@ -46,14 +46,18 @@ rupa/z
 bkendzior/cowfiles
 morhetz/gruvbox-contrib
 "
-# PIP2="
+PIP2="
+grip
+"
 # powerline-status
-# "
 # gems to install
 GEMS="
 tmuxinator
 guard
 bropages
+"
+NPM="
+livedown
 "
 # install yaourt on Arch Linux
 AUR="
@@ -102,6 +106,7 @@ ctags
 clang
 cmake
 ruby
+npm
 rxvt-unicode-patched
 sl
 cowsay
@@ -316,6 +321,12 @@ function install_pip() {
     done
 }
 
+function install_npm() {
+    for program in $NPM; do
+        sudo npm install $program
+    done
+}
+
 function configure_system() {
     # If on arch, set time
     if [ $(program_installed pacman) == 1 ]; then
@@ -359,6 +370,7 @@ function main() {
         install_programs
         install_AUR
         install_pip
+        install_npm
         install_gems
         install_rust_src
         install_zsh
@@ -376,6 +388,7 @@ function main() {
         install_programs
         install_AUR
         install_pip
+        install_npm
         install_gems
         echo ""
         main
