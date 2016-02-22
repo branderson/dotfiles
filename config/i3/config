@@ -73,7 +73,7 @@ bindsym --release button2 kill
 #bindsym $mod+d exec dmenu_run -fn "-*-droid sans-bold-*-*-*-*-*-*-100-p-0-adobe-standard"
 # bindsym $mod+d exec dmenu_run -fn "Droid Sans Mono-28" -p "Type Application" -dim 0
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -fn 'Droid Sans Mono-28' -p 'Type Application' -dim 0"
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu='rofi -dmenu -p "run:"'
+bindsym $mod+d exec --no-startup-id ~/bin/rofi_start.sh
 # bindsym $mod+d exec dmenu_run -fn "Source Code Pro for Powerline-28"
 
 # There also is the (new) i3-dmenu-desktop which only displays applications

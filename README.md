@@ -16,6 +16,8 @@ Editor: vim
 
 Shell: zsh/tmux
 
+Terminal: urxvt
+
 ## Usage:
 ### Basics
 ```
@@ -30,7 +32,8 @@ Comma is for vim commands
 Alt-Enter:          Open terminal
 Alt-i:              Open browser
 Alt-o:              Open ranger terminal
-Alt-d:              Open Rifi launcher
+Alt-d:              Open Rofi launcher
+Alt-Shift-w:        Open Rofi to switch workspace
 Alt-v:              Toggle volume mixer display
 Alt-Ctrl-v:         Relaunch volume mixer
 Alt-Shift-Minus:    Send to scratchpad
@@ -72,10 +75,10 @@ commands:           Open list of useful commands
 sc:                 Open list of aliases
 pyinit:             Initialize new python repository
 xo:                 Alias to xdg-open
+crontab-e:          Make changes to crontab (use instead of crontab -e)
 ```
 
-### General
+### Other
 ```
 Alt-Ctrl-Bksp:      Kill X-Server
-crontab-e:          Make changes to crontab (use instead of crontab -e)
 ```
