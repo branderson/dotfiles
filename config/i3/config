@@ -30,7 +30,8 @@ font pango:Droid Sans 15
 # Autostart compton for transparency
 exec --no-startup-id compton --config ~/.config/compton.conf
 # exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
-exec --no-startup-id feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
+exec --no-startup-id ~/bin/switch_wallpaper.sh
+# feh --randomize --bg-fill ~/Dropbox/Wallpapers/Pack1
 
 # Start tmux server with base session
 # exec tmux -2 new-session
@@ -243,7 +244,7 @@ new_float normal
 for_window [class="^.*"] border pixel 11
 
 # Global gap size
-smart_gaps on
+# smart_gaps on
 gaps inner 20
 gaps outer 50
 

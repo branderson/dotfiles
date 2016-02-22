@@ -328,6 +328,36 @@ function install_npm() {
     done
 }
 
+function fix_package_query() {
+    echo "Removing old installs."
+    if [ $(program_installed package-query) == 1 ]; then
+        sudo pacman -Rdd package-query
+    fi
+    if [ $(program_installed yaourt) == 1 ]; then
+        sudo pacman -Rdd yaourt
+    fi
+    echo "Upgrading system."
+    sudo pacman -Syuq
+    echo "Creating ~/builds to hold AUR programs."
+    mkdir -p ~/builds
+    echo "Installing git if it's not installed."
+    sudo pacman -Sq $pacman_args git
+    echo "Installing base-devel if it's not installed."
+    sudo pacman -Sq $pacman_args base-devel
+    echo "Installing package_query and yaourt."
+    cd ~/builds
+    echo "Removing old builds if they exist."
+    rm -rf package-query
+    rm -rf yaourt
+    git clone https://aur.archlinux.org/package-query.git ~/builds/package-query
+    cd ~/builds/package-query
+    makepkg -sri $pacman_args
+    git clone https://aur.archlinux.org/yaourt.git ~/builds/yaourt
+    cd ~/builds/yaourt
+    makepkg -sri $pacman_args
+    cd $dir
+}
+
 function configure_system() {
     # If on arch, set time
     if [ $(program_installed pacman) == 1 ]; then
@@ -360,7 +390,7 @@ function main() {
     echo "[7] Install official repository programs only"
     echo "[8] Install AUR programs only"
     echo "[9] Install development sources only"
-    echo "[10] Install pip programs only"
+    echo "[10] Fix outdated package-query"
     echo "[11] Install gems only"
     echo "[0] Quit"
     echo ""
@@ -408,7 +438,7 @@ function main() {
         install_rust_src
         main
     elif [[ $response == "10" ]]; then
-        install_pip
+        fix_package_query
         echo ""
         main
     elif [[ $response == "11" ]]; then
