@@ -30,7 +30,7 @@ font pango:Droid Sans 15
 # Autostart compton for transparency
 exec --no-startup-id compton --config ~/.config/compton.conf
 # exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
-exec --no-startup-id feh --randomize --bg-fill ~/Dropbox/Wallpapers/Arch
+exec --no-startup-id feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
 
 # Start tmux server with base session
 # exec tmux -2 new-session
@@ -234,3 +234,58 @@ client.background       #ffffff
 # Border styles
 new_window normal
 new_float normal
+
+# Gaps specific
+# Disable titlebars for i4-gaps
+for_window [class="^.*"] border pixel 11
+
+# Global gap size
+smart_gaps on
+gaps inner 20
+gaps outer 50
+
+set $mode_toggle_gaps Gaps: (e) enable, (d) disable
+set $mode_gaps Gaps: (o) outer, (i) inner
+set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
+set $mode_gaps_inner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
+bindsym $mod+Shift+g mode "$mode_gaps"
+bindsym $mod+g mode "$mode_toggle_gaps"
+
+mode "$mode_toggle_gaps" {
+        bindsym e       gaps inner current set 20, gaps outer current set 50, mode "default"
+        bindsym d       gaps inner current set 0, gaps outer current set 0, mode "default"
+        bindsym Shift+e gaps inner all set 20, gaps outer all set 50, mode "default"
+        bindsym Shift+d gaps inner all set 0, gaps inner all set 0, mode "default"
+}
+
+mode "$mode_gaps" {
+        bindsym o      mode "$mode_gaps_outer"
+        bindsym i      mode "$mode_gaps_inner"
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_inner" {
+        bindsym plus  gaps inner current plus 5
+        bindsym minus gaps inner current minus 5
+        bindsym 0     gaps inner current set 0
+
+        bindsym Shift+plus  gaps inner all plus 5
+        bindsym Shift+minus gaps inner all minus 5
+        bindsym Shift+0     gaps inner all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+mode "$mode_gaps_outer" {
+        bindsym plus  gaps outer current plus 5
+        bindsym minus gaps outer current minus 5
+        bindsym 0     gaps outer current set 0
+
+        bindsym Shift+plus  gaps outer all plus 5
+        bindsym Shift+minus gaps outer all minus 5
+        bindsym Shift+0     gaps outer all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}

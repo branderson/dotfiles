@@ -10,7 +10,7 @@ cd ~/dotfiles
 ## About:
 OS: Arch Linux
 
-WM: i3
+WM: i3-gaps
 
 Editor: vim
 
@@ -41,6 +41,12 @@ Alt-<dir>:          Focus <dir>
 Alt-Ctrl-<dir>:     Move <dir>
 Alt-Tab:            Switch to most recent workspace
 Alt-Shift-Tab:      Switch to next workspace
+Alt-Shift-q:        Close application
+Alt-Shift-c:        Reload configuration
+Alt-Shift-r:        Restart i3
+Alt-Shift-e:        Exit i3
+Alt-g:              Enable/Disable gaps
+Alt-Shift-g:        Resize gaps
 ```
 
 ### tmux
@@ -60,4 +66,10 @@ h, j, k, l:         Vim style movement between panes
 ### zsh
 ```
 Ctrl-o:             Open ranger and cd to exit directory
+```
+
+### General
+```
+Alt-Ctrl-Bksp:      Kill X-Server
+crontab -e:         Make changes to crontab
 ```

@@ -63,6 +63,7 @@ livedown
 AUR="
 package-query
 yaourt
+i3-gaps-git
 python-powerline-git
 dmenu2
 compton
@@ -82,7 +83,6 @@ YAOURT="
 # atom-editor
 PROGRAMS="
 atool
-i3
 evince
 zathura
 feh
@@ -116,6 +116,7 @@ thunar
 highlight
 rust
 "
+#i3
 
 # Returns 1 if program is installed and 0 otherwise
 function program_installed {

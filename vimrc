@@ -352,7 +352,7 @@ let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
 let g:neobundle#install_process_timeout = 1500
 
 " Powerline configuration
-let g:powerline_pycmd = "py3"
+let g:powerline_pycmd = "py"
 " let g:powerline_pyeval = "pyeval"
 
 " --- Language Specific ---
