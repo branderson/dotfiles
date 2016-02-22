@@ -47,6 +47,7 @@ Alt-Shift-r:        Restart i3
 Alt-Shift-e:        Exit i3
 Alt-g:              Enable/Disable gaps
 Alt-Shift-g:        Resize gaps
+Alt-Escape:         Lock screen
 ```
 
 ### tmux
@@ -66,10 +67,15 @@ h, j, k, l:         Vim style movement between panes
 ### zsh
 ```
 Ctrl-o:             Open ranger and cd to exit directory
+K:                  Open man page (from command mode)
+commands:           Open list of useful commands
+sc:                 Open list of aliases
+pyinit:             Initialize new python repository
+xo:                 Alias to xdg-open
 ```
 
 ### General
 ```
 Alt-Ctrl-Bksp:      Kill X-Server
-crontab -e:         Make changes to crontab
+crontab-e:          Make changes to crontab (use instead of crontab -e)
 ```

@@ -64,7 +64,7 @@ AUR="
 package-query
 yaourt
 i3-gaps-git
-python-powerline-git
+python2-powerline-git
 dmenu2
 compton
 pulseaudio-ctl

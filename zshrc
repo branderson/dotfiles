@@ -112,15 +112,6 @@ compinit
 
 DEFAULT_USER=brad
 
-alias sc="vim ~/dotfiles/shortcuts.txt"
-alias commands="vim ~/dotfiles/usefulcommands.txt"
-# Chrome HiDPI support
-alias chrome="google-chrome-stable --force-device-scale-factor=1.5"
-alias tmux="tmux -2"
-alias pyinit="~/bin/pyinit/pyinit.sh"
-# Open with default program
-alias xo="xdg-open"
-
 # Syntax highlighting configuration
 ZSH_HIGHLIGHT_STYLES[path]='bold'
 ZSH_HIGHLIGHT_STYLES[path_prefix]=none

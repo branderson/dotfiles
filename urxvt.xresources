@@ -1,5 +1,5 @@
 ! Compile xft: Attempt to find a visual with the given bit depth; option -depth.
-URxvt*depth: 32
+URxvt*depth: 0
 
 ! Compile xft: Turn on/off double-buffering for xft (default enabled).  On some card/driver
 URxvt*buffered: true
