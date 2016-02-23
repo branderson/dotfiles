@@ -1,8 +1,6 @@
 */*.log*
 */*/*/*.log*
 */gimpswap.*
-bin/gibo
-bin/Ascolorii
 cinnamon
 cinnamon/spices.cache
 cowfiles
