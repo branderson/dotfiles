@@ -29,27 +29,46 @@ Comma is for vim commands
 
 ### i3
 ```
-Alt-Enter:          Open terminal
+# Open programs
+Alt-Enter:          Open terminal with new tmux session
+Alt-t:              Open terminal as new session targeting main tmux
 Alt-i:              Open browser
 Alt-o:              Open ranger terminal
 Alt-d:              Open Rofi launcher
-Alt-Shift-w:        Open Rofi to switch workspace
-Alt-v:              Toggle volume mixer display
-Alt-Ctrl-v:         Relaunch volume mixer
+Alt-v:              Open volume mixer
+
+# Workspaces
 Alt-Shift-Minus:    Send to scratchpad
 Alt-Ctrl-Minus:     Show from scratchpad
 Alt-<number>:       Switch to <number> workspace
 Alt-Shift-<number>: Move to <number> workspace
-Alt-<dir>:          Focus <dir>
-Alt-Ctrl-<dir>:     Move <dir>
 Alt-Tab:            Switch to most recent workspace
 Alt-Shift-Tab:      Switch to next workspace
+
+# Layout
+Alt-Minus:          Split next horizontally
+Alt-Bar/Backslash:  Split next vertically
+Alt-Space:          Toggle focus between floating and tiling
+Alt-Shift-Space:    Toggle window between floating and tiling
+Alt-Ctrl-<dir>:     Move <dir>
+Alt-s:              Change layout to stacking
+Alt-w:              Change layout to tabbed
+Alt-e:              Change layout to split
+Alt-g:              Enable/Disable gaps
+Alt-Shift-g:        Resize gaps
+Alt-r:              Resize windows
+
+# Focus
+Alt-a:              Focus parent
+Alt-c:              Focus child
+Alt-<dir>:          Focus <dir>
+Alt-f:              Window fullscreen toggle
+
+# Other
 Alt-Shift-q:        Close application
 Alt-Shift-c:        Reload configuration
 Alt-Shift-r:        Restart i3
 Alt-Shift-e:        Exit i3
-Alt-g:              Enable/Disable gaps
-Alt-Shift-g:        Resize gaps
 Alt-Escape:         Lock screen
 ```
 

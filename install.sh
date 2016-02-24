@@ -19,6 +19,7 @@ xmodmap
 Xresources
 urxvt.xresources
 crontab
+su_crontab
 bashrc
 zshrc
 vimrc
@@ -82,6 +83,7 @@ YAOURT="
 "
 # atom-editor
 PROGRAMS="
+reflector
 atool
 evince
 zathura

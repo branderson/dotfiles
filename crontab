@@ -1,1 +1,4 @@
-* * * * * DISPLAY=:0.0 ~/bin/switch_wallpaper.sh
+#   Min Hr  DoM Mon DoW command
+    *   *   *   *   *   DISPLAY=:0.0 ~/bin/switch_wallpaper.sh
+    1   0   *   *   *   sudo reflector --country 'United States' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
+    @reboot             sudo reflector --country 'United States' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
