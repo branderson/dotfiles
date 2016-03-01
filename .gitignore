@@ -1,9 +1,11 @@
 */*.log*
 */*/*/*.log*
 */gimpswap.*
+gimp-2.8
 cinnamon
 cinnamon/spices.cache
 cowfiles
+mednafen
 gruvbox-contrib
 oh-my-zsh
 PyCharm40/system
