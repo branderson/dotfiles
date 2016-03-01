@@ -84,11 +84,17 @@ C:                  Display calendar
 T:                  Make current window index 1
 h, j, k, l:         Vim style movement between panes
 <num>:              Switch to <num> window
+q:                  Display split numbers (follow with <num> to switch)
+z:                  Toggle pane zoom
+t:                  Toggle pane clock
+s:                  Switch tmux session
+a:                  Toggle synchronize keyboard input across panes
 ```
 
 ### zsh
 ```
 Ctrl-o:             Open ranger and cd to exit directory
+Ctrl-t:             Display pretty clock
 K:                  Open man page (from command mode)
 commands:           Open list of useful commands
 sc:                 Open list of aliases

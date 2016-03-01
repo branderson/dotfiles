@@ -64,6 +64,9 @@ bindsym $mod+v exec pavucontrol
 # open new volume mixer to scratchpad in case of accidental closing
 # bindsym $mod+Control+v exec pavucontrol
 
+# Show/hide scratchpad terminal
+bindsym $mod+y [instance="^scratchpad$"] scratchpad show
+
 # take screenshot
 bindsym Print exec scrot -e 'mv $f ~/Downloads'
 
