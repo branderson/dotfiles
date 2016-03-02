@@ -1,5 +1,11 @@
+Atom
+autostart
 base16-shell
+bless
+caja
 chromium
+dconf
+enchant
 filezilla
 gconf
 gtk-2.0
@@ -25,6 +31,9 @@ ristretto
 spotify
 Thunar
 transmission
+Trolltech.conf
+user-dirs.dirs
+user-dirs.locale
 xfce4
 xfce4/panel
 xfce4/desktop

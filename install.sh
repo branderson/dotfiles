@@ -117,6 +117,7 @@ ranger
 thunar
 highlight
 rust
+ttl-clock
 "
 #i3
 
