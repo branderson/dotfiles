@@ -38,7 +38,7 @@ exec --no-startup-id ~/bin/switch_wallpaper.sh
 
 # Start volume mixer and hide it in scratchpad
 # exec --no-startup-id pavucontrol
-exec --no-startup-id urxvt -name scratchpad -e sh -c 'tmux attach -t scratchpad || tmux new-session -s scratchpad'
+exec --no-startup-id urxvt -name scratchpad -e zsh -c 'source ~/.zshrc & tmux attach -t scratchpad || tmux new-session -s scratchpad'
 # for_window [class="Pavucontrol"] move scratchpad
 for_window [instance="^scratchpad$"] move scratchpad
 
@@ -47,13 +47,13 @@ floating_modifier $mod
 
 # start a terminal
 # bindsym $mod+Return exec termite -e 'zsh -c "tmux -2 new-session"'
-bindsym $mod+t exec urxvt -e sh -c 'tmux new-session' # -e 'tmux new-session'
+bindsym $mod+t exec urxvt -e zsh -c 'source ~/.zshrc & tmux new-session' # -e 'tmux new-session'
 # attach to existing tmux session
-bindsym $mod+Return exec urxvt -e sh -c 'tmux new-session -t main || tmux new-session -s main'
+bindsym $mod+Return exec urxvt -e zsh -c 'source ~/.zshrc & tmux new-session -t main || tmux new-session -s main'
 # bindsym $mod+Return exec xfce4-terminal -e 'tmux -2 new-session -t main || tmux -2 new-session -s main' 
 
 # start ranger
-bindsym $mod+o exec urxvt -e 'ranger'
+bindsym $mod+o exec urxvt -e zsh -c 'ranger'
 
 # start chrome
 bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.5

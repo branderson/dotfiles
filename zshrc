@@ -160,7 +160,7 @@ ranger-cd() {
 }
 
 terminal-clock() {
-    tty-clock -tc < $TTY
+    tty-clock -tcb < $TTY
     zle reset-prompt
     printf '\n'
 }

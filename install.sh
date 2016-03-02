@@ -73,7 +73,7 @@ google-chrome
 thunar-dropbox
 numix-icon-theme-git
 ttf-hack
-tty-clock
+tty-clock-borderless
 virtualbox-ext-oracle
 gtk-theme-arc-git
 "
