@@ -27,6 +27,7 @@ pulse
 QtProject.conf
 ranger/bookmarks
 ranger/history
+ranger/tagged
 ristretto
 spotify
 Thunar

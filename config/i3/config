@@ -47,9 +47,9 @@ floating_modifier $mod
 
 # start a terminal
 # bindsym $mod+Return exec termite -e 'zsh -c "tmux -2 new-session"'
-bindsym $mod+Return exec urxvt -e sh -c 'tmux new-session' # -e 'tmux new-session'
+bindsym $mod+t exec urxvt -e sh -c 'tmux new-session' # -e 'tmux new-session'
 # attach to existing tmux session
-bindsym $mod+t exec urxvt -e sh -c 'tmux new-session -t main || tmux new-session -s main'
+bindsym $mod+Return exec urxvt -e sh -c 'tmux new-session -t main || tmux new-session -s main'
 # bindsym $mod+Return exec xfce4-terminal -e 'tmux -2 new-session -t main || tmux -2 new-session -s main' 
 
 # start ranger

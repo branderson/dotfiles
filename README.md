@@ -30,8 +30,8 @@ Comma is for vim commands
 ### i3
 ```
 # Open programs
-Alt-Enter:          Open terminal with new tmux session
-Alt-t:              Open terminal as new session targeting main tmux
+Alt-Enter:          Open terminal as new session targeting main tmux
+Alt-t:              Open terminal with new tmux session
 Alt-i:              Open browser
 Alt-o:              Open ranger terminal
 Alt-d:              Open Rofi launcher

@@ -73,6 +73,7 @@ google-chrome
 thunar-dropbox
 numix-icon-theme-git
 ttf-hack
+tty-clock
 virtualbox-ext-oracle
 gtk-theme-arc-git
 "
@@ -117,7 +118,6 @@ ranger
 thunar
 highlight
 rust
-ttl-clock
 "
 #i3
 
