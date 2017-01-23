@@ -20,7 +20,9 @@ URxvt*scrollstyle: plain
 URxvt*loginShell: true
 
 ! Select the fonts to be used. This is a comma separated list of font names that are checked in
-URxvt*font: xft:Source Code Pro for Powerline:medium:size=14:antialias=true:hinting=true
+! URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=false:hinting=true
+URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=true:hinting=true
+! xterm*faceName:Source Code Pro for Powerline:pixelsize=14
 ! URxvt*font: xft:Hack:medium:size=12
 
 

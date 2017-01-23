@@ -13,5 +13,6 @@ racer
 vim/bundle
 vlc
 z
+node_modules
 
 dotfile_overrides

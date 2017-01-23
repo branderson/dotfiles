@@ -6,4 +6,4 @@ width=30
 # pad=$((height / 5))
 pad=$((width*screen_width/600))
 opacity=100
-i3-dmenu-desktop --dmenu="rofi -dmenu -p 'run: ' -opacity $opacity -width $width -padding $pad"
+i3-dmenu-desktop --dmenu="rofi -dmenu -p 'run: ' -opacity $opacity -width $width -padding $pad -color-enabled $(i3-color-rofi)"

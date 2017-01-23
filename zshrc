@@ -56,7 +56,7 @@ ZSH_THEME="agnoster"
 # # Example format: plugins=(rails git textmate ruby lighthouse)
 # # Add wisely, as too many plugins slow down shell startup.
 # # zsh-syntax-highlighting must come last
-plugins=(colorize command-not-found cp h git github gitflow tmux archlinux zsh-syntax-highlighting gibo)
+plugins=(colorize command-not-found cp h git github gitflow tmux archlinux zsh-syntax-highlighting gibo bower grunt npm)
 #
 # # User configuration
 #
@@ -121,7 +121,7 @@ ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
 source ~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
-source /usr/share/zsh/site-contrib/powerline.zsh
+source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
 # /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 # if [ -d ~/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh ]; then

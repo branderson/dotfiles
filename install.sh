@@ -56,16 +56,21 @@ GEMS="
 tmuxinator
 guard
 bropages
+sass
+compass
 "
 NPM="
 livedown
+bower
+gulp
+yo
+generator-meanjs
 "
 # install yaourt on Arch Linux
 AUR="
 package-query
 yaourt
 i3-gaps-git
-python2-powerline-git
 dmenu2
 compton
 pulseaudio-ctl
@@ -76,6 +81,7 @@ ttf-hack
 tty-clock-borderless
 virtualbox-ext-oracle
 gtk-theme-arc-git
+fonts-meta-extended-lt
 "
 # dropbox
 # dropbox-cli
@@ -99,6 +105,7 @@ cron
 pavucontrol
 lxappearance
 pulseaudio
+powerline
 python2-pip
 terminator
 tree
@@ -118,6 +125,9 @@ ranger
 thunar
 highlight
 rust
+nodejs
+mongodb
+npm
 "
 #i3
 
@@ -231,8 +241,10 @@ function install_programs() {
 
     # cd into $dir
     cd $dir
+}
 
-    # clone submodules
+function install_github() {
+    # clone github repos
     for repo in $GIT; do
         git clone https://github.com/$repo
     done
@@ -327,7 +339,7 @@ function install_pip() {
 
 function install_npm() {
     for program in $NPM; do
-        sudo npm install $program
+        sudo npm install -g $program
     done
 }
 
@@ -370,6 +382,12 @@ function configure_system() {
     systemctl enable cronie.service
 }
 
+function configure_freetype2() {
+    sudo ln -s /etc/fonts/conf.avail/11-lcdfilter-default.conf /etc/fonts/conf.d
+    sudo ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d
+    sudo ln -s /etc/fonts/conf.avail/30-infinality-aliases.conf /etc/fonts/conf.d
+}
+
 function push_dotfiles() {
     cd $dir
     echo "Pushing dotfiles"
@@ -395,6 +413,8 @@ function main() {
     echo "[9] Install development sources only"
     echo "[10] Fix outdated package-query"
     echo "[11] Install gems only"
+    echo "[12] Install github repositories only"
+    echo "[13] Install npm packages only"
     echo "[0] Quit"
     echo ""
     echo "What would you like to do?"
@@ -403,6 +423,7 @@ function main() {
         link_dotfiles
         install_programs
         install_AUR
+        install_github
         install_pip
         install_npm
         install_gems
@@ -410,6 +431,7 @@ function main() {
         install_zsh
         install_powerline_fonts
         configure_system
+        configure_freetype2
     elif [[ $response == "2" ]]; then
         push_dotfiles
     elif [[ $response == "3" ]]; then
@@ -421,6 +443,7 @@ function main() {
     elif [[ $response == "5" ]]; then
         install_programs
         install_AUR
+        install_github
         install_pip
         install_npm
         install_gems
@@ -428,6 +451,7 @@ function main() {
         main
     elif [[ $response == "6" ]]; then
         configure_system
+        configure_freetype2
         echo ""
         main
     elif [[ $response == "7" ]]; then
@@ -446,6 +470,14 @@ function main() {
         main
     elif [[ $response == "11" ]]; then
         install_gems
+        echo ""
+        main
+    elif [[ $response == "12" ]]; then
+        install_github
+        echo ""
+        main
+    elif [[ $response == "13" ]]; then
+        install_npm
         echo ""
         main
     fi

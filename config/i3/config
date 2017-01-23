@@ -56,7 +56,7 @@ bindsym $mod+Return exec urxvt -e zsh -c 'source ~/.zshrc && (tmux new-session -
 bindsym $mod+o exec urxvt -e zsh -c 'ranger'
 
 # start chrome
-bindsym $mod+i exec google-chrome-stable
+bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.25
 
 # start volume mixer
 # bindsym $mod+v [class="Pavucontrol"] scratchpad show

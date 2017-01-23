@@ -49,7 +49,7 @@ set wildmenu
 set mouse=a
 
 " Configure tab behavior
-set tabstop=8
+set tabstop=4
 set softtabstop=4
 set expandtab
 set shiftwidth=4
@@ -75,6 +75,10 @@ set foldlevel=20
 
 " Load default menus
 source $VIMRUNTIME/menu.vim
+
+" --- GUI settings ---
+set lines=50
+set columns=150
 
 " --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
@@ -190,7 +194,7 @@ NeoBundle 'godlygeek/tabular'
 
 " - Search -
 " Kickass fuzzy finder for whole filesystem
-NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'ctrlpvim/ctrlp.vim'
 " Can use Ag from vim
 NeoBundle 'rking/ag.vim'
 
@@ -204,7 +208,7 @@ NeoBundle 'xolox/vim-misc'
 " Make . work for plugins
 NeoBundle 'tpope/vim-repeat'
 " Auto reload changed config
-" NeoBundle 'xolox/vim-reload'
+NeoBundle 'xolox/vim-reload'
 " Make configuration files for YCM
 NeoBundle 'rdnetto/YCM-Generator'
 
@@ -213,7 +217,7 @@ NeoBundle 'rdnetto/YCM-Generator'
 NeoBundle 'sheerun/vim-polyglot'
 
 " - Web -
-" NeoBundle 'mattn/emmet-vim'
+NeoBundle 'mattn/emmet-vim'
 NeoBundle 'mattn/webapi-vim'
 
 " - Python -
@@ -326,14 +330,19 @@ augroup Indent_Guides
 augroup END
 
 " Indent Line configuration
-let g:indentLine_leadingSpaceEnabled = 1
-let g:indentLine_leadingSpaceChar = '.'
+let g:indentLine_faster = 1
+" let g:indentLine_leadingSpaceEnabled = 1
+" let g:indentLine_leadingSpaceChar = '.'
 
 " GitGutter
 let g:gitgutter_map_keys = 0
 
 " NERD Commenter
 " let g:NERDMenuMode = 1
+
+" Ctrl-P configuration
+" Use nearest version control directory as cwd
+let g:ctrlp_working_path_mode = 'r'
 
 " Syntastic configuration
 let g:syntastic_aggregate_errors = 1
@@ -344,12 +353,19 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 let g:syntastic_mode_map = {
     \ "mode": "active",
-    \ "passive_filetypes": ['asm'] }
+    \ "passive_filetypes": ['asm', 'scss'] }
 
 " YCM configuration
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
 let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
+
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_log_level = 'debug'
+" let g:loaded_youcompleteme = 1
+" let g:ycm_min_num_of_chars_for_completion = 100
 let g:neobundle#install_process_timeout = 1500
+" nnoremap <leader><leader>zy :let g:ycm_auto_trigger=0<CR>
+" nnoremap <leader><leader>zY :let g:ycm_auto_trigger=1<CR>
 
 " Powerline configuration
 let g:powerline_pycmd = "py"
