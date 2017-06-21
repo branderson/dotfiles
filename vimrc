@@ -89,6 +89,15 @@ augroup Enter_Buffer
     autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
 augroup END
 
+au BufNewFile,BufRead *.py
+    \ setlocal tabstop=4 |
+    \ setlocal softtabstop=4 |
+    \ setlocal shiftwidth=4 |
+    \ setlocal textwidth=79 |
+    \ setlocal expandtab |
+    \ setlocal autoindent |
+    \ setlocal fileformat=unix |
+
 " ------ Plugins ------
 " Clone NeoBundle if not present
 if empty(glob("~/.vim/bundle/neobundle.vim"))
@@ -151,22 +160,22 @@ NeoBundle 'kshenoy/vim-signature'
 
 " - Ctags -
 " Ctags view
-NeoBundle 'majutsushi/tagbar'
+" NeoBundle 'majutsushi/tagbar'
 " Automatically keep ctags up to date
-NeoBundle 'xolox/vim-easytags'
+" NeoBundle 'xolox/vim-easytags'
 
 " - Syntax and completion -
 " Awesome on-the-fly syntax checking for tons of languages
 NeoBundle 'scrooloose/syntastic'
 " Awesome autocompletion for almost everything
-NeoBundle 'Valloric/YouCompleteMe', {
-     \ 'build' : {
-     \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-     \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-     \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-     \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
-     \    }
-     \ }
+" NeoBundle 'Valloric/YouCompleteMe', {
+"      \ 'build' : {
+"      \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
+"      \    }
+"      \ }
 
 " - Commenting -
 " Comment toggling with lots of options
@@ -436,6 +445,9 @@ let g:pymode_trim_whitespaces = 1
 
 " Rope support
 let g:pymode_rope = 0
+
+" [YELP] Ignore line too long
+let g:pymode_lint_ignore = "W503,E128"
 
 " - Rust -
 " Rust racer

@@ -1,5 +1,6 @@
 # Gruvbox colors
-source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+# source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+source "$HOME/dotfiles/gruvbox/gruvbox_256palette.sh"
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
@@ -56,7 +57,7 @@ ZSH_THEME="agnoster"
 # # Example format: plugins=(rails git textmate ruby lighthouse)
 # # Add wisely, as too many plugins slow down shell startup.
 # # zsh-syntax-highlighting must come last
-plugins=(colorize command-not-found cp h git github gitflow tmux archlinux zsh-syntax-highlighting gibo bower grunt npm)
+plugins=(colorize command-not-found cp h git github gitflow tmux zsh-syntax-highlighting gibo bower grunt npm)
 #
 # # User configuration
 #
@@ -113,15 +114,15 @@ compinit
 DEFAULT_USER=brad
 
 # Syntax highlighting configuration
-ZSH_HIGHLIGHT_STYLES[path]='bold'
-ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-ZSH_HIGHLIGHT_STYLES[path_approx]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
+# ZSH_HIGHLIGHT_STYLES[path]='bold'
+# ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+# ZSH_HIGHLIGHT_STYLES[path_approx]='fg=yellow'
+# ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
 
 source ~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
-source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
+# source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
 # /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 # if [ -d ~/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh ]; then
@@ -133,7 +134,7 @@ source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source ~/bin/tmuxinator.zsh
 
 # Dircolors
-eval $(dircolors ~/.dircolors)
+# eval $(dircolors ~/.dircolors)
 
 # Keybindings
 bindkey -M vicmd 'K' run-help
@@ -177,3 +178,7 @@ alias sl="sl -laF"
 if [ -f !/.zshrc_local ]; then
     source ~/.zshrc_local
 fi
+
+source "/etc/profile.d/yelpcustom.zsh"
+
+if [ "$TMUX" = "" ]; then tmux; fi

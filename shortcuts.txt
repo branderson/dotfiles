@@ -1,7 +1,9 @@
 alias tkw="tmux kill-window"
 
-alias sc="vim ~/dotfiles/shortcuts.txt"
-alias commands="vim ~/dotfiles/usefulcommands.txt"
+alias sc="cat ~/dotfiles/shortcuts.txt"
+alias sc-edit="vim ~/dotfiles/shortcuts.txt"
+alias commands="cat ~/dotfiles/usefulcommands.txt"
+alias commands-edit="vim ~/dotfiles/usefulcommands.txt"
 
 # Chrome HiDPI support
 alias chrome="google-chrome-stable --force-device-scale-factor=1.25"
