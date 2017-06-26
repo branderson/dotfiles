@@ -270,6 +270,7 @@ endif
 " --- General ---
 " - Visual -
 set background=dark
+" set termguicolors
 let base16colorspace=256
 " let g:solarized_termtrans = 3
 let g:airline_powerline_fonts=1

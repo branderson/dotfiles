@@ -122,6 +122,7 @@ DEFAULT_USER=brad
 source ~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
+source ~/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 # source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
 # /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
