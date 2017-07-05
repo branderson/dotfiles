@@ -21,6 +21,7 @@ urxvt.xresources
 crontab
 su_crontab
 bashrc
+bash_profile
 zshrc
 vimrc
 vim

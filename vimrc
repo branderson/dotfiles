@@ -151,7 +151,7 @@ NeoBundle 'scrooloose/nerdtree'
 " Visualize undo tree
 NeoBundle 'sjl/gundo.vim'
 " Much nicer buffer management
-NeoBundle 'jlanzarotta/bufexplorer'
+" NeoBundle 'jlanzarotta/bufexplorer'
 " Shows indentation level
 " NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'yggdroot/indentLine'
@@ -448,7 +448,7 @@ let g:pymode_trim_whitespaces = 1
 let g:pymode_rope = 0
 
 " [YELP] Ignore line too long
-let g:pymode_lint_ignore = "W503,E128"
+let g:pymode_lint_ignore = "W503,E128,E122"
 
 " - Rust -
 " Rust racer

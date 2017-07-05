@@ -6,7 +6,7 @@ export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
 
 # Z
-. $HOME/dotfiles/z/z.sh
+# . $HOME/dotfiles/z/z.sh
 # Set name of the theme to load.
 # # Look in ~/.oh-my-zsh/themes/
 # # Optionally, if you set this to "random", it'll load a random theme each
@@ -98,6 +98,8 @@ alias -s txt=vim
 alias -s .c=vim
 # Crontab
 alias crontab-e='vim ~/.crontab && crontab ~/.crontab'
+# Python
+alias pyenv='export PYTHONPATH=`pwd`'
 
 # Lines configured by zsh-newuser-install
 setopt appendhistory autocd extendedglob
@@ -122,7 +124,7 @@ DEFAULT_USER=brad
 source ~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
-source ~/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+source ~/.local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
 # source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
 # /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
