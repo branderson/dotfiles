@@ -24,6 +24,7 @@ bashrc
 zshrc
 vimrc
 vim
+tmux
 tmux.conf
 tmuxinator
 gitconfig

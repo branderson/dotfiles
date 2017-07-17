@@ -1,9 +1,26 @@
+" ------ CONTENTS ------
+" [A0] General Settings
+"   [A1] GUI settings
+"   [A2] Language specific settings
+" [B0] Plugins
+" [C0] Install plugins
+"   [C1] General
+"       [C1a] Visual
+"       [C1b] Views
+"       [C1c] Ctags
+"       [C1d] Syntax and completion
+"       [C1e] Commenting
+"       [C1f] Git
+"       [C1g] Automation
+"       [C1h] Search
+"       [C1i] Utilities and dependencies
+
 " ------ General Settings ------
 set nocompatible " Turn off vim compatibility mode
 filetype on " Detect file types
 filetype plugin indent on
 if !exists("g:syntax_on")
-    syntax enable " Syntax highlighting
+syntax enable " Syntax highlighting
 endif
 " Control-X Control-O to open autocomplete box
 set omnifunc=syntaxcomplete#Complete
@@ -83,25 +100,25 @@ set columns=150
 " --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
 augroup Enter_Buffer
-    autocmd!
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
+autocmd!
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
 augroup END
 
 au BufNewFile,BufRead *.py
-    \ setlocal tabstop=4 |
-    \ setlocal softtabstop=4 |
-    \ setlocal shiftwidth=4 |
-    \ setlocal textwidth=79 |
-    \ setlocal expandtab |
-    \ setlocal autoindent |
-    \ setlocal fileformat=unix |
+\ setlocal tabstop=4 |
+\ setlocal softtabstop=4 |
+\ setlocal shiftwidth=4 |
+\ setlocal textwidth=79 |
+\ setlocal expandtab |
+\ setlocal autoindent |
+\ setlocal fileformat=unix |
 
 " ------ Plugins ------
 " Clone NeoBundle if not present
 if empty(glob("~/.vim/bundle/neobundle.vim"))
-    !git clone https://github.com/shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+!git clone https://github.com/shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
 endif
 
 " Powerline
@@ -115,6 +132,8 @@ set laststatus=2
 " Hide default statusline text
 set noshowmode "
 
+" Prevent plugin loading on systems without NeoBundle
+" if exists("g:loaded_neobundle")
 " Set up NeoBundle
 set rtp+=~/.vim/bundle/neobundle.vim/
 call neobundle#begin(expand('~/.vim/bundle/'))
@@ -169,13 +188,13 @@ NeoBundle 'kshenoy/vim-signature'
 NeoBundle 'scrooloose/syntastic'
 " Awesome autocompletion for almost everything
 " NeoBundle 'Valloric/YouCompleteMe', {
-"      \ 'build' : {
-"      \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-"      \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-"      \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-"      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
-"      \    }
-"      \ }
+    "      \ 'build' : {
+        "      \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+            "      \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+            "      \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+            "      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
+                "      \    }
+    "      \ }
 
 " - Commenting -
 " Comment toggling with lots of options
@@ -210,6 +229,8 @@ NeoBundle 'rking/ag.vim'
 " - Utility and dependencies
 " Library required for some plugins
 NeoBundle 'L9'
+" Close buffers
+NeoBundle 'rbgrouleff/bclose.vim'
 " Seamless navigation between tmux panes and vim splits
 NeoBundle 'christoomey/vim-tmux-navigator'
 " Required for easytags
@@ -258,6 +279,7 @@ endif
 call neobundle#end()
 " Prompt installation of uninstalled plugins
 NeoBundleCheck
+" endif
 
 " Clone racer if not present
 if empty(glob("~/dotfiles/racer"))
@@ -283,24 +305,25 @@ let g:gruvbox_improved_strings=0
 let g:gruvbox_improved_warnings=1
 let g:gruvbox_italicize_strings=1
 
-" Rainbow parentheses
-augroup Rainbow_Parentheses
-    autocmd!
-    " autocmd VimEnter * RainbowParenthesesToggle
-    autocmd VimEnter * RainbowToggle
-    " autocmd Syntax * RainbowParenthesesLoadRound
-    " autocmd Syntax * RainbowParenthesesLoadSquare
-    " autocmd Syntax * RainbowParenthesesLoadBraces
-augroup END
+    " Rainbow parentheses
+if exists('g:rainbow_conf')
+    augroup Rainbow_Parentheses
+        autocmd!
+        autocmd VimEnter * if exists('g:rainbow_conf') | RainbowToggle | endif
+    augroup END
+endif
 
 " Theme
-" colorscheme desert
 " colorscheme zenburn
 " colorscheme solarized
 " colorscheme base16-default
 " colorscheme hybrid_reverse
 " colorscheme hybrid_material
-colorscheme gruvbox
+try
+    colorscheme gruvbox
+catch /^Vim\%((\a\++)\)\=:E185/
+    colorscheme desert
+endtry
 
 let g:enable_bold_font = 1
 
@@ -316,8 +339,10 @@ let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | co
 " Bufferline
 let g:bufferline_echo = 0
 augroup Bufferline
-    autocmd! VimEnter * let &statusline='%{bufferline#refresh_status()}'
-        \ .bufferline#get_status_string()
+    autocmd! VimEnter * if exists('g:loaded_bufferline') | 
+        \ let &statusline='%{bufferline#refresh_status()}'
+        \ .bufferline#get_status_string() |
+        \ endif
 augroup END
 
 " Automatically open tagbar when entering supported buffer
@@ -334,8 +359,12 @@ let g:indent_guides_start_level = 2
 let g:indent_guides_auto_colors = 0
 augroup Indent_Guides
     autocmd!
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=darkgreen
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=cyan
+    autocmd VimEnter,Colorscheme * if exists('g:indentLine_loaded') | 
+        \ :hi IndentGuidesOdd ctermbg=darkgreen |
+        \ endif
+    autocmd VimEnter,Colorscheme * if exists('g:indentLine_loaded') | 
+        \ :hi IndentGuidesEven ctermbg=cyan |
+        \ endif
 augroup END
 
 " Indent Line configuration
@@ -388,7 +417,9 @@ let g:polyglot_disabled = ['python']
 let g:user_emmet_install_global=0
 augroup Emmet
     autocmd!
-    autocmd Filetype html,css EmmetInstall
+    autocmd Filetype html,css if exists('g:loaded_emmet_vim') |
+        \ EmmetInstall |
+        \ endif
 augroup END
 " let g:user_emmet_leader_key='<localleader>'
 
@@ -628,92 +659,118 @@ nmap <leader>rw :call DeleteTrailingWS()<CR>
 " Fix syntax highlighting
 noremap <F12> <Esc>:syntax sync fromstart<CR>
 
-" - Plugins -
-" Open Startify
-map <leader><leader>o :Startify<CR>
-" Toggle directory view
-map <leader>t :NERDTreeToggle<CR>
+function! MapPlugins()
+    " - Plugins -
+    if exists('g:loaded_startify')
+        " Open Startify
+        map <leader><leader>o :Startify<CR>
+    endif
 
-" Toggle tagbar
-map <leader>ct :TagbarToggle<CR>
+    if exists('g:loaded_nerd_tree')
+        " Toggle directory view
+        map <leader>t :NERDTreeToggle<CR>
+    endif
 
-" Update ctags
-" nnoremap <leader>ct :! ctags -R<CR><CR>
+    if exists('g:loaded_tagbar')
+        " Toggle tagbar
+        map <leader>ct :TagbarToggle<CR>
+    endif
 
-" Jump to a tag
-nnoremap <leader>. :CtrlPTag<CR>
-" Jump to a buffer
-nnoremap <leader>; :CtrlPBuffer<CR>
+    " Update ctags
+    " nnoremap <leader>ct :! ctags -R<CR><CR>
 
-" Make a config for YCM from Makefile
-map <leader>ygc :YcmGenerateConfig<CR>
+    if exists('g:loaded_ctrlp')
+        " Jump to a tag
+        nnoremap <leader>. :CtrlPTag<CR>
+        " Jump to a buffer
+        nnoremap <leader>; :CtrlPBuffer<CR>
+    endif
 
-" Ag
-map <leader>ag :Ag<space>
+    " Make a config for YCM from Makefile
+    map <leader>ygc :YcmGenerateConfig<CR>
 
-" Easymotion
-" let g:EasyMotion_do_mapping = 0
-let g:EasyMotion_smartcase = 1
-map <leader>/ <Plug>(easymotion-sn)
-omap <leader>/ <Plug>(easymotion-tn)
-" map <leader>n <Plug>(easymotion-next)
-" map <leader>N <Plug>(easymotion-prev)
-" Bidirectional single-letter search
-map <leader>s <Plug>(easymotion-s)
-" Bidirectional 2-letter search
-map <leader><leader>s <Plug>(easymotion-s2)
-" Forward single letter search
-map <leader>f <Plug>(easymotion-f)
-" Directional jumps
-map <leader>l <Plug>(easymotion-lineforward)
-map <leader>j <Plug>(easymotion-j)
-map <leader>k <Plug>(easymotion-k)
-map <leader>h <Plug>(easymotion-linebackward)
+    " Ag
+    map <leader>ag :Ag<space>
 
-" Multiple Cursors
-let g:multi_cursor_use_default_mapping=0
-let g:multi_cursor_next_key='n'
-let g:multi_cursor_prev_key='m'
-let g:multi_cursor_skip_key='.'
-let g:multi_cursor_quit_key=','
-let g:multi_cursor_start_key='<C-n>'
+    " Easymotion
+    if exists('g:EasyMotion_loaded')
+        " let g:EasyMotion_do_mapping = 0
+        let g:EasyMotion_smartcase = 1
+        map <leader>/ <Plug>(easymotion-sn)
+        omap <leader>/ <Plug>(easymotion-tn)
+        " map <leader>n <Plug>(easymotion-next)
+        " map <leader>N <Plug>(easymotion-prev)
+        " Bidirectional single-letter search
+        map <leader>s <Plug>(easymotion-s)
+        " Bidirectional 2-letter search
+        map <leader><leader>s <Plug>(easymotion-s2)
+        " Forward single letter search
+        map <leader>f <Plug>(easymotion-f)
+        " Directional jumps
+        map <leader>l <Plug>(easymotion-lineforward)
+        map <leader>j <Plug>(easymotion-j)
+        map <leader>k <Plug>(easymotion-k)
+        map <leader>h <Plug>(easymotion-linebackward)
+    endif
 
-" Tabular
-map <leader>a= :Tabularize /=<CR>
-map <leader>a: :Tabularize /:\zs<CR>
+    " Multiple Cursors
+    let g:multi_cursor_use_default_mapping=0
+    let g:multi_cursor_next_key='n'
+    let g:multi_cursor_prev_key='m'
+    let g:multi_cursor_skip_key='.'
+    let g:multi_cursor_quit_key=','
+    let g:multi_cursor_start_key='<C-n>'
 
-" NERD Commenter
-" Enter the NERD Commenter menu which can be tabbed through
-map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
+    if exists('g:tabular_loaded')
+        " Tabular
+        map <leader>a= :Tabularize /=<CR>
+        map <leader>a: :Tabularize /:\zs<CR>
+    endif
 
-" Gundo
-nnoremap <leader>u :GundoToggle<CR>
+    if exists('g:loaded_nerd_comments')
+        " NERD Commenter
+        " Enter the NERD Commenter menu which can be tabbed through
+        map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
+    endif
 
-" --- Language Specific ---
-" - Rust -
-map <localleader>rr :RustRun<CR>
+    if exists('g:loaded_gundo')
+        " Gundo
+        nnoremap <leader>u :GundoToggle<CR>
+    endif
 
-" - Markdown -
-map <localleader>v :LivedownToggle<CR>
+    " --- Language Specific ---
+    " - Rust -
+    map <localleader>rr :RustRun<CR>
+
+    " - Markdown -
+    map <localleader>v :LivedownToggle<CR>
+endfunction
+
+augroup Plugin_Mappings
+    autocmd!
+    autocmd VimEnter * :call MapPlugins()
+augroup END
 
 " silent! call repeat#set("\<Plug>(easymotion)", v:count)
 
 "------ Functions ------
-" Open ranger from within vim
-function! Ranger()
-    " Get a temp file name without creating it
-    let tmpfile = substitute(system('mktemp -u'), '\n', '', '')
-    " Launch ranger, passing it the temp file name
-    silent exec '!RANGER_RETURN_FILE='.tmpfile.' ranger'
-    " If the temp file has been written by ranger
-    if filereadable(tmpfile)
-        " Get the selected file name from the temp file
-        let filetoedit = system('cat '.tmpfile)
-        exec 'edit '.filetoedit
-        call delete(tmpfile)
-    endif
-    redraw!
-endfunction
+if executable('ranger')
+    " Open ranger from within vim
+    function! Ranger()
+        " Get a temp file name without creating it
+        let tmpfile = substitute(system('mktemp -u'), '\n', '', '')
+        " Launch ranger, passing it the temp file name
+        silent exec '!RANGER_RETURN_FILE='.tmpfile.' ranger'
+        " If the temp file has been written by ranger
+        if filereadable(tmpfile)
+            " Get the selected file name from the temp file
+            let filetoedit = system('cat '.tmpfile)
+            exec 'edit '.filetoedit
+            call delete(tmpfile)
+        endif
+        redraw!
+    endfunction
+endif
 
  " set viminfo=%M
 
@@ -771,5 +828,5 @@ endif
 
 if !has('vim_starting')
     " Reload plugins
-    call neobundle#call_hook('on_post_source')
+    silent! call neobundle#call_hook('on_post_source')
 endif
