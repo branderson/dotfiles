@@ -192,7 +192,3 @@ alias sl="sl -laF"
 if [ -f ~/.zshrc_local ]; then
     source ~/.zshrc_local
 fi
-
-# source "/etc/profile.d/yelpcustom.zsh"
-
-if [ "$TMUX" = "" ]; then tmux; fi
