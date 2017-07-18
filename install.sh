@@ -40,6 +40,7 @@ overrides="
 zshrc_local
 vimrc_local
 tmux_local.conf
+profile.local
 gitconfig
 "
 # oh-my-zsh
