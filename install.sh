@@ -22,6 +22,7 @@ crontab
 su_crontab
 bashrc
 bash_profile
+gitconfig
 zshrc
 vimrc
 vim
