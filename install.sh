@@ -25,7 +25,6 @@ bash_profile
 gitconfig
 zshrc
 vimrc
-vim
 tmux
 tmux.conf
 tmuxinator
@@ -155,10 +154,11 @@ function link_dotfiles {
     # move any existing dotfiles in homedir to dotfiles_old directory, then create symlinks from the
     # homedir to any files in the ~/dotfiles directory specified in $files
     for file in $files; do
-        if [[ -f $file ]]; then
+        if [[ -f $file || -d $file ]]; then
             echo ""
-            if [[ -f ~/.$file ]]; then
+            if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Moving : .$file (~/.$file -> $olddir/.$file)"
+                rm -r $olddir/.$file
                 mv ~/.$file $olddir/
             fi
             echo "Linking: $file ($dir/$file -> ~/.$file)"
@@ -170,6 +170,7 @@ function link_dotfiles {
             echo ""
             if [[ -f ~/.$file ]]; then
                 echo "Moving : .$file (~/.$file -> $olddir/.$file)"
+                rm -r $olddir/.$file
                 mv ~/.$file $olddir/
             fi
             echo "Linking: $file ($dir/dotfile_overrides/$file -> ~/.$file)"
