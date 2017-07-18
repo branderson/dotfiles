@@ -169,8 +169,10 @@ NeoBundle 'mhinz/vim-startify'
 NeoBundle 'scrooloose/nerdtree'
 " Visualize undo tree
 NeoBundle 'sjl/gundo.vim'
-" Much nicer buffer management
-NeoBundle 'jlanzarotta/bufexplorer'
+if v:version >= 703
+    " Much nicer buffer management
+    NeoBundle 'jlanzarotta/bufexplorer'
+endif
 " Shows indentation level
 " NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'yggdroot/indentLine'
