@@ -20,13 +20,17 @@ set nocompatible " Turn off vim compatibility mode
 filetype on " Detect file types
 filetype plugin indent on
 if !exists("g:syntax_on")
-syntax enable " Syntax highlighting
+    syntax enable " Syntax highlighting
 endif
 " Control-X Control-O to open autocomplete box
 set omnifunc=syntaxcomplete#Complete
 " Leave hidden buffers open
 set hidden
 set autoread " Reload files changed outside vim
+
+" Turn off .swp files
+set noswapfile
+set nobackup
 
 set t_Co=256 " Run in 256-color mode
 set number " Show line numbers

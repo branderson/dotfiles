@@ -57,6 +57,11 @@ plugins=(colorize command-not-found cp h git github gitflow tmux gibo bower grun
 
 # # User configuration
 
+# Enable environment variables as CD directories
+setopt cdablevars
+# Enable correction for mistyped commands
+setopt correctall
+
 #PATHs
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export MANPATH="/usr/local/man:$MANPATH"
