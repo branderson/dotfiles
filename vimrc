@@ -169,7 +169,7 @@ NeoBundle 'mhinz/vim-startify'
 NeoBundle 'scrooloose/nerdtree'
 " Visualize undo tree
 NeoBundle 'sjl/gundo.vim'
-if v:version >= 703
+if has("patch-7.3-1261") && has("patch-7.3-1264")
     " Much nicer buffer management
     NeoBundle 'jlanzarotta/bufexplorer'
 endif
