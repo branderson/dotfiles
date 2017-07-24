@@ -164,6 +164,7 @@ end
 
 # Keybindings
 bindkey -M vicmd 'K' run-help
+bindkey -M viins ',,' vi-cmd-mode
 # bindkey -M viins 'K' run-help
 
 # Make shell cd to ranger directory
