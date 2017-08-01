@@ -17,5 +17,6 @@ vim/bundle
 vlc
 z
 node_modules
+tmuxinator
 
 dotfile_overrides
