@@ -1,6 +1,6 @@
 # Gruvbox colors
 # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
-source "$HOME/dotfiles/gruvbox/gruvbox_256palette.sh"
+source "$HOME/.gruvbox/gruvbox_256palette.sh"
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
@@ -131,12 +131,19 @@ typeset -ga sources
 sources+=~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
+pip install --user powerline-status &>/dev/null
 if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
     # Prefer user-set powerline directory
     sources+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
 else
     echo "Attempting to source Powerline bindings from default locations.\nPlease set \$POWERLINE_ROOT in .zshrc.local"
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
+    sources+=$HOME/.local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
     sources+=/usr/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
     sources+=/usr/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
     sources+=/usr/local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
