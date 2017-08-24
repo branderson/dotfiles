@@ -23,6 +23,8 @@ su_crontab
 bashrc
 bash_profile
 gitconfig
+oh-my-zsh
+gruvbox
 zshrc
 vimrc
 tmux
