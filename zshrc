@@ -136,7 +136,7 @@ if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
     # Prefer user-set powerline directory
     sources+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
 else
-    echo "Attempting to source Powerline bindings from default locations.\nPlease set \$POWERLINE_ROOT in .zshrc.local"
+    echo "Attempting to source Powerline bindings from default locations.\nPlease set \$POWERLINE_ROOT in .profile.local"
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
     sources+=$HOME/.local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
     sources+=$HOME/.local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh

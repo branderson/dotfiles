@@ -257,7 +257,7 @@ NeoBundle 'mattn/emmet-vim'
 NeoBundle 'mattn/webapi-vim'
 
 " - Python -
-NeoBundle 'klen/python-mode'
+" NeoBundle 'klen/python-mode'
 NeoBundle 'davidhalter/jedi-vim'
 
 " - C# -
