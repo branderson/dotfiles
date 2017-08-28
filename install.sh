@@ -37,7 +37,7 @@ PyCharm40
 themes
 profile
 pam_environment
-xterm-256color-italic
+xterm-256color-italic.terminfo
 "
 overrides="
 zshrc_local
