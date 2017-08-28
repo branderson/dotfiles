@@ -78,10 +78,13 @@ source ~/.profile.local
 
 source $ZSH/oh-my-zsh.sh
 
+# Italic support
+tic $HOME/.xterm-256color-italic.terminfo
+
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
 export EDITOR='vim'
-export TERM=xterm-256color
+export TERM=xterm-256color-italic
 
 # # else
 # #   export EDITOR='mvim'

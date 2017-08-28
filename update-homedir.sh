@@ -18,6 +18,7 @@ tmux.conf
 tmuxinator
 profile
 tmux
+xterm-256color-italic.terminfo
 dotfile_overrides/zshrc_local
 dotfile_overrides/profile.local
 "
