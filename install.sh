@@ -26,6 +26,7 @@ gitconfig
 oh-my-zsh
 gruvbox
 zshrc
+zsh_functions
 vimrc
 tmux
 tmux.conf

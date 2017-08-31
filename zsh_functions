@@ -1,0 +1,48 @@
+function ranger-cd() {
+    # Make shell cd to ranger directory
+    tempfile=$(mktemp)
+    ranger --choosedir="$tempfile" "${@:-$(pwd)}" < $TTY
+    test -f "$tempfile" &&
+    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+        cd $(cat $tempfile)
+    fi
+    zle reset-prompt
+    printf '\n'
+    rm -f -- "$tempfile"
+}
+
+function terminal-clock() {
+    tty-clock -tcb < $TTY
+    zle reset-prompt
+    printf '\n'
+}
+
+function check_dotfiles_version {
+    # Check if the version of the dotfiles directory is the latest version
+    # Return 0 if repo is present and the latest version
+    # Return 1 if the repo is not present
+    # Return 2 if the repo is behind the remote
+    # Return 3 if the repo is ahead of the remote
+    # Return 4 if the repo has diverged from the remote
+    if [ ! -d $HOME/dotfiles ]; then
+        return 2
+    fi
+
+    cd $HOME/dotfiles
+
+    git fetch origin
+    UPSTREAM=${1:-'@{u}'}
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse "$UPSTREAM")
+    BASE=$(git merge-base @ "$UPSTREAM")
+
+    if [ $LOCAL = $REMOTE ]; then
+        return 0
+    elif [ $LOCAL = $BASE ]; then
+        return 2
+    elif [ $REMOTE = $BASE ]; then
+        return 3
+    else
+        return 4
+    fi
+}

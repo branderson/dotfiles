@@ -13,6 +13,7 @@ bashrc
 bash_profile
 gitconfig
 zshrc
+zsh_functions
 vimrc
 tmux.conf
 tmuxinator

@@ -1,6 +1,10 @@
 # Gruvbox colors
 # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
 source "$HOME/.gruvbox/gruvbox_256palette.sh"
+
+# Custom functions
+source "$HOME/.zsh_functions"
+
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
@@ -84,7 +88,7 @@ tic $HOME/.xterm-256color-italic.terminfo
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
 export EDITOR='vim'
-export TERM=xterm-256color-italic
+export TERM=xterm-256color
 
 # # else
 # #   export EDITOR='mvim'
@@ -166,6 +170,19 @@ foreach file (`echo $sources`)
     fi
 end
 
+# Check dotfiles version
+check_dotfiles_version
+dotfiles_version=$?
+if [[ $dotfiles_version = 1 ]]; then
+    echo "Dotfiles repository not present at $HOME/dotfiles"
+elif [[ $dotfiles_version = 2 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles is outdated"
+elif [[ $dotfiles_version = 3 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles is ahead of origin"
+elif [[ $dotfiles_version = 4 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles has diverged from origin"
+fi
+
 # TMuxinator Completion
 # source ~/bin/tmuxinator.zsh
 
@@ -177,25 +194,6 @@ bindkey -M vicmd 'K' run-help
 bindkey -M viins ',,' vi-cmd-mode
 # bindkey -M viins 'K' run-help
 
-# Make shell cd to ranger directory
-ranger-cd() {
-    tempfile=$(mktemp)
-    ranger --choosedir="$tempfile" "${@:-$(pwd)}" < $TTY
-    test -f "$tempfile" &&
-    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
-        cd $(cat $tempfile)
-    fi
-    zle reset-prompt
-    printf '\n'
-    rm -f -- "$tempfile"
-}
-
-terminal-clock() {
-    tty-clock -tcb < $TTY
-    zle reset-prompt
-    printf '\n'
-}
-
 # This binds Ctrl-O to ranger-cd:
 zle -N ranger-cd
 bindkey '^o' ranger-cd
@@ -203,6 +201,9 @@ zle -N terminal-clock
 bindkey '^t' terminal-clock
 
 alias sl="sl -laF"
+
+# Tool options
+export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 
 # Local overrides
 if [ -f ~/.zshrc_local ]; then
