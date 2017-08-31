@@ -80,11 +80,12 @@ source $ZSH/oh-my-zsh.sh
 
 # Italic support
 tic $HOME/.xterm-256color-italic.terminfo
+tic $HOME/.tmux.terminfo
 
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
 export EDITOR='vim'
-export TERM=xterm-256color-italic
+export TERM=xterm-256color
 
 # # else
 # #   export EDITOR='mvim'
