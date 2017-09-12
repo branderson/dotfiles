@@ -12,6 +12,7 @@ platform=$(uname)
 pacman_args="--noconfirm --needed"
 
 # list of files/folders to symlink in homedir
+# oh-my-zsh
 files="
 config
 xinitrc
@@ -23,7 +24,6 @@ su_crontab
 bashrc
 bash_profile
 gitconfig
-oh-my-zsh
 gruvbox
 zshrc
 zsh_functions
@@ -170,9 +170,9 @@ function link_dotfiles {
         fi
     done
     for file in $overrides; do
-        if [[ -f dotfile_overrides/$file ]]; then
+        if [[ -f dotfile_overrides/$file || -d dotfile_overrides/$file ]]; then
             echo ""
-            if [[ -f ~/.$file ]]; then
+            if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Moving : .$file (~/.$file -> $olddir/.$file)"
                 rm -r $olddir/.$file
                 mv ~/.$file $olddir/
