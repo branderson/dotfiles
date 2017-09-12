@@ -5,6 +5,7 @@ HOMEDIR=~/homedirs/users/bradleya
 SCRIPT_NAME=${0##*/}
 
 homefiles="
+.local.tar
 "
 # .local
 files="
@@ -12,14 +13,15 @@ bin
 bashrc
 bash_profile
 gitconfig
-zshrc
-zsh_functions
-vimrc
-tmux.conf
-tmuxinator
+install_tools.sh
 profile
 tmux
+tmux.conf
+tmuxinator
+vimrc
 xterm-256color-italic.terminfo
+zsh_functions
+zshrc
 dotfile_overrides/zshrc_local
 dotfile_overrides/profile.local
 "

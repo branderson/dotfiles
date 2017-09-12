@@ -1,3 +1,30 @@
+function list_processes() {
+    # List all processes matching the given process name string
+    ps aux | grep $(whoami) | grep -i "$1" | grep -v grep
+}
+
+function kill_all() {
+    # Kill all processes matching the given process name string
+    if [ ! "$1" ]; then
+        echo "kill_all requires a process name to kill all instances of"
+        return 1
+    fi
+    kill_flag=15
+    if [ "$15" ]; then
+        kill_flag="$15"
+    fi
+
+    count=$(list_processes "$1" | wc -l)
+
+    echo "Killing $count running processes matching $1"
+    kill -"$kill_flag" $(list_processes | awk '{print $2}')
+    
+    count=$(list_processes "$1" | wc -l)
+    if [ $count -gt 0 ]; then
+        echo "$count processes could not be killed"
+    fi
+}
+
 function ranger-cd() {
     # Make shell cd to ranger directory
     tempfile=$(mktemp)
