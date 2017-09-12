@@ -17,7 +17,7 @@ function kill_all() {
     count=$(list_processes "$1" | wc -l)
 
     echo "Killing $count running processes matching $1"
-    kill -"$kill_flag" $(list_processes | awk '{print $2}')
+    kill -"$kill_flag" $(list_processes "$1" | awk '{print $2}')
     
     count=$(list_processes "$1" | wc -l)
     if [ $count -gt 0 ]; then

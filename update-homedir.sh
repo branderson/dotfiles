@@ -5,7 +5,7 @@ HOMEDIR=~/homedirs/users/bradleya
 SCRIPT_NAME=${0##*/}
 
 homefiles="
-.local.tar
+.local.tar.bz2
 "
 # .local
 files="
