@@ -131,7 +131,7 @@ endif
 " python powerline_setup()
 " python del powerline_setup
 
-" Always display powerline statusline
+" Always display airline statusline
 set laststatus=2
 " Hide default statusline text
 set noshowmode "
@@ -164,7 +164,7 @@ NeoBundle 'morhetz/gruvbox'
 " Airline
 NeoBundle 'bling/vim-airline'
 " Bufferline
-NeoBundle 'bling/vim-bufferline'
+" NeoBundle 'bling/vim-bufferline'
 
 " - Views -
 " Start screen
@@ -300,7 +300,13 @@ endif
 set background=dark
 let base16colorspace=256
 " let g:solarized_termtrans = 3
+
+" Airline
 let g:airline_powerline_fonts=1
+" PERF: Could cause bad performance
+let g:airline_skip_empty_sections=1
+let g:airline#extensions#tabline#enabled=1
+
 " Gruvbox
 let g:gruvbox_italic=1
 let g:gruvbox_contrast_dark="medium"
@@ -343,13 +349,13 @@ let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
 let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
 
 " Bufferline
-let g:bufferline_echo = 0
-augroup Bufferline
-    autocmd! VimEnter * if exists('g:loaded_bufferline') | 
-        \ let &statusline='%{bufferline#refresh_status()}'
-        \ .bufferline#get_status_string() |
-        \ endif
-augroup END
+" let g:bufferline_echo = 0
+" augroup Bufferline
+"     autocmd! VimEnter * if exists('g:loaded_bufferline') |
+"         \ let &statusline='%{bufferline#refresh_status()}'
+"         \ .bufferline#get_status_string() |
+"         \ endif
+" augroup END
 
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)
