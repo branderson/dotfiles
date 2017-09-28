@@ -25,6 +25,9 @@ zshrc
 dotfile_overrides/zshrc_local
 dotfile_overrides/profile.local
 "
+configs="
+nvim
+"
 gits="
 gruvbox
 oh-my-zsh
@@ -41,6 +44,9 @@ function copy_files {
     # Change to script directory
     cd $DIR || return
 
+    # Make config directory
+    mkdir $HOMEDIR/.config
+
     # Copy over this updater to HOMEDIR
     echo "Copying $SCRIPT_NAME ($SCRIPT_NAME -> $HOMEDIR/$SCRIPT_NAME)"
     cp "$SCRIPT_NAME" "$HOMEDIR"
@@ -51,6 +57,14 @@ function copy_files {
             file_name=${file##*/}
             echo "Copying $file ($DIR/$file -> $HOMEDIR/.$file_name)"
             cp -r $DIR/"$file" $HOMEDIR/."$file_name"
+        fi
+    done
+
+    # Copy over each file in configs to HOMEDIR/.configs
+    for file in $configs; do
+        if [[ -f $file || -d $file ]]; then
+            echo "Copying $file ($DIR/config/$file -> $HOMEDIR/.config/$file)"
+            cp -r $DIR/config/"$file" $HOMEDIR/.config/"$file_name"
         fi
     done
 
