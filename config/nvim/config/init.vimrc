@@ -50,6 +50,10 @@ Plug 'kshenoy/vim-signature'
 " Plug 'xolox/vim-easytags'
 
 " - Syntax and completion -
+" Asynchronous linting
+Plug 'neomake/neomake'
+" Completion
+Plug 'Shuogo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Awesome on-the-fly syntax checking for tons of languages
 " Plug 'scrooloose/syntastic'
 " Awesome autocompletion for almost everything

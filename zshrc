@@ -86,6 +86,11 @@ source $ZSH/oh-my-zsh.sh
 tic $HOME/.xterm-256color-italic.terminfo
 # tic $HOME/.tmux.terminfo
 
+# Use neovim where available
+if type nvim > /dev/null 2>&1; then
+    alias vim='nvim'
+fi
+
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
 export EDITOR='vim'
