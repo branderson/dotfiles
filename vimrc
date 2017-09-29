@@ -405,6 +405,8 @@ let g:syntastic_mode_map = {
     \ "mode": "active",
     \ "passive_filetypes": ['asm', 'scss'] }
 
+let g:syntastic_html_tidy_ignore_errors = ['proprietary attribute']
+
 " YCM configuration
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
 let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
@@ -438,6 +440,8 @@ augroup END
 " - Javascript -
 " Javascript configuration
 let g:javascript_enable_dom_htmlcss = 1
+let g:javascript_plugin_jsdoc = 1
+let g:javascript_plugin_flow = 1
 
 " - Python -
 " Run in python using F9

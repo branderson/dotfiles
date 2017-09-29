@@ -98,8 +98,8 @@ let g:enable_bold_font = 1
 set t_ut=
 
 " --- GUI settings ---
-set lines=50
-set columns=150
+" set lines=50
+" set columns=150
 
 " --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4

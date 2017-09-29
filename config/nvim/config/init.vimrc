@@ -3,7 +3,8 @@ let g:plugin_install_dir = "~/.local/share/nvim/plugged"
 
 " Install vim-plug if not present
 if empty(glob(g:vim_plug_install_dir . "/plug.vim"))
-    execute "!curl -fLo " . g:vim_plug_install_dir . "/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    execute "!curl -fLo " . g:vim_plug_install_dir . "/plug.vim "
+        \ "--create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 endif
 
 call plug#begin('~/.vim/plugged')
@@ -11,7 +12,6 @@ call plug#begin('~/.vim/plugged')
 " --- General ---
 " - Visual -
 " Rainbow parentheses
-" Plug 'kien/rainbow_parentheses.vim'
 Plug 'luochen1990/rainbow'
 " Solarized colors for when I want them
 " Plug 'altercation/vim-colors-solarized'

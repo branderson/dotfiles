@@ -32,9 +32,17 @@ let g:gruvbox_italicize_strings=1
 
 " - Views -
 " Startify
-let g:startify_bookmarks = ["~/dotfiles/vimrc", "~/dotfiles/zshrc", "~/dotfiles/config/i3/config"]
+let g:startify_bookmarks = [
+    \"~/dotfiles/config/nvim/config/init.vimrc",
+    \"~/dotfiles/config/nvim/config/general.vimrc",
+    \"~/dotfiles/config/nvim/config/plugin.vimrc",
+    \"~/dotfiles/config/nvim/config/bindings.vimrc",
+    \"~/dotfiles/config/nvim/config/functions.vimrc",
+    \"~/dotfiles/zshrc",
+    \"~/dotfiles/config/i3/config"
+    \]
 let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
-let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
+let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
 
 " Bufferline
 " let g:bufferline_echo = 0
