@@ -39,8 +39,8 @@ if [ -f "$usermodmap" ]; then
 fi
 
 # start some nice programs
-/usr/bin/VBoxClient-all
-/usr/bin/dropbox &
+# /usr/bin/VBoxClient-all
+# /usr/bin/dropbox &
 
 if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  for f in /etc/X11/xinit/xinitrc.d/?* ; do
@@ -56,7 +56,6 @@ fi
 # exec xterm -geometry 80x66+0+0 -name login
 
 # Set up X keyboard shortcuts
-setxkbmap -option terminate:ctrl_alt_bksp
+# setxkbmap -option terminate:ctrl_alt_bksp
 
-xrandr --dpi 144
-exec i3
+exec zsh 

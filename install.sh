@@ -12,6 +12,7 @@ platform=$(uname)
 pacman_args="--noconfirm --needed"
 
 # list of files/folders to symlink in homedir
+# oh-my-zsh
 files="
 config
 xinitrc
@@ -21,9 +22,13 @@ urxvt.xresources
 crontab
 su_crontab
 bashrc
+bash_profile
+gitconfig
+gruvbox
 zshrc
+zsh_functions
 vimrc
-vim
+tmux
 tmux.conf
 tmuxinator
 gitconfig
@@ -33,11 +38,13 @@ PyCharm40
 themes
 profile
 pam_environment
+xterm-256color-italic.terminfo
 "
 overrides="
 zshrc_local
 vimrc_local
 tmux_local.conf
+profile.local
 gitconfig
 pypirc
 "
@@ -152,10 +159,11 @@ function link_dotfiles {
     # move any existing dotfiles in homedir to dotfiles_old directory, then create symlinks from the
     # homedir to any files in the ~/dotfiles directory specified in $files
     for file in $files; do
-        if [[ -f $file ]]; then
+        if [[ -f $file || -d $file ]]; then
             echo ""
-            if [[ -f ~/.$file ]]; then
+            if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Moving : .$file (~/.$file -> $olddir/.$file)"
+                rm -r $olddir/.$file
                 mv ~/.$file $olddir/
             fi
             echo "Linking: $file ($dir/$file -> ~/.$file)"
@@ -163,10 +171,11 @@ function link_dotfiles {
         fi
     done
     for file in $overrides; do
-        if [[ -f dotfile_overrides/$file ]]; then
+        if [[ -f dotfile_overrides/$file || -d dotfile_overrides/$file ]]; then
             echo ""
-            if [[ -f ~/.$file ]]; then
+            if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Moving : .$file (~/.$file -> $olddir/.$file)"
+                rm -r $olddir/.$file
                 mv ~/.$file $olddir/
             fi
             echo "Linking: $file ($dir/dotfile_overrides/$file -> ~/.$file)"

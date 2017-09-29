@@ -1,11 +1,16 @@
 # Gruvbox colors
-source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+# source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+source "$HOME/.gruvbox/gruvbox_256palette.sh"
+
+# Custom functions
+source "$HOME/.zsh_functions"
+
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
 
 # Z
-. $HOME/dotfiles/z/z.sh
+# . $HOME/dotfiles/z/z.sh
 # Set name of the theme to load.
 # # Look in ~/.oh-my-zsh/themes/
 # # Optionally, if you set this to "random", it'll load a random theme each
@@ -50,26 +55,37 @@ ZSH_THEME="agnoster"
 #
 # # Would you like to use another custom folder than $ZSH/custom?
 # # ZSH_CUSTOM=/path/to/new-custom-folder
-#
-# # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# # Example format: plugins=(rails git textmate ruby lighthouse)
-# # Add wisely, as too many plugins slow down shell startup.
+
 # # zsh-syntax-highlighting must come last
-plugins=(colorize command-not-found cp h git github gitflow tmux archlinux zsh-syntax-highlighting gibo bower grunt npm)
-#
+plugins=(colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
+
 # # User configuration
-#
+
+# Enable environment variables as CD directories
+setopt cdablevars
+# Enable correction for mistyped commands
+setopt correctall
+
+#PATHs
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export MANPATH="/usr/local/man:$MANPATH"
-source ~/.profile
+PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+# Add user cowpath to COWPATH
+COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
+# Make a random (cow?) with a random face say something
+# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
-#
+# User profiles
+source ~/.profile
+# Define $POWERLINE_ROOT
+source ~/.profile.local
+
 source $ZSH/oh-my-zsh.sh
-#
-# # You may need to manually set your language environment
-# # export LANG=en_US.UTF-8
-#
+
+# Italic support
+tic $HOME/.xterm-256color-italic.terminfo
+# tic $HOME/.tmux.terminfo
+
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
 export EDITOR='vim'
@@ -113,57 +129,71 @@ compinit
 DEFAULT_USER=brad
 
 # Syntax highlighting configuration
-ZSH_HIGHLIGHT_STYLES[path]='bold'
-ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-ZSH_HIGHLIGHT_STYLES[path_approx]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
+# ZSH_HIGHLIGHT_STYLES[path]='bold'
+# ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+# ZSH_HIGHLIGHT_STYLES[path_approx]='fg=yellow'
+# ZSH_HIGHLIGHT_STYLES[globbing]='fg=yellow'
 
-source ~/dotfiles/shortcuts.txt
+# Source files
+typeset -ga sources
+sources+=~/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
-source /usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
-# source $POWERLINE_ROOT/powerline/bindings/zsh/powerline.zsh
-# /usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-# if [ -d ~/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh ]; then
-# elif [ -d ~/usr/local/lib/python2.7/dist-packages/powerline/bindings ]; then
-#     source /usr/local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
-# fi
+pip install --user powerline-status &>/dev/null
+if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
+    # Prefer user-set powerline directory
+    sources+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
+else
+    echo "Attempting to source Powerline bindings from default locations.\nPlease set \$POWERLINE_ROOT in .profile.local"
+    # If $POWERLINE_ROOT not set or set incorrectly, try default locations
+    sources+=$HOME/.local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=$HOME/.local/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
+    sources+=/usr/local/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
+fi
+foreach file (`echo $sources`)
+    if [[ -a $file ]]; then
+        source $file
+    fi
+end
+
+# Check dotfiles version
+check_dotfiles_version
+dotfiles_version=$?
+if [[ $dotfiles_version = 1 ]]; then
+    echo "Dotfiles repository not present at $HOME/dotfiles"
+elif [[ $dotfiles_version = 2 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles is outdated"
+elif [[ $dotfiles_version = 3 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles is ahead of origin"
+elif [[ $dotfiles_version = 4 ]]; then
+    echo "Dotfiles repository at $HOME/dotfiles has diverged from origin"
+fi
 
 # TMuxinator Completion
 # source ~/bin/tmuxinator.zsh
 
 # Dircolors
-eval $(dircolors ~/.dircolors)
+# eval $(dircolors ~/.dircolors)
 
 # Keybindings
 bindkey -M vicmd 'K' run-help
+bindkey -M viins ',,' vi-cmd-mode
 # bindkey -M viins 'K' run-help
-
-PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
-
-# Add user cowpath to COWPATH
-COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
-# Make a random (cow?) with a random face say something
-# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
-
-# Make shell cd to ranger directory
-ranger-cd() {
-    tempfile=$(mktemp)
-    ranger --choosedir="$tempfile" "${@:-$(pwd)}" < $TTY
-    test -f "$tempfile" &&
-    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
-        cd $(cat $tempfile)
-    fi
-    zle reset-prompt
-    printf '\n'
-    rm -f -- "$tempfile"
-}
-
-terminal-clock() {
-    tty-clock -tcb < $TTY
-    zle reset-prompt
-    printf '\n'
-}
 
 # This binds Ctrl-O to ranger-cd:
 zle -N ranger-cd
@@ -173,7 +203,10 @@ bindkey '^t' terminal-clock
 
 alias sl="sl -laF"
 
+# Tool options
+export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
+
 # Local overrides
-if [ -f !/.zshrc_local ]; then
+if [ -f ~/.zshrc_local ]; then
     source ~/.zshrc_local
 fi

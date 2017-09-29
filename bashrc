@@ -1,1 +1,0 @@
-sudo ~/bin/nocaps.sh

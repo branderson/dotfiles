@@ -1,20 +1,21 @@
-" Table of Contents
-" [1] General Settings
-"       [1.1] GUI Settings
-"       [1.2] Language Specific Settings
-" [2] Plugins
-" [3] Install Plugins
-"       [3.1] General
-"       [3.2] Language Specific
-" [4] Plugin Configuration
-"       [4.1] General
-"       [4.2] Language Specific
-" [5] Keybindings
-"       [5.1] Mappings
-" [6] Functions
-" [7] Local Overrides
+" ------ CONTENTS ------
+" [A0] General Settings
+"   [A1] GUI settings
+"   [A2] Language specific settings
+" [B0] Plugins
+" [C0] Install plugins
+"   [C1] General
+"       [C1a] Visual
+"       [C1b] Views
+"       [C1c] Ctags
+"       [C1d] Syntax and completion
+"       [C1e] Commenting
+"       [C1f] Git
+"       [C1g] Automation
+"       [C1h] Search
+"       [C1i] Utilities and dependencies
 
-" [1] ------ General Settings ------
+" ------ General Settings ------
 set nocompatible " Turn off vim compatibility mode
 filetype on " Detect file types
 filetype plugin indent on
@@ -26,6 +27,10 @@ set omnifunc=syntaxcomplete#Complete
 " Leave hidden buffers open
 set hidden
 set autoread " Reload files changed outside vim
+
+" Turn off .swp files
+set noswapfile
+set nobackup
 
 set t_Co=256 " Run in 256-color mode
 set number " Show line numbers
@@ -99,16 +104,25 @@ set columns=150
 " [1.2] --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
 augroup Enter_Buffer
-    autocmd!
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
-    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
+autocmd!
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
+autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
 augroup END
 
-" [2] ------ Plugins ------
+au BufNewFile,BufRead *.py
+\ setlocal tabstop=4 |
+\ setlocal softtabstop=4 |
+\ setlocal shiftwidth=4 |
+\ setlocal textwidth=79 |
+\ setlocal expandtab |
+\ setlocal autoindent |
+\ setlocal fileformat=unix |
+
+" ------ Plugins ------
 " Clone NeoBundle if not present
 if empty(glob("~/.vim/bundle/neobundle.vim"))
-    !git clone https://github.com/shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+!git clone https://github.com/shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
 endif
 
 " Powerline
@@ -117,11 +131,13 @@ endif
 " python powerline_setup()
 " python del powerline_setup
 
-" Always display powerline statusline
+" Always display airline statusline
 set laststatus=2
 " Hide default statusline text
 set noshowmode "
 
+" Prevent plugin loading on systems without NeoBundle
+" if exists("g:loaded_neobundle")
 " Set up NeoBundle
 set rtp+=~/.vim/bundle/neobundle.vim/
 call neobundle#begin(expand('~/.vim/bundle/'))
@@ -148,7 +164,7 @@ NeoBundle 'morhetz/gruvbox'
 " Airline
 NeoBundle 'bling/vim-airline'
 " Bufferline
-NeoBundle 'bling/vim-bufferline'
+" NeoBundle 'bling/vim-bufferline'
 
 " - Views -
 " Start screen
@@ -157,8 +173,10 @@ NeoBundle 'mhinz/vim-startify'
 NeoBundle 'scrooloose/nerdtree'
 " Visualize undo tree
 NeoBundle 'sjl/gundo.vim'
-" Much nicer buffer management
-NeoBundle 'jlanzarotta/bufexplorer'
+if has("patch-7.3-1261") && has("patch-7.3-1264")
+    " Much nicer buffer management
+    NeoBundle 'jlanzarotta/bufexplorer'
+endif
 " Shows indentation level
 " NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'yggdroot/indentLine'
@@ -167,9 +185,9 @@ NeoBundle 'kshenoy/vim-signature'
 
 " - Ctags -
 " Ctags view
-NeoBundle 'majutsushi/tagbar'
+" NeoBundle 'majutsushi/tagbar'
 " Automatically keep ctags up to date
-NeoBundle 'xolox/vim-easytags'
+" NeoBundle 'xolox/vim-easytags'
 
 " - Syntax and completion -
 " Awesome on-the-fly syntax checking for tons of languages
@@ -217,6 +235,8 @@ NeoBundle 'rking/ag.vim'
 " - Utility and dependencies
 " Library required for some plugins
 NeoBundle 'L9'
+" Close buffers
+NeoBundle 'rbgrouleff/bclose.vim'
 " Seamless navigation between tmux panes and vim splits
 NeoBundle 'christoomey/vim-tmux-navigator'
 " Required for easytags
@@ -237,7 +257,7 @@ NeoBundle 'mattn/emmet-vim'
 NeoBundle 'mattn/webapi-vim'
 
 " - Python -
-NeoBundle 'klen/python-mode'
+" NeoBundle 'klen/python-mode'
 NeoBundle 'davidhalter/jedi-vim'
 
 " - C# -
@@ -266,6 +286,7 @@ endif
 call neobundle#end()
 " Prompt installation of uninstalled plugins
 NeoBundleCheck
+" endif
 
 " Clone racer if not present
 if empty(glob("~/dotfiles/racer"))
@@ -280,7 +301,13 @@ endif
 set background=dark
 let base16colorspace=256
 " let g:solarized_termtrans = 3
+
+" Airline
 let g:airline_powerline_fonts=1
+" PERF: Could cause bad performance
+let g:airline_skip_empty_sections=1
+let g:airline#extensions#tabline#enabled=1
+
 " Gruvbox
 let g:gruvbox_italic=1
 let g:gruvbox_contrast_dark="medium"
@@ -291,24 +318,25 @@ let g:gruvbox_improved_strings=0
 let g:gruvbox_improved_warnings=1
 let g:gruvbox_italicize_strings=1
 
-" Rainbow parentheses
-augroup Rainbow_Parentheses
-    autocmd!
-    " autocmd VimEnter * RainbowParenthesesToggle
-    autocmd VimEnter * RainbowToggle
-    " autocmd Syntax * RainbowParenthesesLoadRound
-    " autocmd Syntax * RainbowParenthesesLoadSquare
-    " autocmd Syntax * RainbowParenthesesLoadBraces
-augroup END
+    " Rainbow parentheses
+if exists('g:rainbow_conf')
+    augroup Rainbow_Parentheses
+        autocmd!
+        autocmd VimEnter * if exists('g:rainbow_conf') | RainbowToggle | endif
+    augroup END
+endif
 
 " Theme
-" colorscheme desert
 " colorscheme zenburn
 " colorscheme solarized
 " colorscheme base16-default
 " colorscheme hybrid_reverse
 " colorscheme hybrid_material
-colorscheme gruvbox
+try
+    colorscheme gruvbox
+catch /^Vim\%((\a\++)\)\=:E185/
+    colorscheme desert
+endtry
 
 let g:enable_bold_font = 1
 
@@ -322,11 +350,13 @@ let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
 let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
 
 " Bufferline
-let g:bufferline_echo = 0
-augroup Bufferline
-    autocmd! VimEnter * let &statusline='%{bufferline#refresh_status()}'
-        \ .bufferline#get_status_string()
-augroup END
+" let g:bufferline_echo = 0
+" augroup Bufferline
+"     autocmd! VimEnter * if exists('g:loaded_bufferline') |
+"         \ let &statusline='%{bufferline#refresh_status()}'
+"         \ .bufferline#get_status_string() |
+"         \ endif
+" augroup END
 
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)
@@ -342,8 +372,12 @@ let g:indent_guides_start_level = 2
 let g:indent_guides_auto_colors = 0
 augroup Indent_Guides
     autocmd!
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=darkgreen
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=cyan
+    autocmd VimEnter,Colorscheme * if exists('g:indentLine_loaded') | 
+        \ :hi IndentGuidesOdd ctermbg=darkgreen |
+        \ endif
+    autocmd VimEnter,Colorscheme * if exists('g:indentLine_loaded') | 
+        \ :hi IndentGuidesEven ctermbg=cyan |
+        \ endif
 augroup END
 
 " Indent Line configuration
@@ -372,6 +406,8 @@ let g:syntastic_mode_map = {
     \ "mode": "active",
     \ "passive_filetypes": ['asm', 'scss'] }
 
+let g:syntastic_html_tidy_ignore_errors = ['proprietary attribute']
+
 " YCM configuration
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
 let g:ycm_extra_conf_globlist = ['~/dotfiles/.ycm_extra_conf.py']
@@ -396,13 +432,17 @@ let g:polyglot_disabled = ['python']
 let g:user_emmet_install_global=0
 augroup Emmet
     autocmd!
-    autocmd Filetype html,css EmmetInstall
+    autocmd Filetype html,css if exists('g:loaded_emmet_vim') |
+        \ EmmetInstall |
+        \ endif
 augroup END
 " let g:user_emmet_leader_key='<localleader>'
 
 " - Javascript -
 " Javascript configuration
 let g:javascript_enable_dom_htmlcss = 1
+let g:javascript_plugin_jsdoc = 1
+let g:javascript_plugin_flow = 1
 
 " - Python -
 " Run in python using F9
@@ -454,6 +494,9 @@ let g:pymode_trim_whitespaces = 1
 " Rope support
 let g:pymode_rope = 0
 let g:pymode_rope_lookup_project = 0
+
+" [YELP] Ignore line too long
+let g:pymode_lint_ignore = "W503,E128"
 
 " - Rust -
 " Rust racer
@@ -635,92 +678,118 @@ nmap <leader>rw :call DeleteTrailingWS()<CR>
 " Fix syntax highlighting
 noremap <F12> <Esc>:syntax sync fromstart<CR>
 
-" - Plugins -
-" Open Startify
-map <leader><leader>o :Startify<CR>
-" Toggle directory view
-map <leader>t :NERDTreeToggle<CR>
+function! MapPlugins()
+    " - Plugins -
+    if exists('g:loaded_startify')
+        " Open Startify
+        map <leader><leader>o :Startify<CR>
+    endif
 
-" Toggle tagbar
-map <leader>ct :TagbarToggle<CR>
+    if exists('g:loaded_nerd_tree')
+        " Toggle directory view
+        map <leader>t :NERDTreeToggle<CR>
+    endif
 
-" Update ctags
-" nnoremap <leader>ct :! ctags -R<CR><CR>
+    if exists('g:loaded_tagbar')
+        " Toggle tagbar
+        map <leader>ct :TagbarToggle<CR>
+    endif
 
-" Jump to a tag
-nnoremap <leader>. :CtrlPTag<CR>
-" Jump to a buffer
-nnoremap <leader>; :CtrlPBuffer<CR>
+    " Update ctags
+    " nnoremap <leader>ct :! ctags -R<CR><CR>
 
-" Make a config for YCM from Makefile
-map <leader>ygc :YcmGenerateConfig<CR>
+    if exists('g:loaded_ctrlp')
+        " Jump to a tag
+        nnoremap <leader>. :CtrlPTag<CR>
+        " Jump to a buffer
+        nnoremap <leader>; :CtrlPBuffer<CR>
+    endif
 
-" Ag
-map <leader>ag :Ag<space>
+    " Make a config for YCM from Makefile
+    map <leader>ygc :YcmGenerateConfig<CR>
 
-" Easymotion
-" let g:EasyMotion_do_mapping = 0
-let g:EasyMotion_smartcase = 1
-map <leader>/ <Plug>(easymotion-sn)
-omap <leader>/ <Plug>(easymotion-tn)
-" map <leader>n <Plug>(easymotion-next)
-" map <leader>N <Plug>(easymotion-prev)
-" Bidirectional single-letter search
-map <leader>s <Plug>(easymotion-s)
-" Bidirectional 2-letter search
-map <leader><leader>s <Plug>(easymotion-s2)
-" Forward single letter search
-map <leader>f <Plug>(easymotion-f)
-" Directional jumps
-map <leader>l <Plug>(easymotion-lineforward)
-map <leader>j <Plug>(easymotion-j)
-map <leader>k <Plug>(easymotion-k)
-map <leader>h <Plug>(easymotion-linebackward)
+    " Ag
+    map <leader>ag :Ag<space>
 
-" Multiple Cursors
-let g:multi_cursor_use_default_mapping=0
-let g:multi_cursor_next_key='n'
-let g:multi_cursor_prev_key='m'
-let g:multi_cursor_skip_key='.'
-let g:multi_cursor_quit_key=','
-let g:multi_cursor_start_key='<C-n>'
+    " Easymotion
+    if exists('g:EasyMotion_loaded')
+        " let g:EasyMotion_do_mapping = 0
+        let g:EasyMotion_smartcase = 1
+        map <leader>/ <Plug>(easymotion-sn)
+        omap <leader>/ <Plug>(easymotion-tn)
+        " map <leader>n <Plug>(easymotion-next)
+        " map <leader>N <Plug>(easymotion-prev)
+        " Bidirectional single-letter search
+        map <leader>s <Plug>(easymotion-s)
+        " Bidirectional 2-letter search
+        map <leader><leader>s <Plug>(easymotion-s2)
+        " Forward single letter search
+        map <leader>f <Plug>(easymotion-f)
+        " Directional jumps
+        map <leader>l <Plug>(easymotion-lineforward)
+        map <leader>j <Plug>(easymotion-j)
+        map <leader>k <Plug>(easymotion-k)
+        map <leader>h <Plug>(easymotion-linebackward)
+    endif
 
-" Tabular
-map <leader>a= :Tabularize /=<CR>
-map <leader>a: :Tabularize /:\zs<CR>
+    " Multiple Cursors
+    let g:multi_cursor_use_default_mapping=0
+    let g:multi_cursor_next_key='n'
+    let g:multi_cursor_prev_key='m'
+    let g:multi_cursor_skip_key='.'
+    let g:multi_cursor_quit_key=','
+    let g:multi_cursor_start_key='<C-n>'
 
-" NERD Commenter
-" Enter the NERD Commenter menu which can be tabbed through
-map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
+    if exists('g:tabular_loaded')
+        " Tabular
+        map <leader>a= :Tabularize /=<CR>
+        map <leader>a: :Tabularize /:\zs<CR>
+    endif
 
-" Gundo
-nnoremap <leader>u :GundoToggle<CR>
+    if exists('g:loaded_nerd_comments')
+        " NERD Commenter
+        " Enter the NERD Commenter menu which can be tabbed through
+        map <leader>nc :emenu Plugin.comment.<C-Z><C-Z>
+    endif
 
-" --- Language Specific ---
-" - Rust -
-map <localleader>rr :RustRun<CR>
+    if exists('g:loaded_gundo')
+        " Gundo
+        nnoremap <leader>u :GundoToggle<CR>
+    endif
 
-" - Markdown -
-map <localleader>v :LivedownToggle<CR>
+    " --- Language Specific ---
+    " - Rust -
+    map <localleader>rr :RustRun<CR>
+
+    " - Markdown -
+    map <localleader>v :LivedownToggle<CR>
+endfunction
+
+augroup Plugin_Mappings
+    autocmd!
+    autocmd VimEnter * :call MapPlugins()
+augroup END
 
 " silent! call repeat#set("\<Plug>(easymotion)", v:count)
 
-" [6] ------ Functions ------
-" Open ranger from within vim
-function! Ranger()
-    " Get a temp file name without creating it
-    let tmpfile = substitute(system('mktemp -u'), '\n', '', '')
-    " Launch ranger, passing it the temp file name
-    silent exec '!RANGER_RETURN_FILE='.tmpfile.' ranger'
-    " If the temp file has been written by ranger
-    if filereadable(tmpfile)
-        " Get the selected file name from the temp file
-        let filetoedit = system('cat '.tmpfile)
-        exec 'edit '.filetoedit
-        call delete(tmpfile)
-    endif
-    redraw!
-endfunction
+"------ Functions ------
+if executable('ranger')
+    " Open ranger from within vim
+    function! Ranger()
+        " Get a temp file name without creating it
+        let tmpfile = substitute(system('mktemp -u'), '\n', '', '')
+        " Launch ranger, passing it the temp file name
+        silent exec '!RANGER_RETURN_FILE='.tmpfile.' ranger'
+        " If the temp file has been written by ranger
+        if filereadable(tmpfile)
+            " Get the selected file name from the temp file
+            let filetoedit = system('cat '.tmpfile)
+            exec 'edit '.filetoedit
+            call delete(tmpfile)
+        endif
+        redraw!
+    endfunction
+endif
 
  " set viminfo=%M
 
@@ -778,5 +847,5 @@ endif
 
 if !has('vim_starting')
     " Reload plugins
-    call neobundle#call_hook('on_post_source')
+    silent! call neobundle#call_hook('on_post_source')
 endif

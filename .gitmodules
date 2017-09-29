@@ -1,0 +1,9 @@
+[submodule "gruvbox"]
+	path = gruvbox
+	url = https://github.com/morhetz/gruvbox
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = https://github.com/robbyrussell/oh-my-zsh
+[submodule "gruvbox-contrib"]
+	path = gruvbox-contrib
+	url = https://github.com/morhetz/gruvbox-contrib

@@ -1,3 +1,6 @@
+.DS_Store
+*/.DS_Store
+bin/*.app
 */*.log*
 */*/*/*.log*
 */gimpswap.*
@@ -6,13 +9,13 @@ cinnamon
 cinnamon/spices.cache
 cowfiles
 mednafen
-gruvbox-contrib
-oh-my-zsh
 PyCharm40/system
 racer
 vim/bundle
 vlc
 z
 node_modules
+tmuxinator
+themes
 
 dotfile_overrides
