@@ -97,11 +97,11 @@ set foldlevel=20
 " Load default menus
 source $VIMRUNTIME/menu.vim
 
-" --- GUI settings ---
+" [1.1] --- GUI settings ---
 set lines=50
 set columns=150
 
-" --- Language specific settings ---
+" [1.2] --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
 augroup Enter_Buffer
 autocmd!
@@ -145,8 +145,8 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 " let NeoBundle manage NeoBundle
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-" ------ Install Plugins ------
-" --- General ---
+" [3] ------ Install Plugins ------
+" [3.1] --- General ---
 " - Visual -
 " Rainbow parentheses
 " NeoBundle 'kien/rainbow_parentheses.vim'
@@ -194,13 +194,13 @@ NeoBundle 'kshenoy/vim-signature'
 NeoBundle 'scrooloose/syntastic'
 " Awesome autocompletion for almost everything
 " NeoBundle 'Valloric/YouCompleteMe', {
-    "      \ 'build' : {
-        "      \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-            "      \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-            "      \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
-            "      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
-                "      \    }
-    "      \ }
+"      \ 'build' : {
+"      \     'mac' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'unix' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'windows' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer',
+"      \     'cygwin' : './install.sh --clang-completer --system-libclang --omnisharp-completer --racer-completer'
+"      \    }
+"      \ }
 
 " - Commenting -
 " Comment toggling with lots of options
@@ -248,7 +248,7 @@ NeoBundle 'xolox/vim-reload'
 " Make configuration files for YCM
 NeoBundle 'rdnetto/YCM-Generator'
 
-" --- Language specific ---
+" [3.2] --- Language specific ---
 " - All -
 NeoBundle 'sheerun/vim-polyglot'
 
@@ -271,6 +271,7 @@ NeoBundle 'phildawes/racer'
 
 " - Javascript -
 NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'elzr/vim-json'
 
 " - Processing -
 NeoBundle 'sophacles/vim-processing'
@@ -294,8 +295,8 @@ if empty(glob("~/dotfiles/racer"))
     "!cargo build --release
 endif
 
-" ------ Plugin Configuration ------
-" --- General ---
+" [4] ------ Plugin Configuration ------
+" [4.1] --- General ---
 " - Visual -
 set background=dark
 let base16colorspace=256
@@ -423,7 +424,7 @@ let g:neobundle#install_process_timeout = 1500
 let g:powerline_pycmd = "py"
 " let g:powerline_pyeval = "pyeval"
 
-" --- Language Specific ---
+" [4.2] --- Language Specific ---
 " - All -
 let g:polyglot_disabled = ['python']
 
@@ -492,6 +493,7 @@ let g:pymode_trim_whitespaces = 1
 
 " Rope support
 let g:pymode_rope = 0
+let g:pymode_rope_lookup_project = 0
 
 " [YELP] Ignore line too long
 let g:pymode_lint_ignore = "W503,E128"
@@ -515,8 +517,9 @@ let g:livedown_open = 1
 " let g:vim_markdown_preview_temp_file = 0
 " let g:vim_markdown_preview_browser = 'Firefox'
 " let g:vim_markdown_preview_toggle = 1
+let g:vim_markdown_conceal = 0
 
-"------ Keybindings ------
+" [5] ------ Keybindings ------
 " Plugins
 "
 " BufferExplorer
@@ -613,7 +616,7 @@ let g:livedown_open = 1
 " [z move to start of open fold.
 " ]z move to end of open fold.
 
-" --- Mappings ---
+" [5.1] --- Mappings ---
 " - General -
 noremap <space> :
 inoremap ,, <ESC>
@@ -821,7 +824,7 @@ if !exists("*ReloadVimRC")
     endfunc
 endif
 
-"------ Autocommands ------
+" [7] ------ Autocommands ------
 augroup OpenBuffer
     autocmd!
     " Return to last edit position when opening files

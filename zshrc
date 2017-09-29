@@ -76,14 +76,18 @@ COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
 # fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
 # User profiles
-source ~/.profile
+source $HOME/.profile
 # Define $POWERLINE_ROOT
-source ~/.profile.local
+if [ -f $HOME/.profile.local ]; then
+    source $HOME/.profile.local
+fi
 
 source $ZSH/oh-my-zsh.sh
 
 # Italic support
-tic $HOME/.xterm-256color-italic.terminfo
+if [ -f $HOME/.xterm-256color-italic.terminfo ]; then
+    tic $HOME/.xterm-256color-italic.terminfo
+fi
 # tic $HOME/.tmux.terminfo
 
 # Use neovim where available
@@ -141,7 +145,7 @@ DEFAULT_USER=brad
 
 # Source files
 typeset -ga sources
-sources+=~/dotfiles/shortcuts.txt
+sources+=$HOME/dotfiles/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
 pip install --user powerline-status &>/dev/null
@@ -212,6 +216,6 @@ alias sl="sl -laF"
 export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 
 # Local overrides
-if [ -f ~/.zshrc_local ]; then
-    source ~/.zshrc_local
+if [ -f $HOME/.zshrc_local ]; then
+    source $HOME/.zshrc_local
 fi

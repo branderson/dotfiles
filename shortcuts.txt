@@ -1,3 +1,6 @@
+alias tarcomp="tar -cf"
+alias taruncomp="tar -zxf"
+
 alias tkw="tmux kill-window"
 
 alias sc="cat ~/dotfiles/shortcuts.txt"
