@@ -65,11 +65,11 @@ function check_dotfiles_version {
 
     popd
 
-    if [ $LOCAL = $REMOTE ]; then
+    if [[ $LOCAL = $REMOTE ]]; then
         return 0
-    elif [ $LOCAL = $BASE ]; then
+    elif [[ $LOCAL = $BASE ]]; then
         return 2
-    elif [ $REMOTE = $BASE ]; then
+    elif [[ $REMOTE = $BASE ]]; then
         return 3
     else
         return 4
