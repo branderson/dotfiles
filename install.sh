@@ -39,6 +39,7 @@ zshrc_local
 vimrc_local
 tmux_local.conf
 gitconfig
+pypirc
 "
 # oh-my-zsh
 # github repos to clone
