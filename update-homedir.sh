@@ -62,9 +62,9 @@ function copy_files {
 
     # Copy over each file in configs to HOMEDIR/.configs
     for file in $configs; do
-        if [[ -f $file || -d $file ]]; then
+        if [[ -f ~/.config/$file || -d ~/.config/$file ]]; then
             echo "Copying $file ($DIR/config/$file -> $HOMEDIR/.config/$file)"
-            cp -r $DIR/config/"$file" $HOMEDIR/.config/"$file_name"
+            cp -r $DIR/config/"$file" $HOMEDIR/.config/"$file"
         fi
     done
 
