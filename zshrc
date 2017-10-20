@@ -58,6 +58,7 @@ ZSH_THEME="agnoster"
 
 # # zsh-syntax-highlighting must come last
 plugins=(colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
+zmodload zsh/zpty
 
 # # User configuration
 

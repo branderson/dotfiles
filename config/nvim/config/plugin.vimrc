@@ -44,15 +44,6 @@ let g:startify_bookmarks = [
 let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
 let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
 
-" Bufferline
-" let g:bufferline_echo = 0
-" augroup Bufferline
-"     autocmd! VimEnter * if exists('g:loaded_bufferline') |
-"         \ let &statusline='%{bufferline#refresh_status()}'
-"         \ .bufferline#get_status_string() |
-"         \ endif
-" augroup END
-
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)
 
@@ -116,6 +107,12 @@ let g:neobundle#install_process_timeout = 1500
 " Powerline configuration
 let g:powerline_pycmd = "py"
 " let g:powerline_pyeval = "pyeval"
+
+" Fakeclip configuration
+let g:vim_fakeclip_tmux_plus = 1
+
+" Neotags configuration
+" let g:neotags_enabled = 1
 
 " --- Language Specific ---
 " - All -

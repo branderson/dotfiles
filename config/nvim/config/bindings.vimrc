@@ -12,7 +12,7 @@ nmap k gk
 let mapleader=","
 let maplocalleader="\\"
 " Clear highlighting on ,, in normal mode
-map <silent> <leader><leader> :nohl<CR>
+map <leader><leader><ESC> :nohl<CR>
 " Enable hex mode
 map <leader>\he :%!xxd<CR>
 " Disable hex mode

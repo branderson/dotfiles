@@ -38,7 +38,8 @@ Plug 'kshenoy/vim-signature'
 " Ctags view
 Plug 'majutsushi/tagbar'
 " Automatically keep ctags up to date
-" Plug 'xolox/vim-easytags'
+Plug 'xolox/vim-easytags'
+" Plug 'c0r73x/neotags.nvim'
 
 " - Syntax and completion -
 " Asynchronous linting
@@ -63,7 +64,8 @@ Plug 'tpope/vim-commentary'
 
 " - Git -
 " Shows git changes in the side gutter
-Plug 'airblade/vim-gitgutter'
+" Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
 " Git wrapper inside vim
 Plug 'tpope/vim-fugitive'
 
@@ -100,6 +102,8 @@ Plug 'tpope/vim-repeat'
 Plug 'xolox/vim-reload'
 " Make configuration files for YCM
 " Plug 'rdnetto/YCM-Generator'
+" Map system clipboards
+Plug 'cazador481/fakeclip.neovim'
 
 " --- Language specific ---
 " - All -
@@ -112,6 +116,8 @@ Plug 'mattn/webapi-vim'
 " - Python -
 " Plug 'klen/python-mode'
 Plug 'davidhalter/jedi-vim'
+" Completion
+Plug 'zchee/deoplete-jedi'
 
 " - C# -
 " Omnicompletion and syntax
