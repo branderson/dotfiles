@@ -33,6 +33,10 @@ gruvbox
 oh-my-zsh
 "
 
+function update_local {
+    tar cjf ~/.local.tar.bz2 ~/.local
+}
+
 function copy_files {
     echo "Deleting and remaking homedir directory ($HOMEDIR)"
     # Nuke my homedir directory
@@ -89,5 +93,21 @@ function copy_files {
         fi
     done
 }
+
+while :; do
+    case $1 in
+        -h|-\?|--help)
+            echo "update-homedir.sh [-l|--update-local]"
+            exit 0;
+            ;;
+        -l|--update-local)
+            update_local
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
 
 copy_files
