@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: Figure out dotfiles install for fzf
+
 # Ask for the administrator password upfront
 # sudo -v
 
@@ -25,6 +27,7 @@ bashrc
 bash_profile
 gitconfig
 gruvbox
+fzf.zsh
 zshrc
 zsh_functions
 vimrc

@@ -220,3 +220,5 @@ export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
