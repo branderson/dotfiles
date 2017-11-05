@@ -1,3 +1,5 @@
+let g:python_host_prog = '/nail/home/bradleya/.local/share/nvim/python2-neovim/bin/python'
+let g:python3_host_prog = '/nail/home/bradleya/.local/share/nvim/python3-neovim/bin/python'
 let g:vim_plug_install_dir = "~/.local/share/nvim/site/autoload"
 let g:plugin_install_dir = "~/.local/share/nvim/plugged"
 
@@ -13,20 +15,10 @@ call plug#begin('~/.vim/plugged')
 " - Visual -
 " Rainbow parentheses
 Plug 'luochen1990/rainbow'
-" Solarized colors for when I want them
-" Plug 'altercation/vim-colors-solarized'
-" Zenburn colors for when I want them
-" Plug 'jnurmine/Zenburn'
-" Base16 themes
-" Plug 'chriskempson/base16-vim'
-" Hybrid material theme
-" Plug 'kristijanhusak/vim-hybrid-material'
 " Gruvbox
 Plug 'morhetz/gruvbox'
 " Airline
 Plug 'bling/vim-airline'
-" Bufferline
-" Plug 'bling/vim-bufferline'
 
 " - Views -
 " Start screen
@@ -38,24 +30,22 @@ Plug 'sjl/gundo.vim'
 " Much nicer buffer management
 Plug 'jlanzarotta/bufexplorer'
 " Shows indentation level
-" Plug 'nathanaelkane/vim-indent-guides'
 Plug 'yggdroot/indentLine'
 " Show marks
 Plug 'kshenoy/vim-signature'
 
 " - Ctags -
 " Ctags view
-" Plug 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar'
 " Automatically keep ctags up to date
-" Plug 'xolox/vim-easytags'
+Plug 'xolox/vim-easytags'
+" Plug 'c0r73x/neotags.nvim'
 
 " - Syntax and completion -
 " Asynchronous linting
 Plug 'neomake/neomake'
 " Completion
-Plug 'Shuogo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" Awesome on-the-fly syntax checking for tons of languages
-" Plug 'scrooloose/syntastic'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Awesome autocompletion for almost everything
 " Plug 'Valloric/YouCompleteMe', {
     "      \ 'build' : {
@@ -74,7 +64,8 @@ Plug 'tpope/vim-commentary'
 
 " - Git -
 " Shows git changes in the side gutter
-Plug 'gitgutter/Vim'
+" Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
 " Git wrapper inside vim
 Plug 'tpope/vim-fugitive'
 
@@ -111,6 +102,8 @@ Plug 'tpope/vim-repeat'
 Plug 'xolox/vim-reload'
 " Make configuration files for YCM
 " Plug 'rdnetto/YCM-Generator'
+" Map system clipboards
+Plug 'cazador481/fakeclip.neovim'
 
 " --- Language specific ---
 " - All -
@@ -123,6 +116,8 @@ Plug 'mattn/webapi-vim'
 " - Python -
 " Plug 'klen/python-mode'
 Plug 'davidhalter/jedi-vim'
+" Completion
+Plug 'zchee/deoplete-jedi'
 
 " - C# -
 " Omnicompletion and syntax

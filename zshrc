@@ -58,6 +58,7 @@ ZSH_THEME="agnoster"
 
 # # zsh-syntax-highlighting must come last
 plugins=(archlinux colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
+zmodload zsh/zpty
 
 # # User configuration
 
@@ -219,3 +220,5 @@ export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
