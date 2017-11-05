@@ -221,4 +221,6 @@ if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [ -f ~/.fzf.zsh ]; then
+    source ~/.fzf.zsh
+fi
