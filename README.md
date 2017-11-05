@@ -5,6 +5,9 @@
 git clone git://github.com/branderson/dotfiles.git
 cd ~/dotfiles
 ./install.sh
+
+# To install middle click functionality for urxvt:
+cp bin/osc-xterm-clipboard /usr/lib/urxvt/perl/
 ```
 
 ## About:

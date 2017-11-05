@@ -38,9 +38,11 @@ if [ -f "$usermodmap" ]; then
     xmodmap "$usermodmap"
 fi
 
-# start some nice programs
-# /usr/bin/VBoxClient-all
-# /usr/bin/dropbox &
+if [ -f "/etc/arch-release" ]; then
+    # start some nice programs
+    /usr/bin/VBoxClient-all
+    /usr/bin/dropbox &
+fi
 
 if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  for f in /etc/X11/xinit/xinitrc.d/?* ; do
@@ -55,7 +57,11 @@ fi
 # xterm -geometry 80x20+494-0 &
 # exec xterm -geometry 80x66+0+0 -name login
 
-# Set up X keyboard shortcuts
-# setxkbmap -option terminate:ctrl_alt_bksp
+if [ -f "/etc/arch-release" ]; then
+    # Set up X keyboard shortcuts
+    setxkbmap -option terminate:ctrl_alt_bksp
 
-exec zsh 
+    exec i3
+else
+    exec zsh
+fi

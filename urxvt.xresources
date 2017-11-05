@@ -21,7 +21,8 @@ URxvt*loginShell: true
 
 ! Select the fonts to be used. This is a comma separated list of font names that are checked in
 ! URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=false:hinting=true
-URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=true:hinting=true
+! URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=true:hinting=true
+URxvt*font: xft:Source Code Pro for Powerline:medium:size=8:antialias=true:hinting=true
 ! xterm*faceName:Source Code Pro for Powerline:pixelsize=14
 ! URxvt*font: xft:Hack:medium:size=12
 
@@ -230,9 +231,8 @@ URxvt*font: xft:Source Code Pro for Powerline:medium:size=10:antialias=true:hint
 ! Compile frills: Associate action with keysym sym. The intervening resource name keysym. cannot
 ! URxvt*keysym.sym: action
 
-! URxvt*perl-ext-common: string
-
 ! Comma-separated list(s) of perl extension scripts (default: "default") to use in this terminal
+URxvt*perl-ext-common: osc-xterm-clipboard
 ! URxvt*perl-ext: string
 
 ! Perl code to be evaluated when all extensions have been registered. See the urxvtperl(3)

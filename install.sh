@@ -76,8 +76,6 @@ generator-meanjs
 "
 # install yaourt on Arch Linux
 AUR="
-package-query
-yaourt
 i3-gaps-git
 dmenu2
 compton
@@ -88,15 +86,12 @@ numix-icon-theme-git
 ttf-hack
 tty-clock-borderless
 virtualbox-ext-oracle
-gtk-theme-arc-git
 fonts-meta-extended-lt
+xsel
 "
-# dropbox
-# dropbox-cli
 # list of AUR programs to install on Arch Linux
 YAOURT="
 "
-# atom-editor
 PROGRAMS="
 reflector
 atool
@@ -207,6 +202,7 @@ function install_AUR() {
             sudo pacman -Sq $pacman_args git
             echo "Installing base-devel if it's not installed."
             sudo pacman -Sq $pacman_args base-devel
+            # TODO: Convert to pacaur
             echo "Installing yaourt."
             for program in $AUR; do
                 if [[ ! -d ~/builds/$program ]]; then
