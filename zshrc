@@ -57,7 +57,7 @@ ZSH_THEME="agnoster"
 # # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # # zsh-syntax-highlighting must come last
-plugins=(colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
+plugins=(archlinux colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
 zmodload zsh/zpty
 
 # # User configuration
@@ -221,4 +221,6 @@ if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [ -f ~/.fzf.zsh ]; then
+    source ~/.fzf.zsh
+fi
