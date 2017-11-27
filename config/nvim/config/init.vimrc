@@ -1,9 +1,3 @@
-" let g:python_host_prog = '/Users/bradleya/.config/nvim/python2-neovim/bin/python2'
-" let g:python3_host_prog = '/Users/bradleya/.config/nvim/python3-neovim/bin/python3'
-let g:python_host_prog = $HOME.'/.config/nvim/python2-neovim/bin/python2'
-let g:python3_host_prog = $HOME.'/.config/nvim/python3-neovim/bin/python3'
-" let g:python_host_prog = '/usr/local/bin/python2'
-" let g:python3_host_prog = '/usr/local/bin/python3'
 let g:vim_plug_install_dir = "~/.local/share/nvim/site/autoload"
 let g:plugin_install_dir = "~/.local/share/nvim/plugged"
 

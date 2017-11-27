@@ -22,8 +22,9 @@ vimrc
 xterm-256color-italic.terminfo
 zsh_functions
 zshrc
-dotfile_overrides/zshrc_local
+dotfile_overrides/nvim_local.vimrc
 dotfile_overrides/profile.local
+dotfile_overrides/zshrc_local
 "
 configs="
 nvim
