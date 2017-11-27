@@ -1,5 +1,9 @@
-let g:python_host_prog = '/nail/home/bradleya/.local/share/nvim/python2-neovim/bin/python'
-let g:python3_host_prog = '/nail/home/bradleya/.local/share/nvim/python3-neovim/bin/python'
+" let g:python_host_prog = '/Users/bradleya/.config/nvim/python2-neovim/bin/python2'
+" let g:python3_host_prog = '/Users/bradleya/.config/nvim/python3-neovim/bin/python3'
+let g:python_host_prog = $HOME.'/.config/nvim/python2-neovim/bin/python2'
+let g:python3_host_prog = $HOME.'/.config/nvim/python3-neovim/bin/python3'
+" let g:python_host_prog = '/usr/local/bin/python2'
+" let g:python3_host_prog = '/usr/local/bin/python3'
 let g:vim_plug_install_dir = "~/.local/share/nvim/site/autoload"
 let g:plugin_install_dir = "~/.local/share/nvim/plugged"
 
@@ -38,8 +42,8 @@ Plug 'kshenoy/vim-signature'
 " Ctags view
 Plug 'majutsushi/tagbar'
 " Automatically keep ctags up to date
-Plug 'xolox/vim-easytags'
-" Plug 'c0r73x/neotags.nvim'
+" Plug 'xolox/vim-easytags'
+Plug 'c0r73x/neotags.nvim'
 
 " - Syntax and completion -
 " Asynchronous linting

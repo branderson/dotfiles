@@ -19,6 +19,7 @@ matplotlib
 menus
 mimeapps.list
 Mousepad
+NuGet
 orage
 gconf
 pavucontrol.ini
@@ -31,11 +32,13 @@ ranger/history
 ranger/tagged
 ristretto
 spotify
+stetic
 Thunar
 transmission
 Trolltech.conf
 user-dirs.dirs
 user-dirs.locale
+xbuild
 xfce4
 xfce4/panel
 xfce4/desktop
