@@ -89,7 +89,9 @@ source $ZSH/oh-my-zsh.sh
 if [ -f $HOME/.xterm-256color-italic.terminfo ]; then
     tic $HOME/.xterm-256color-italic.terminfo
 fi
-# tic $HOME/.tmux.terminfo
+if [ -f $HOME/.screen-256color-italic.terminfo ]; then
+    tic $HOME/.screen-256color-italic.terminfo
+fi
 
 # Use neovim where available
 if type nvim > /dev/null 2>&1; then

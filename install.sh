@@ -42,11 +42,13 @@ themes
 profile
 pam_environment
 xterm-256color-italic.terminfo
+screen-256color-italic.terminfo
 "
 overrides="
 zshrc_local
 vimrc_local
 tmux_local.conf
+nvim_local.vimrc
 profile.local
 gitconfig
 pypirc
