@@ -15,6 +15,7 @@ bash_profile
 gitconfig
 install_tools.sh
 profile
+ssh
 tmux
 tmux.conf
 tmuxinator

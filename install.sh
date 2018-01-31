@@ -41,6 +41,7 @@ PyCharm40
 themes
 profile
 pam_environment
+ssh
 xterm-256color-italic.terminfo
 screen-256color-italic.terminfo
 "
