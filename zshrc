@@ -9,9 +9,6 @@ source "$HOME/.zsh_functions"
 export ZSH=$HOME/.oh-my-zsh
 export RUST_SRC_PATH=/usr/local/src/rust/src
 
-# Keep ssh socket in a predictable place
-export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
-
 # Z
 # . $HOME/dotfiles/z/z.sh
 # Set name of the theme to load.
@@ -68,8 +65,9 @@ zmodload zsh/zpty
 # Enable environment variables as CD directories
 setopt cdablevars
 # Enable correction for mistyped commands
-setopt correctall
-alias make='nocorrect make'
+unsetopt correctall
+# alias make='nocorrect make'
+# alias git='nocorrect git'
 
 #PATHs
 export PATH=$HOME/bin:/usr/local/bin:$PATH

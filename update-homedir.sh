@@ -14,6 +14,7 @@ bashrc
 bash_profile
 gitconfig
 install_tools.sh
+cam_push.sh
 profile
 ssh
 tmux
