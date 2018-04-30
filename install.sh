@@ -26,6 +26,7 @@ su_crontab
 bashrc
 bash_profile
 gitconfig
+githooks
 gruvbox
 fzf.zsh
 zshrc

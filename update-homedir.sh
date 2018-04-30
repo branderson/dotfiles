@@ -13,6 +13,7 @@ bin
 bashrc
 bash_profile
 gitconfig
+githooks
 install_tools.sh
 cam_push.sh
 profile

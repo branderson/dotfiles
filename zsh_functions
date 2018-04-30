@@ -1,3 +1,7 @@
+function kill_my_docker_containers() {
+    docker ps | grep $USER | awk '{print $1;}' | xargs docker kill
+}
+
 function list_processes() {
     # List all processes matching the given process name string
     ps aux | grep $(whoami) | grep -i "$1" | grep -v grep
