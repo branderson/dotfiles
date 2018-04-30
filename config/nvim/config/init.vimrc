@@ -135,4 +135,9 @@ Plug 'sophacles/vim-processing'
 " - Markdown -
 " Plug 'shime/vim-livedown'
 
+
+" --- Icons ---
+" For some reason this needs to be loaded last
+Plug 'ryanoasis/vim-devicons'
+
 call plug#end()

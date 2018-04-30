@@ -337,6 +337,24 @@ function install_zsh() {
     fi
 }
 
+install_nerd_fonts() {
+    # TODO: Clean this up a bit
+    if [[ $platform == 'Linux' ]]; then
+        if [ $(program_installed pacaur) == 1 ]; then
+            pacaur -Sqa $pacman_args nerd-fonts-source-code-pro
+        else
+            cd $dir
+            git clone --depth 1 http://github.com/ryanoasis/nerd-fonts.git
+            nerd-fonts/install.sh SauceCode
+            rm -rf nerd-fonts
+        fi
+    elif [[ $platform == 'Darwin' ]]; then
+        # TODO: Make sure we have homebrew
+        brew tap caskroom/fonts
+        brew cask install font-sourcecodepro-nerd-font-mono
+    fi
+}
+
 install_powerline_fonts() {
     cd $dir
     git clone http://github.com/powerline/fonts.git
@@ -442,6 +460,7 @@ function main() {
         install_gems
         install_rust_src
         install_zsh
+        install_nerd_fonts
         install_powerline_fonts
         configure_system
         configure_freetype2

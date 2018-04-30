@@ -17,6 +17,9 @@ runtime macros/matchit.vim
 " Set unix line endings
 " set fileformat=unix
 
+" Set encoding for vim-devicons
+set encoding=UTF-8
+
 " Don't redraw screen when not needed
 set lazyredraw
 
