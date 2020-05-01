@@ -100,8 +100,6 @@ Plug 'tpope/vim-repeat'
 Plug 'xolox/vim-reload'
 " Make configuration files for YCM
 " Plug 'rdnetto/YCM-Generator'
-" Map system clipboards
-Plug 'cazador481/fakeclip.neovim'
 
 " --- Language specific ---
 " - All -

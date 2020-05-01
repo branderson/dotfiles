@@ -57,7 +57,7 @@ ZSH_THEME="agnoster"
 # # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # # zsh-syntax-highlighting must come last
-plugins=(archlinux colorize command-not-found cp h git github gitflow tmux gibo bower grunt npm osx zsh-syntax-highlighting)
+plugins=(archlinux colorize command-not-found cp git github tmux  bower grunt npm osx zsh-syntax-highlighting)
 zmodload zsh/zpty
 
 # # User configuration
@@ -72,7 +72,7 @@ unsetopt correctall
 #PATHs
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export MANPATH="/usr/local/man:$MANPATH"
-PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
 # Add user cowpath to COWPATH
 COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
 # Make a random (cow?) with a random face say something

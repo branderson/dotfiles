@@ -108,9 +108,6 @@ let g:neobundle#install_process_timeout = 1500
 let g:powerline_pycmd = "py"
 " let g:powerline_pyeval = "pyeval"
 
-" Fakeclip configuration
-let g:vim_fakeclip_tmux_plus = 1
-
 " Neotags configuration
 " let g:neotags_enabled = 1
 
