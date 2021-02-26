@@ -37,7 +37,8 @@ Plug 'kshenoy/vim-signature'
 Plug 'majutsushi/tagbar'
 " Automatically keep ctags up to date
 " Plug 'xolox/vim-easytags'
-Plug 'c0r73x/neotags.nvim'
+" TODO Fix compatibility with vim-zettel
+" Plug 'c0r73x/neotags.nvim'
 
 " - Syntax and completion -
 " Asynchronous linting
@@ -83,7 +84,9 @@ Plug 'godlygeek/tabular'
 " Kickass fuzzy finder for whole filesystem
 Plug 'ctrlpvim/ctrlp.vim'
 " Can use Ag from vim
-Plug 'rking/ag.vim'
+" Plug 'rking/ag.vim'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 
 " - Utility and dependencies
 " Library required for some plugins
@@ -100,6 +103,12 @@ Plug 'tpope/vim-repeat'
 Plug 'xolox/vim-reload'
 " Make configuration files for YCM
 " Plug 'rdnetto/YCM-Generator'
+
+" - Note Taking -
+" Note taking and wiki managment
+Plug 'vimwiki/vimwiki'
+Plug 'michal-h21/vim-zettel'
+Plug 'michal-h21/vimwiki-sync'
 
 " --- Language specific ---
 " - All -

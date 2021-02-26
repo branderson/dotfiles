@@ -111,6 +111,9 @@ let g:powerline_pycmd = "py"
 " Neotags configuration
 " let g:neotags_enabled = 1
 
+" Vimwiki configuration
+let g:vimwiki_list = [{'path': '~/notebook/', 'syntax': 'markdown', 'ext': '.md'}]
+
 " --- Language Specific ---
 " - All -
 let g:polyglot_disabled = ['python']

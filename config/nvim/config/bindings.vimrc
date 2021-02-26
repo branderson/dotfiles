@@ -79,6 +79,11 @@ function! MapPlugins()
         map <leader>ct :TagbarToggle<CR>
     endif
 
+    if exists('g:loaded_vimwiki')
+        if exists('g:loaded_zettel')
+        endif
+    endif
+
     " Update ctags
     " nnoremap <leader>ct :! ctags -R<CR><CR>
 
