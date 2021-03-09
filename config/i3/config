@@ -47,7 +47,7 @@ for_window [instance="^scratchpad$"] move scratchpad
 floating_modifier $mod
 
 # start a terminal
-# bindsym $mod+Return exec termite -e 'zsh -c "tmux -2 new-session"'
+bindsym $mod+u exec termite -e 'zsh -c "tmux -2 new-session"'
 bindsym $mod+t exec urxvt -e zsh -c 'source ~/.zshrc && tmux new-session' # -e 'tmux new-session'
 # attach to existing tmux session
 bindsym $mod+Return exec urxvt -e zsh -c 'source ~/.zshrc && (tmux new-session -t main || tmux new-session -s main)'
@@ -59,8 +59,8 @@ bindsym $mod+o exec urxvt -e zsh -c 'ranger'
 # start thunar
 bindsym $mod+q exec thunar
 
-# start chrome
-bindsym $mod+i exec google-chrome-stable --force-device-scale-factor=1.25
+# start firefox
+bindsym $mod+i exec firefox
 
 # start volume mixer
 # bindsym $mod+v [class="Pavucontrol"] scratchpad show
@@ -258,7 +258,7 @@ for_window [class="^.*"] border pixel 1
 # Global gap size
 # smart_gaps on
 gaps inner 20
-gaps outer 50
+gaps outer 20
 
 set $mode_toggle_gaps Gaps: (e) enable, (d) disable
 set $mode_gaps Gaps: (o) outer, (i) inner

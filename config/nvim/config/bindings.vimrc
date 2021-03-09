@@ -50,7 +50,7 @@ map <leader>v :e $MYVIMRC<CR>
 " Update vimrc
 map <leader>rr :call ReloadVimRC()<CR>;
 " Open GVim menu
-map <leader>m :emenu <C-Z><C-Z>
+" map <leader>m :emenu <C-Z><C-Z>
 " Low-light mode
 map <leader><leader>ll :set background=dark<CR>
 " Daylight mode
@@ -77,6 +77,11 @@ function! MapPlugins()
     if exists('g:loaded_tagbar')
         " Toggle tagbar
         map <leader>ct :TagbarToggle<CR>
+    endif
+
+    if exists('g:loaded_zettel')
+    endif
+    if exists('g:loaded_vimwiki')
     endif
 
     " Update ctags

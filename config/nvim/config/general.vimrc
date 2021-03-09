@@ -11,6 +11,23 @@ set nobackup
 set t_Co=256 " Run in 256-color mode
 set number " Show line numbers
 
+" Set the clipbaord
+" set clipboard+=unnamedplus
+" let g:clipboard = {
+"     \   'name': 'myClipboard',
+"     \   'copy': {
+"     \       '+': 'tmux load-buffer -',
+"     \       '*': 'tmux load-buffer -',
+"     \   },
+"     \   'paste': {
+"     \       '+': 'tmux save-buffer -',
+"     \       '*': 'tmux save-buffer -',
+"     \   },
+"     \   'cache_enabled': 1,
+"     \ }
+" let g:loaded_clipboard_provider=1
+
+
 " Matchit plugin enhances %
 runtime macros/matchit.vim
 
