@@ -2,6 +2,7 @@
     lol = log --graph --decorate --pretty=oneline --abbrev-commit
     lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
     oops = reset --soft HEAD~1
+    boom = reset --hard
 [color]
     branch = auto
     diff = auto

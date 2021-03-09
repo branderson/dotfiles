@@ -1,3 +1,7 @@
+function upload_to_personal_space() {
+    scp $1 people:public_html/
+}
+
 function kill_my_docker_containers() {
     docker ps | grep $USER | awk '{print $1;}' | xargs docker kill
 }

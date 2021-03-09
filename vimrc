@@ -262,7 +262,7 @@ NeoBundle 'davidhalter/jedi-vim'
 
 " - C# -
 " Omnicompletion and syntax
-NeoBundle 'OmniSharp/omnisharp-vim'
+" NeoBundle 'OmniSharp/omnisharp-vim'
 
 " - Rust -
 " Syntax and autocompletion
