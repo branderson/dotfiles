@@ -117,6 +117,9 @@ let g:vimwiki_list = [
             \{'path': '~/work_notebook/', 'syntax': 'markdown', 'ext': '.md'}]
 let g:vimwiki_map_prefix = '<Leader>m'
 
+"Vim-Zettel configuration
+" let g:zettel_fzf_command = "ag "
+
 " --- Language Specific ---
 " - All -
 let g:polyglot_disabled = ['python']

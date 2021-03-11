@@ -1,6 +1,7 @@
 " --- Mappings ---
 " - General -
-noremap <space> :
+" TODO: Remap this to easymotion but don't step on other bindings
+" noremap <space> :
 inoremap ,, <ESC>
 cnoremap ,, <ESC><ESC>
 nmap j gj
@@ -94,10 +95,10 @@ function! MapPlugins()
             autocmd!
             " TODO The <Plug> syntax is correct but broken
             " autocmd Filetype vimwiki nmap <leader>mag <Plug>ZettelOpen<CR>
-            autocmd Filetype vimwiki nmap <leader>mag :Ag<CR>
-            " autocmd Filetype vimwiki nmap <leader>mt :e Tasks.md<CR>
-            autocmd Filetype vimwiki nmap <leader>mp1 :Ag p0<CR>
-            autocmd Filetype vimwiki nmap <leader>mp1 :Ag p1<CR>
+            " TODO This one works but doesn't jump to the right line
+            autocmd Filetype vimwiki nmap <leader>mag :ZettelOpen<CR>
+            autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen p0<CR>
+            autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen p1<CR>
             " TODO This doesn't work
             autocmd Filetype vimwiki nmap <leader>mat :ZettelOpen title:
         augroup END
