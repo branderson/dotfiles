@@ -16,6 +16,7 @@ Plug 'luochen1990/rainbow'
 " Gruvbox
 Plug 'morhetz/gruvbox'
 " Airline
+" TODO This now depends on lua
 Plug 'bling/vim-airline'
 
 " - Views -
@@ -30,6 +31,8 @@ Plug 'jlanzarotta/bufexplorer'
 " Shows indentation level
 Plug 'yggdroot/indentLine'
 " Show marks
+" TODO Make this not conflict with ,mm for vimwiki, probably just an issue
+" with not having vimwiki installed yet
 " Plug 'kshenoy/vim-signature'
 
 " - Ctags -
@@ -74,6 +77,7 @@ Plug 'tpope/vim-surround'
 " Parentheses and bracket auto-close
 Plug 'Raimondi/delimitMate'
 " Much nicer navigation
+" TODO Move this to space key
 Plug 'easymotion/vim-easymotion'
 " Multiple cursors
 Plug 'terryma/vim-multiple-cursors'
@@ -109,6 +113,7 @@ Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'michal-h21/vim-zettel'
+" TODO Make this pull on buffer open / load
 Plug 'michal-h21/vimwiki-sync'
 
 " --- Language specific ---
