@@ -30,7 +30,7 @@ Plug 'jlanzarotta/bufexplorer'
 " Shows indentation level
 Plug 'yggdroot/indentLine'
 " Show marks
-Plug 'kshenoy/vim-signature'
+" Plug 'kshenoy/vim-signature'
 
 " - Ctags -
 " Ctags view
@@ -85,8 +85,6 @@ Plug 'godlygeek/tabular'
 Plug 'ctrlpvim/ctrlp.vim'
 " Can use Ag from vim
 " Plug 'rking/ag.vim'
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
 
 " - Utility and dependencies
 " Library required for some plugins
@@ -107,6 +105,9 @@ Plug 'xolox/vim-reload'
 " - Note Taking -
 " Note taking and wiki managment
 Plug 'vimwiki/vimwiki'
+" TODO Why can't these go in Search?
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'michal-h21/vim-zettel'
 Plug 'michal-h21/vimwiki-sync'
 

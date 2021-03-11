@@ -112,7 +112,10 @@ let g:powerline_pycmd = "py"
 " let g:neotags_enabled = 1
 
 " Vimwiki configuration
-let g:vimwiki_list = [{'path': '~/notebook/', 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_list = [
+            \{'path': '~/notebook/', 'syntax': 'markdown', 'ext': '.md'},
+            \{'path': '~/work_notebook/', 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_map_prefix = '<Leader>m'
 
 " --- Language Specific ---
 " - All -

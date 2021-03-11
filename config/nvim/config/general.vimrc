@@ -1,3 +1,7 @@
+set nocompatible
+filetype plugin on
+syntax on
+
 " Control-X Control-O to open autocomplete box
 set omnifunc=syntaxcomplete#Complete
 " Leave hidden buffers open
