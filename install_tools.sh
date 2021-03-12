@@ -1,4 +1,4 @@
-gem install --user-install bro
+gem install --user-install bropages
 gem install --user-install tmuxinator
 gem install --user-install neovim  # Needed for neovim Ruby support
 
