@@ -116,6 +116,11 @@ let g:vimwiki_list = [
             \{'path': '~/notebook/', 'syntax': 'markdown', 'ext': '.md'},
             \{'path': '~/work_notebook/', 'syntax': 'markdown', 'ext': '.md'}]
 let g:vimwiki_map_prefix = '<Leader>m'
+augroup filetype_vimwiki
+    " Wrap lines nicely
+    autocmd Filetype vimwiki set breakindent
+    autocmd Filetype vimwiki set breakindentopt=shift:2
+augroup END
 
 "Vim-Zettel configuration
 " let g:zettel_fzf_command = "ag "
