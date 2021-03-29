@@ -114,7 +114,7 @@ let g:powerline_pycmd = "py"
 " Vimwiki configuration
 let g:vimwiki_list = [
             \{'path': '~/notebook/', 'syntax': 'markdown', 'ext': '.md', 'diary_rel_path': 'daily_notes/', 'diary_index': 'index', 'diary_header': 'Daily Notes', 'auto_tags': 1, 'auto_diary_index': 1, 'auto_generate_links': 1, 'auto_generate_tags': 1},
-            \{'path': '~/work_notebook/', 'syntax': 'markdown', 'ext': '.md'},
+            \{'path': '~/work_notebook/', 'syntax': 'markdown', 'ext': '.md', 'diary_rel_path': 'daily_notes/', 'diary_index': 'index', 'diary_header': 'Daily Notes', 'auto_tags': 1, 'auto_diary_index': 1, 'auto_generate_links': 1, 'auto_generate_tags': 1},
             \{'path': '~/private_notebook/', 'syntax': 'markdown', 'ext': '.md'}]
 let g:vimwiki_map_prefix = '<Leader>m'
 augroup filetype_vimwiki
