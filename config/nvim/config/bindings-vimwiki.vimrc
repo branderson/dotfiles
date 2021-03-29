@@ -20,6 +20,11 @@ function! MapVimwiki()
     imap <S-Tab> <Plug>VimwikiDecreaseLvlSingleItem
     vmap <Tab> <Plug>VimwikiIncreaseLvlSingleItem
     vmap <S-Tab> <Plug>VimwikiDecreaseLvlSingleItem
+    " This is how to map insert mode plug commands <Esc><Plug>{command}a
+    " This always jumps to the end of the line, but with 'a' it doesn't skip
+    " the [ ] when adding at the start of the line
+    imap <C-Space> <Esc><Plug>VimwikiToggleListItemA
+    imap <C-l><C-Space> <Esc><Plug>VimwikiRemoveSingleCBa
     nmap <leader>mb <Plug>VimwikiBackLinks
     " nmap <leader>m\ <Plug>VimwikiTable 
     nmap <leader>mqtoc <Plug>VimwikiTOC
