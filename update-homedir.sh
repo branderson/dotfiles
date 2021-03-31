@@ -5,7 +5,7 @@ HOMEDIR=~/homedirs/users/bradleya
 SCRIPT_NAME=${0##*/}
 
 homefiles="
-.local.tar.bz2
+.tmuxinator
 "
 # .local
 files="
@@ -34,7 +34,6 @@ nvim
 "
 gits="
 gruvbox
-oh-my-zsh
 "
 
 function update_local {
