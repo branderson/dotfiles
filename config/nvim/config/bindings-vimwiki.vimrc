@@ -24,12 +24,16 @@ function! MapVimwiki()
     " This always jumps to the end of the line, but with 'a' it doesn't skip
     " the [ ] when adding at the start of the line
     imap <C-Space> <Esc><Plug>VimwikiToggleListItemA
+    nmap <C-l><C-Space> <Plug>VimwikiRemoveSingleCB
     imap <C-l><C-Space> <Esc><Plug>VimwikiRemoveSingleCBa
     nmap <leader>mb <Plug>VimwikiBackLinks
     " nmap <leader>m\ <Plug>VimwikiTable 
     nmap <leader>mqtoc <Plug>VimwikiTOC
     nmap <leader>mqgtl <Plug>VimwikiRebuildTags<CR><Plug>VimwikiGenerateTagLinks<CR>
 
+    " Insert link from system clipboard
+    vmap <C-k> c[]<Esc>Pea()<Esc>"+P
+    imap <C-k> <Esc>viW<C-k>ea
 
     " TODO: None of these work
     " nmap <leader>m| :VimwikiVSplitLink 1 1<CR>

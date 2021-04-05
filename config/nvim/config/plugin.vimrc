@@ -124,7 +124,7 @@ augroup filetype_vimwiki
 augroup END
 
 "Vim-Zettel configuration
-" let g:zettel_fzf_command = "ag "
+let g:zettel_options = [{}, {"front_matter": [["tags", ""], ["type", "note"]], "template": "~/work_notebook/templates/daily_note.tpl"}]
 
 " --- Language Specific ---
 " - All -
