@@ -1,12 +1,15 @@
 function! MapVimwiki()
     " grep: if exists('g:loaded_vimwiki')
     nmap <leader>mm <Plug>VimwikiIndex
+    nmap <leader>msw <Plug>VimwikiUISelect
     nmap <leader>mhelp :verbose map ,m<CR>
     nmap <leader>mg <Plug>VimwikiGoto
-    " TODO These two don't split unless I put it on multiple keys like ,mv
-    " This is because they send the same keycode
-    nmap <C-Enter> <Plug>VimwikiVSplitLink
-    nmap <S-Enter> <Plug>VimwikiSplitLink
+
+    " <C-Enter> and <S-Enter> (the original bindings for these) don't work
+    " because they send the same keycode and probably other reasons
+    nmap <leader>msv <Plug>VimwikiVSplitLink
+    nmap <leader>msh <Plug>VimwikiSplitLink
+
     nmap <leader>mnt <Plug>VimwikiNextTask
     " TODO This command doesn't exist
     " nmap <leader>mN <Plug>VimwikiPrevTask
@@ -32,8 +35,8 @@ function! MapVimwiki()
     nmap <leader>mqgtl <Plug>VimwikiRebuildTags<CR><Plug>VimwikiGenerateTagLinks<CR>
 
     " Insert link from system clipboard
-    vmap <C-k> c[]<Esc>Pea()<Esc>"+P
-    imap <C-k> <Esc>viW<C-k>ea
+    vmap <C-m> c[]<Esc>Pea()<Esc>"+P
+    imap <C-m> <Esc>viW<C-k>ea
 
     " TODO: None of these work
     " nmap <leader>m| :VimwikiVSplitLink 1 1<CR>
