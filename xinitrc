@@ -38,11 +38,10 @@ if [ -f "$usermodmap" ]; then
     xmodmap "$usermodmap"
 fi
 
-if [ -f "/etc/arch-release" ]; then
+#if [ -f "/etc/arch-release" ]; then
     # start some nice programs
-    /usr/bin/VBoxClient-all
-    /usr/bin/dropbox &
-fi
+#    /usr/bin/dropbox &
+#fi
 
 if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  for f in /etc/X11/xinit/xinitrc.d/?* ; do

@@ -1,12 +1,15 @@
 function! MapVimwiki()
     " grep: if exists('g:loaded_vimwiki')
     nmap <leader>mm <Plug>VimwikiIndex
+    nmap <leader>msw <Plug>VimwikiUISelect
     nmap <leader>mhelp :verbose map ,m<CR>
     nmap <leader>mg <Plug>VimwikiGoto
-    " TODO These two don't split unless I put it on multiple keys like ,mv
-    " This is because they send the same keycode
-    nmap <C-Enter> <Plug>VimwikiVSplitLink
-    nmap <S-Enter> <Plug>VimwikiSplitLink
+
+    " <C-Enter> and <S-Enter> (the original bindings for these) don't work
+    " because they send the same keycode and probably other reasons
+    nmap <leader>msv <Plug>VimwikiVSplitLink
+    nmap <leader>msh <Plug>VimwikiSplitLink
+
     nmap <leader>mnt <Plug>VimwikiNextTask
     " TODO This command doesn't exist
     " nmap <leader>mN <Plug>VimwikiPrevTask

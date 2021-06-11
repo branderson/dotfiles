@@ -11,6 +11,7 @@ cowfiles
 mednafen
 PyCharm40/system
 racer
+ssh/known_host*
 vim/bundle
 vim/plugged
 vlc
