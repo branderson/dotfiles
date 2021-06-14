@@ -34,6 +34,7 @@ function! MapVimwiki()
     " Insert link from system clipboard
     vmap <C-k> c[]<Esc>Pea()<Esc>"+P
     imap <C-k> <Esc>viW<C-k>ea
+    nmap <C-k> ciw[]<Esc>Pea()<Esc>"+P
 
     " TODO: None of these work
     " nmap <leader>m| :VimwikiVSplitLink 1 1<CR>

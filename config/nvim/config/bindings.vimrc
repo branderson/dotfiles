@@ -97,10 +97,10 @@ function! MapPlugins()
             " autocmd Filetype vimwiki nmap <leader>mag <Plug>ZettelOpen<CR>
             " TODO This one works but doesn't jump to the right line
             autocmd Filetype vimwiki nmap <leader>mag :ZettelOpen<CR>
-            autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen p0<CR>
-            autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen p1<CR>
+            autocmd Filetype vimwiki nmap <leader>mp0 :ZettelOpen<CR>p0
+            autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen<CR>p1
             " TODO This doesn't work
-            autocmd Filetype vimwiki nmap <leader>mat :ZettelOpen title:
+            autocmd Filetype vimwiki nmap <leader>mat :ZettelOpen<CR>title:
         augroup END
     endif
 
