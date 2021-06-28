@@ -6,6 +6,9 @@ SCRIPT_NAME=${0##*/}
 
 homefiles="
 .tmuxinator
+.nvim_local.vimrc
+.profile.local
+.zshrc_local
 "
 # .local
 files="
@@ -17,7 +20,6 @@ githooks
 install_tools.sh
 cam_push.sh
 profile
-ssh
 tmux
 tmux.conf
 tmuxinator
@@ -33,7 +35,6 @@ configs="
 nvim
 "
 gits="
-gruvbox
 "
 
 function update_local {
