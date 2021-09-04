@@ -50,7 +50,8 @@ endfunction
 
 augroup Vimwiki_Mappings
     autocmd!
-    autocmd VimEnter * :call MapVimwiki()
+    " TODO: This isn't working, vimwiki bindings are not being initialized
+    autocmd FileType vimwiki :call MapVimwiki()
 augroup END
 " TODO This shouldn't be necessary, why does this need to be called before vimwiki
 " and after startup?
