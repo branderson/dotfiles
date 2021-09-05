@@ -123,6 +123,7 @@ Plug 'sheerun/vim-polyglot'
 " - Web -
 Plug 'mattn/emmet-vim'
 Plug 'mattn/webapi-vim'
+Plug 'coc-extensions/coc-svelte'
 
 " - Python -
 " Plug 'klen/python-mode'

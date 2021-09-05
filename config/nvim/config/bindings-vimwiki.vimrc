@@ -35,9 +35,9 @@ function! MapVimwiki()
     nmap <leader>mqgtl <Plug>VimwikiRebuildTags<CR><Plug>VimwikiGenerateTagLinks<CR>
 
     " Insert link from system clipboard
-    vmap <C-k> c[]<Esc>Pea()<Esc>"+P
-    imap <C-k> <Esc>viW<C-k>ea
-    nmap <C-k> ciw[]<Esc>Pea()<Esc>"+P
+    vmap <leader>mk c[]<Esc>Pea()<Esc>"+P
+    imap <leader>mk <Esc>viW<C-k>ea
+    nmap <leader>mk ciw[]<Esc>Pea()<Esc>"+P
 
     " TODO: None of these work
     " nmap <leader>m| :VimwikiVSplitLink 1 1<CR>
@@ -55,4 +55,4 @@ augroup Vimwiki_Mappings
 augroup END
 " TODO This shouldn't be necessary, why does this need to be called before vimwiki
 " and after startup?
-:call MapVimwiki()
+" :call MapVimwiki()

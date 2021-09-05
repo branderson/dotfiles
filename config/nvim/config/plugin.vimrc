@@ -77,6 +77,12 @@ let g:gitgutter_map_keys = 0
 " NERD Commenter
 " let g:NERDMenuMode = 1
 
+" NERD Tree
+augroup DIRCHAANGE
+    au!
+    autocmd DirChanged global :NERDTreeCWD
+augroup END
+
 " Ctrl-P configuration
 " Use nearest version control directory as cwd
 let g:ctrlp_working_path_mode = 'r'
