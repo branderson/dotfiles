@@ -83,6 +83,8 @@ Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 " Automatic alignment
 Plug 'godlygeek/tabular'
+" Tables
+Plug 'dhruvasagar/vim-table-mode'
 
 " - Search -
 " Kickass fuzzy finder for whole filesystem
@@ -119,11 +121,21 @@ Plug 'michal-h21/vimwiki-sync'
 " --- Language specific ---
 " - All -
 Plug 'sheerun/vim-polyglot'
+" Integration with language servers but manual configuration
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Allows vim to configure filetype by file section (for svelte)
+Plug 'Shougo/context_filetype.vim'
+" Prettier
+Plug 'prettier/vim-prettier', { 'do': 'npm install' }
 
 " - Web -
 Plug 'mattn/emmet-vim'
 Plug 'mattn/webapi-vim'
+Plug 'evanleck/vim-svelte'
 Plug 'coc-extensions/coc-svelte'
+" TODO: Needs to be installed with `:CocInstall coc-tsserver`, figure out how
+" to config this
+" Plug 'coc-extensions/coc-tsserver'
 
 " - Python -
 " Plug 'klen/python-mode'
@@ -142,6 +154,8 @@ Plug 'zchee/deoplete-jedi'
 
 " - Javascript -
 Plug 'pangloss/vim-javascript'
+" Typescript
+Plug 'HerringtonDarkholme/yats.vim'
 
 " - Processing -
 Plug 'sophacles/vim-processing'

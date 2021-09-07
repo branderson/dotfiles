@@ -1,4 +1,5 @@
 " --- Mappings ---
+" Explanation of mapping commands: https://stackoverflow.com/a/3776182
 " - General -
 " TODO: Remap this to easymotion but don't step on other bindings
 " noremap <space> :
@@ -91,6 +92,9 @@ function! MapPlugins()
         " NOTE: Changes must be mirrored to config/bindings-vimwiki.vimrc!
     endif
 
+    if exists('g:loaded_table_mode')
+    endif
+
     if exists('g:loaded_zettel')
         let g:zettel_default_mappings = 0
         augroup filetype_vimwiki
@@ -169,6 +173,18 @@ function! MapPlugins()
     endif
 
     " --- Language Specific ---
+    " - General
+    " COC
+    " Use K to show documentation in preview window
+    nnoremap  K :call ShowDocumentation()
+
+    nmap ff <plug>(coc-format-selected)
+    nmap rn <plug>(coc-rename)
+    nmap gd <plug>(coc-definition)
+    nmap gy <plug>(coc-type-definition)
+    nmap gi <plug>(coc-implementation)
+    nmap gr <plug>(coc-references)
+
     " - Rust -
     map <localleader>rr :RustRun<CR>
 

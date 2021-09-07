@@ -77,6 +77,38 @@ let g:gitgutter_map_keys = 0
 " NERD Commenter
 " let g:NERDMenuMode = 1
 
+" For context_filetype
+let g:NERDSpaceDelims = 1
+let g:NERDCompactSexyComs = 1
+let g:NERDCustomDelimiters = { 'html': { 'left': '' } }
+
+" Align comment delimiters to the left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+fu! NERDCommenter_before()
+  if (&ft == 'html') || (&ft == 'svelte')
+    let g:ft = &ft
+    let cfts = context_filetype#get_filetypes()
+    if len(cfts) > 0
+      if cfts[0] == 'svelte'
+        let cft = 'html'
+      elseif cfts[0] == 'scss'
+        let cft = 'css'
+      else
+        let cft = cfts[0]
+      endif
+      exe 'setf ' . cft
+    endif
+  endif
+endfu
+
+fu! NERDCommenter_after()
+  if (g:ft == 'html') || (g:ft == 'svelte')
+    exec 'setf ' . g:ft
+    let g:ft = ''
+  endif
+endfu
+
 " NERD Tree
 augroup DIRCHAANGE
     au!
@@ -129,12 +161,43 @@ augroup filetype_vimwiki
     autocmd Filetype vimwiki set breakindentopt=shift:2
 augroup END
 
-"Vim-Zettel configuration
+" Vim-Zettel configuration
 let g:zettel_options = [{}, {"front_matter": [["tags", ""], ["type", "note"]], "template": "~/work_notebook/templates/daily_note.tpl"}]
+
+" Table Mode configuration
+let g:table_mode_map_prefix = '<Leader><Leader>t'
 
 " --- Language Specific ---
 " - All -
 let g:polyglot_disabled = ['python']
+
+" COC
+" let g:coc_node_path = '$HOME/.nvm/versions/node/v12.16.3/bin/node'
+
+set updatetime=300
+set shortmess+=c " don't give |ins-completion-menu| messages.
+
+if !exists('g:context_filetype#same_filetypes')
+  let g:context_filetype#filetypes = {}
+endif
+
+" TODO: The problem here isn't matching typescript, it's that typescript
+" doesn't syntax highlight correctly
+let g:context_filetype#filetypes.svelte =
+\ [
+\   {'filetype' : 'javascript', 'start' : '<script \?.*>', 'end' : '</script>'},
+\   {'filetype' : 'typescript', 'start': '<script\%( [^>]*\)\? \%(ts\|lang="\%(ts\|typescript\)"\)\%( [^>]*\)\?>', 'end': ''},
+\   {'filetype' : 'scss', 'start' : '<style \?.*lang="scss">', 'end' : '</style>'},
+\   {'filetype' : 'sass', 'start' : '<style \?.*lang="sass">', 'end' : '</style>'},
+\   {'filetype' : 'css', 'start' : '<style \?.*>', 'end' : '</style>'},
+\ ]
+
+let g:ft = ''
+
+" Prettier
+let g:prettier#quickfix_enabled = 0
+let g:prettier#autoformat_require_pragma = 0
+au BufWritePre *.css,*.svelte,*.pcss,*.html,*.ts,*.js,*.json PrettierAsync
 
 " - Web -
 let g:user_emmet_install_global=0

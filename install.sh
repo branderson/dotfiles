@@ -38,11 +38,11 @@ tmuxinator
 gitconfig
 gimp-2.8
 mednafen
+pyenv
 PyCharm40
 themes
-profile
+proile
 pam_environment
-ssh
 xterm-256color-italic.terminfo
 screen-256color-italic.terminfo
 "
@@ -87,15 +87,14 @@ i3-gaps-git
 dmenu2
 compton
 pulseaudio-ctl
-google-chrome
-thunar-dropbox
 numix-icon-theme-git
 ttf-hack
 tty-clock-borderless
-virtualbox-ext-oracle
 fonts-meta-extended-lt
 xsel
 "
+# virtualbox-ext-oracle
+# thunar-dropbox
 # list of AUR programs to install on Arch Linux
 YAOURT="
 "
