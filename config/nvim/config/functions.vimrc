@@ -49,3 +49,12 @@ if !exists("*ReloadVimRC")
         IndentLinesReset
     endfunc
 endif
+
+" COC Show Documentation under cursor
+function! ShowDocumentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('')
+  else
+    call CocAction('doHover')
+  endif
+endfunction

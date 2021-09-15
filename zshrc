@@ -228,3 +228,8 @@ fi
 if [ -f ~/.fzf.zsh ]; then
     source ~/.fzf.zsh
 fi
+
+# pyenv-virtualenv (for managing virtualenvs for different python versions)
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"

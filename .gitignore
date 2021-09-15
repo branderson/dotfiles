@@ -10,6 +10,8 @@ cinnamon/spices.cache
 cowfiles
 mednafen
 PyCharm40/system
+pyenv
+pyenv/plugins
 racer
 ssh/known_host*
 vim/bundle
@@ -19,5 +21,6 @@ z
 node_modules
 tmuxinator
 themes
+ssh
 
 dotfile_overrides

@@ -1,4 +1,5 @@
 " --- Mappings ---
+" Explanation of mapping commands: https://stackoverflow.com/a/3776182
 " - General -
 " TODO: Remap this to easymotion but don't step on other bindings
 " noremap <space> :
@@ -51,6 +52,8 @@ set splitbelow
 set splitright
 " Open vimrc
 map <leader>v :e $MYVIMRC<CR>
+" Set working directory to current file directory
+map <leader>cd :cd %:p:h<CR>:pwd<CR>
 " Update vimrc
 map <leader>rr :call ReloadVimRC()<CR>;
 " Open GVim menu
@@ -87,6 +90,9 @@ function! MapPlugins()
     if exists('g:loaded_vimwiki')
         " TODO This shouldn't be necessary!
         " NOTE: Changes must be mirrored to config/bindings-vimwiki.vimrc!
+    endif
+
+    if exists('g:loaded_table_mode')
     endif
 
     if exists('g:loaded_zettel')
@@ -167,6 +173,18 @@ function! MapPlugins()
     endif
 
     " --- Language Specific ---
+    " - General
+    " COC
+    " Use K to show documentation in preview window
+    nnoremap  K :call ShowDocumentation()
+
+    nmap ff <plug>(coc-format-selected)
+    nmap rn <plug>(coc-rename)
+    nmap gd <plug>(coc-definition)
+    nmap gy <plug>(coc-type-definition)
+    nmap gi <plug>(coc-implementation)
+    nmap gr <plug>(coc-references)
+
     " - Rust -
     map <localleader>rr :RustRun<CR>
 
