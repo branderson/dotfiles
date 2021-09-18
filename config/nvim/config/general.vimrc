@@ -100,10 +100,8 @@ let g:markdown_folding=1
 
 " Make views automatic (they store folds)
 set viewoptions-=options
-autocmd BufWinLeave *.* mkview!
-autocmd BufWinEnter *.* silent loadview
-" autocmd BufWritePost,BufLeave,WinLeave ?* mkview
-" autocmd BufReadPre ?* silent loadview
+autocmd BufWinLeave * if expand("%") != "" | mkview! | endif
+autocmd BufWinEnter * if expand("%") != "" | silent! loadview | endif
 
 " Load default menus
 source $VIMRUNTIME/menu.vim
