@@ -93,7 +93,17 @@ set showmatch
 " Code folding
 set foldmethod=syntax
 set foldcolumn=5
-set foldlevel=20
+set foldlevel=2
+set foldlevelstart=2
+let g:vimwiki_folding='list'
+let g:markdown_folding=1
+
+" Make views automatic (they store folds)
+set viewoptions-=options
+autocmd BufWinLeave *.* mkview!
+autocmd BufWinEnter *.* silent loadview
+" autocmd BufWritePost,BufLeave,WinLeave ?* mkview
+" autocmd BufReadPre ?* silent loadview
 
 " Load default menus
 source $VIMRUNTIME/menu.vim
@@ -129,10 +139,10 @@ set t_ut=
 " --- Language specific settings ---
 " autocmd! BufNewFile,BufReadPre,FileReadPre,BufEnter * set expandtab softtabstop=4 shiftwidth=4
 augroup Enter_Buffer
-autocmd!
-autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
-autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
-autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
+    autocmd!
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.pde setlocal softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter Makefile setlocal noexpandtab softtabstop=0 shiftwidth=8
+    autocmd BufNewFile,BufReadPre,FileReadPre,BufEnter *.asm,*.S setlocal softtabstop=8 shiftwidth=8
 augroup END
 
 au BufNewFile,BufRead *.py

@@ -124,6 +124,7 @@ let g:vimwiki_list = [
             \{'path': '~/private_notebook/', 'syntax': 'markdown', 'ext': '.md'}]
 let g:vimwiki_map_prefix = '<Leader>m'
 augroup filetype_vimwiki
+    autocmd!
     " Wrap lines nicely
     autocmd Filetype vimwiki set breakindent
     autocmd Filetype vimwiki set breakindentopt=shift:2
