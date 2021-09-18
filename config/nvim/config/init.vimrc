@@ -126,16 +126,14 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Allows vim to configure filetype by file section (for svelte)
 Plug 'Shougo/context_filetype.vim'
 " Prettier
-Plug 'prettier/vim-prettier', { 'do': 'npm install' }
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'npm install',
+  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'svelte', 'yaml', 'html'] }
 
 " - Web -
 Plug 'mattn/emmet-vim'
 Plug 'mattn/webapi-vim'
-Plug 'evanleck/vim-svelte'
-Plug 'coc-extensions/coc-svelte'
-" TODO: Needs to be installed with `:CocInstall coc-tsserver`, figure out how
-" to config this
-" Plug 'coc-extensions/coc-tsserver'
+Plug 'cakebaker/scss-syntax.vim'
 
 " - Python -
 " Plug 'klen/python-mode'
@@ -154,8 +152,17 @@ Plug 'zchee/deoplete-jedi'
 
 " - Javascript -
 Plug 'pangloss/vim-javascript'
-" Typescript
+
+" - Typescript -
 Plug 'HerringtonDarkholme/yats.vim'
+" TODO: Needs to be installed with `:CocInstall coc-tsserver`, figure out how
+" to config this
+" Plug 'coc-extensions/coc-tsserver'
+
+" - Svelte
+" Plug 'evanleck/vim-svelte', {'branch': 'main'}
+Plug 'leafOfTree/vim-svelte-plugin'
+Plug 'coc-extensions/coc-svelte'
 
 " - Processing -
 Plug 'sophacles/vim-processing'
