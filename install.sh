@@ -70,19 +70,21 @@ grip
 GEMS="
 tmuxinator
 guard
-bropages
 sass
 compass
 "
 NPM="
 livedown
-bower
-gulp
 yo
 generator-meanjs
+tldr
 "
-# install yaourt on Arch Linux
+# install pacaur on Arch Linux
 AUR="
+pacaur
+"
+# install via pacaur on Arch Linux
+PACAUR="
 i3-gaps-git
 dmenu2
 compton
@@ -92,11 +94,7 @@ ttf-hack
 tty-clock-borderless
 fonts-meta-extended-lt
 xsel
-"
-# virtualbox-ext-oracle
-# thunar-dropbox
-# list of AUR programs to install on Arch Linux
-YAOURT="
+rustup
 "
 PROGRAMS="
 reflector
@@ -133,10 +131,8 @@ fortune-mod
 ranger
 thunar
 highlight
-rust
 nodejs
 mongodb
-npm
 "
 #i3
 
@@ -208,8 +204,7 @@ function install_AUR() {
             sudo pacman -Sq $pacman_args git
             echo "Installing base-devel if it's not installed."
             sudo pacman -Sq $pacman_args base-devel
-            # TODO: Convert to pacaur
-            echo "Installing yaourt."
+            echo "Installing pacaur."
             for program in $AUR; do
                 if [[ ! -d ~/builds/$program ]]; then
                     echo "Git cloning $program to ~/builds/$program ."
@@ -220,15 +215,15 @@ function install_AUR() {
                     cd $dir
                 fi
             done
-            echo "Installing AUR programs through yaourt."
-            yaourt -Syua $pacman_args
+            echo "Installing AUR programs through pacaur."
+            pacaur -Syua $pacman_args
             echo -n "Would you like to install all AUR programs? (y/n) "
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 echo "Installing AUR programs."
-                for program in $YAOURT; do
+                for program in $PACAUR; do
                     # if [ $(program_installed $program) == 0 ]; then
-                        yaourt -Sqa $pacman_args $program
+                        pacaur -Sqa $pacman_args $program
                     # fi
                 done
             fi
@@ -378,8 +373,9 @@ function fix_package_query() {
     if [ $(program_installed package-query) == 1 ]; then
         sudo pacman -Rdd package-query
     fi
-    if [ $(program_installed yaourt) == 1 ]; then
-        sudo pacman -Rdd yaourt
+    if [ $(program_installed pacaur) == 1 ]; then
+        # TODO: Will this work?
+        sudo pacman -Rdd pacaur
     fi
     echo "Upgrading system."
     sudo pacman -Syuq
@@ -389,16 +385,16 @@ function fix_package_query() {
     sudo pacman -Sq $pacman_args git
     echo "Installing base-devel if it's not installed."
     sudo pacman -Sq $pacman_args base-devel
-    echo "Installing package_query and yaourt."
+    echo "Installing package_query and pacaur."
     cd ~/builds
     echo "Removing old builds if they exist."
     rm -rf package-query
-    rm -rf yaourt
+    rm -rf pacaur
     git clone https://aur.archlinux.org/package-query.git ~/builds/package-query
     cd ~/builds/package-query
     makepkg -sri $pacman_args
-    git clone https://aur.archlinux.org/yaourt.git ~/builds/yaourt
-    cd ~/builds/yaourt
+    git clone https://aur.archlinux.org/pacaur.git ~/builds/pacaur
+    cd ~/builds/pacaur
     makepkg -sri $pacman_args
     cd $dir
 }

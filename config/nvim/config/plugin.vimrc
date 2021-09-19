@@ -9,6 +9,10 @@ let g:airline_powerline_fonts=1
 " PERF: Could cause bad performance
 let g:airline_skip_empty_sections=1
 let g:airline#extensions#tabline#enabled=1
+" Modify the statusbar if a recording is in session
+" TODO: This prevents some extensions (tagbar, virtualenv) from using the
+" section
+let g:airline_section_x='%{ObsessionStatus("Session Recording |", "")} %{&filetype}'
 
 " Gruvbox
 let g:gruvbox_italic=1
@@ -43,6 +47,13 @@ let g:startify_bookmarks = [
     \]
 let g:startify_custom_indices = ['f', 'd', 's', 'a', 'g']
 let g:startify_custom_header = map(split(system('fortune -a -s | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n'), '\n'), '"   ". v:val') + [","]
+" let g:startify_lists = [
+" \ { 'type': 'files',     'header': ['   MRU']            },
+" \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
+" \ { 'type': 'sessions',  'header': ['   Sessions']       },
+" \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+" \ { 'type': 'commands',  'header': ['   Commands']       },
+" \ ]
 
 " Automatically open tagbar when entering supported buffer
 " autocmd BufEnter * nested :call tagbar#autoopen(0)

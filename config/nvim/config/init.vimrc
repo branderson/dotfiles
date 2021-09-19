@@ -34,6 +34,10 @@ Plug 'yggdroot/indentLine'
 " TODO Make this not conflict with ,mm for vimwiki, probably just an issue
 " with not having vimwiki installed yet
 " Plug 'kshenoy/vim-signature'
+"
+" - Sessions -
+" Better sessions
+Plug 'tpope/vim-obsession'
 
 " - Ctags -
 " Ctags view
