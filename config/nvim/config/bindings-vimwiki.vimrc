@@ -7,8 +7,8 @@ function! MapVimwiki()
 
     " <C-Enter> and <S-Enter> (the original bindings for these) don't work
     " because they send the same keycode and probably other reasons
-    nmap <leader>msv <Plug>VimwikiVSplitLink
-    nmap <leader>msh <Plug>VimwikiSplitLink
+    nmap <leader>m- <Plug>VimwikiSplitLink
+    nmap <leader>m<bar> <Plug>VimwikiVSplitLink
 
     nmap <leader>mnt <Plug>VimwikiNextTask
     " TODO This command doesn't exist

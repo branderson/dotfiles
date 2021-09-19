@@ -100,8 +100,10 @@ let g:markdown_folding=1
 
 " Make views automatic (they store folds)
 set viewoptions-=options
-autocmd BufWinLeave * if expand("%") != "" | silent! mkview! | endif
-autocmd BufWinEnter * if expand("%") != "" | silent! loadview | endif
+" TODO: These caused all of my buffers to cycle on buffer operations and
+" slowed things down
+" autocmd BufWinLeave * if expand("%") != "" | silent! mkview! | endif
+" autocmd BufWinEnter * if expand("%") != "" | silent! loadview | endif
 
 " Don't open empty buffer when starting existing session
 set shortmess+=I
