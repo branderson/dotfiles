@@ -90,6 +90,10 @@ set ruler
 " Show matching brackets
 set showmatch
 
+" Make conceals less of an issue to edit by expanding on cursor
+let g:indentLine_concealcursor=""
+let g:indentLine_conceallevel=2
+
 " Code folding
 set foldmethod=syntax
 set foldcolumn=5
