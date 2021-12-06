@@ -45,7 +45,13 @@ function! MapVimwiki()
     " vmap <leader>m- :VimwikiSplitLink 1 1<CR>
 
     " Vim-Zettel
-    " autocmd Filetype vimwiki nmap <leader>mag <Plug>ZettelOpen<CR>
+    " TODO The <Plug> syntax is correct but broken
+    " autocmd Filetype vimwiki nmap <leader>mag <Plug>ZettelOpen
+    autocmd Filetype vimwiki nmap <leader>mag :ZettelOpen<CR>
+    autocmd Filetype vimwiki nmap <leader>mp0 :ZettelOpen<CR>p0
+    autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen<CR>p1
+    " TODO This doesn't work
+    autocmd Filetype vimwiki nmap <leader>mat :ZettelOpen<CR>title:
 endfunction
 
 augroup Vimwiki_Mappings
