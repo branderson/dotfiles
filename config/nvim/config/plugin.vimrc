@@ -90,10 +90,11 @@ let g:gitgutter_map_keys = 0
 " let g:NERDMenuMode = 1
 
 " NERD Tree
-augroup DIRCHAANGE
-    au!
-    autocmd DirChanged global :NERDTreeCWD
-augroup END
+" This causes an extra buffer to open when nvim starts
+" augroup DIRCHAANGE
+"     au!
+"     autocmd DirChanged global :NERDTreeCWD
+" augroup END
 
 " Ctrl-P configuration
 " Use nearest version control directory as cwd
