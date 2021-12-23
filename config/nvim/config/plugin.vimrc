@@ -12,7 +12,8 @@ let g:airline#extensions#tabline#enabled=1
 " Modify the statusbar if a recording is in session
 " TODO: This prevents some extensions (tagbar, virtualenv) from using the
 " section
-let g:airline_section_x='%{ObsessionStatus("Session Recording |", "")} %{&filetype}'
+" TODO: Only if Obsession installed!
+" let g:airline_section_x='%{ObsessionStatus("Session Recording |", "")} %{&filetype}'
 
 " Gruvbox
 let g:gruvbox_italic=1
