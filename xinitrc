@@ -59,6 +59,8 @@ fi
 if [ -f "/etc/arch-release" ]; then
     # Set up X keyboard shortcuts
     setxkbmap -option terminate:ctrl_alt_bksp
+    # Turn on numlock so that it's enabled on login
+    numlockx &
 
     exec i3
 else

@@ -53,7 +53,7 @@ set splitright
 " Open vimrc
 map <leader>v :e $MYVIMRC<CR>
 " Set working directory to current file directory
-map <leader>cd :cd %:p:h<CR>:pwd<CR>
+map <leader>cd :cd %:p:h<CR>:pwd<CR>:NERDTreeCWD<CR>:NERDTreeToggle<CR>
 " Update vimrc
 map <leader>rr :call ReloadVimRC()<CR>;
 " Open GVim menu
