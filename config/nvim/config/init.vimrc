@@ -141,9 +141,9 @@ Plug 'cakebaker/scss-syntax.vim'
 
 " - Python -
 " Plug 'klen/python-mode'
-Plug 'davidhalter/jedi-vim'
+" Plug 'davidhalter/jedi-vim'
 " Completion
-Plug 'zchee/deoplete-jedi'
+" Plug 'zchee/deoplete-jedi'
 
 " - C# -
 " Omnicompletion and syntax

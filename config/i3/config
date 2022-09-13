@@ -31,17 +31,19 @@ font pango:Droid Sans 10
 # Autostart compton for transparency
 exec --no-startup-id compton --config ~/.config/compton.conf
 # exec feh --randomize --bg-fill ~/Dropbox/Wallpapers/3K
-exec --no-startup-id ~/bin/switch_wallpaper.sh
 # feh --randomize --bg-fill ~/Dropbox/Wallpapers/Pack1
 
 # Start tmux server with base session
 # exec tmux -2 new-session
 
+exec wait 1
 # Start volume mixer and hide it in scratchpad
 # exec --no-startup-id pavucontrol
 exec --no-startup-id urxvt -name scratchpad -e zsh -c 'source ~/.zshrc && (tmux attach -t scratchpad || tmux new-session -s scratchpad)'
 # for_window [class="Pavucontrol"] move scratchpad
 for_window [instance="^scratchpad$"] move scratchpad
+exec --no-startup-id urxvt -e zsh -c 'source ~/.zshrc && cd ~ && (tmux attach -f -q -t main || tmuxinator start main)'
+exec --no-startup-id ~/bin/switch_wallpaper.sh
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod

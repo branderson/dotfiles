@@ -1,4 +1,18 @@
+" Table of Contents
 " --- General ---
+" - Visual -
+" - Views -
+" - 
+" TODO
+
+" --- General ---
+" - Sessions -
+" Create new session optionally with given name. These show up in Startify
+command -nargs=? SessionNew :Obsess ~/.local/share/nvim/session/<args>
+command -nargs=0 SessionEnd :Obsess!
+command -nargs=1 SessionLoad :source ~/.local/share/nvim/session/<args>
+" TODO Could use g:startify_session_persistence and just rely on that
+
 " - Visual -
 set background=dark
 let base16colorspace=256
@@ -7,13 +21,13 @@ let base16colorspace=256
 " Airline
 let g:airline_powerline_fonts=1
 " PERF: Could cause bad performance
-let g:airline_skip_empty_sections=1
+" let g:airline_skip_empty_sections=1
 let g:airline#extensions#tabline#enabled=1
 " Modify the statusbar if a recording is in session
 " TODO: This prevents some extensions (tagbar, virtualenv) from using the
 " section
 " TODO: Only if Obsession installed!
-" let g:airline_section_x='%{ObsessionStatus("Session Recording |", "")} %{&filetype}'
+let g:airline_section_x='%{ObsessionStatus("Session Recording |", "")} %{&filetype}'
 
 " Gruvbox
 let g:gruvbox_italic=1
@@ -96,6 +110,9 @@ let g:gitgutter_map_keys = 0
 "     autocmd DirChanged global :NERDTreeCWD
 " augroup END
 
+" Sort by modification date
+let NERDTreeSortOrder = ['[[-timestamp]]']
+
 " Ctrl-P configuration
 " Use nearest version control directory as cwd
 let g:ctrlp_working_path_mode = 'r'
@@ -152,7 +169,7 @@ let g:table_mode_map_prefix = '<Leader><Leader>t'
 
 " --- Language Specific ---
 " - All -
-let g:polyglot_disabled = ['python']
+" let g:polyglot_disabled = ['python']
 
 " COC
 " let g:coc_node_path = '$HOME/.nvm/versions/node/v12.16.3/bin/node'

@@ -8,6 +8,10 @@ cd ~/dotfiles
 
 # To install middle click functionality for urxvt:
 cp bin/osc-xterm-clipboard /usr/lib/urxvt/perl/
+
+# Configuration environment variables (set in ~/.profile.local)
+WALLPAPER_DIR
+POWERLINE_ROOT (/usr/lib/python3.10/site-packages/powerline)
 ```
 
 ## About:

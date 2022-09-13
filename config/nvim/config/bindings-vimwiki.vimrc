@@ -1,9 +1,21 @@
 function! MapVimwiki()
     " grep: if exists('g:loaded_vimwiki')
+    " double m
     nmap <leader>mm <Plug>VimwikiIndex
-    nmap <leader>msw <Plug>VimwikiUISelect
+    " m wiki
+    nmap <leader>mw <Plug>VimwikiUISelect
+    " m help
     nmap <leader>mhelp :verbose map ,m<CR>
+    " m go
     nmap <leader>mg <Plug>VimwikiGoto
+    " m personal
+    nmap <leader>mf <Plug>VimwikiUISelect1<CR>
+    " m work
+    nmap <leader>m<Space> <Plug>VimwikiUISelect2<CR>
+    " m private
+    nmap <leader>mp <Plug>VimwikiUISelect3<CR>
+    " m shared
+    nmap <leader>ms <Plug>VimwikiUISelect4<CR>
 
     " <C-Enter> and <S-Enter> (the original bindings for these) don't work
     " because they send the same keycode and probably other reasons
@@ -27,8 +39,8 @@ function! MapVimwiki()
     " This always jumps to the end of the line, but with 'a' it doesn't skip
     " the [ ] when adding at the start of the line
     imap <C-Space> <Esc><Plug>VimwikiToggleListItemA
-    nmap <C-l><C-Space> <Plug>VimwikiRemoveSingleCB
-    imap <C-l><C-Space> <Esc><Plug>VimwikiRemoveSingleCBa
+    nmap <C-d><C-Space> <Plug>VimwikiRemoveSingleCB
+    imap <C-d><C-Space> <Esc><Plug>VimwikiRemoveSingleCBa
     nmap <leader>mb <Plug>VimwikiBackLinks
     " nmap <leader>m\ <Plug>VimwikiTable 
     nmap <leader>mqtoc <Plug>VimwikiTOC
@@ -48,8 +60,8 @@ function! MapVimwiki()
     " TODO The <Plug> syntax is correct but broken
     " autocmd Filetype vimwiki nmap <leader>mag <Plug>ZettelOpen
     autocmd Filetype vimwiki nmap <leader>mag :ZettelOpen<CR>
-    autocmd Filetype vimwiki nmap <leader>mp0 :ZettelOpen<CR>p0
-    autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen<CR>p1
+    " autocmd Filetype vimwiki nmap <leader>mp0 :ZettelOpen<CR>p0
+    " autocmd Filetype vimwiki nmap <leader>mp1 :ZettelOpen<CR>p1
     " TODO This doesn't work
     autocmd Filetype vimwiki nmap <leader>mat :ZettelOpen<CR>title:
 endfunction
