@@ -1,2 +1,2 @@
 #!/bin/env bash
-feh --bg-scale --randomize "$WALLPAPER_DIR"
+feh --bg-scale --randomize $WALLPAPER_DIR
