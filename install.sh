@@ -1,140 +1,71 @@
 #!/bin/bash
 
-# TODO: Figure out dotfiles install for fzf
+# TODO: Update /usr/share/alsa-card-profile/mixer/paths/analog-output-lineout.conf
+# https://forum.level1techs.com/t/speaker-audio-not-working-until-alsamixer-headphone-volume-manually-raised/177397/51
+# [Element Headphone]
+#- switch = off
+#- volume = off
+#+ switch = mute
+#+ volume = merge
 
-# Ask for the administrator password upfront
-# sudo -v
+# TODO: Install gruvbox themes
+# cd ~/dotfiles/dependencies && git clone https://github.com/gruvbox-community/gruvbox-contrib
+# cd ~/dotfiles/dependencies && git clone https://github.com/morhetz/gruvbox
 
-# Keep-alive: update existing `sudo` time stamp until finished
-# while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-dir=~/dotfiles                    # dotfiles directory
-olddir=~/dotfiles_old             # old dotfiles backup directory
+dir=~/dotfiles/config            # dotfiles directory
 platform=$(uname)
 pacman_args="--noconfirm --needed"
+restart_needed=0
 
-# list of files/folders to symlink in homedir
-# oh-my-zsh
-files="
-config
-xinitrc
-xmodmap
-Xresources
-urxvt.xresources
-crontab
-su_crontab
-bashrc
-bash_profile
-gitconfig
-githooks
-gruvbox
-fzf.zsh
+# Files and directories to link to home directory
+home_files="
 zshrc
 zsh_functions
-vimrc
-tmux
-tmux.conf
-tmuxinator
-gitconfig
-gimp-2.8
-mednafen
-pyenv
-PyCharm40
-themes
-proile
-pam_environment
-xterm-256color-italic.terminfo
-screen-256color-italic.terminfo
-"
-overrides="
 zshrc_local
-vimrc_local
-tmux_local.conf
-nvim_local.vimrc
+profile
 profile.local
-gitconfig
-pypirc
-"
-# oh-my-zsh
-# github repos to clone
-GIT="
-rupa/z
-bkendzior/cowfiles
-morhetz/gruvbox-contrib
-"
-PIP2="
-grip
-"
-# powerline-status
-# gems to install
-GEMS="
-tmuxinator
-guard
-sass
-compass
-"
-NPM="
-livedown
-yo
-generator-meanjs
-tldr
-"
-# install pacaur on Arch Linux
-AUR="
-pacaur
-"
-# install via pacaur on Arch Linux
-PACAUR="
-i3-gaps-git
-dmenu2
-compton
-pulseaudio-ctl
-numix-icon-theme-git
-ttf-hack
-tty-clock-borderless
-fonts-meta-extended-lt
-xsel
-rustup
-"
-PROGRAMS="
-reflector
-atool
-evince
-zathura
-feh
-gpicview
-htop
-w3m
-rofi
-imagemagick
-scrot
-cron
-pavucontrol
-lxappearance
-pulseaudio
-powerline
-python2-pip
-terminator
-tree
-gvim
+tmux.conf
 tmux
-build-essential
-ctags
-clang
-cmake
-ruby
-npm
-rxvt-unicode-patched
-sl
-cowsay
-fortune-mod
-ranger
-thunar
-highlight
-nodejs
-mongodb
+gtkrc-2.0.mine
 "
-#i3
+# Directories under ~/.config
+configs="
+nvim
+i3
+alacritty
+dunst
+conky
+rofi
+gtk-3.0
+powerline
+"
+arch="
+"
+apt=""
+aur="
+"
+
+if [[ -f ~/dotfiles/install-arch.global ]]; then
+    arch="$(<~/dotfiles/install-arch.global)"
+fi
+if [[ -f ~/dotfiles/install-aur.global ]]; then
+    aur="$(<~/dotfiles/install-aur.global)"
+fi
+if [[ -f ~/dotfiles/install-apt.global ]]; then
+    apt="$(<~/dotfiles/install-apt.global)"
+fi
+if [[ -f ~/dotfiles/install-arch.local ]]; then
+    arch_overrides="$(<~/dotfiles/install-arch.local)"
+    printf -v arch "${arch}\n${arch_overrides}"
+fi
+if [[ -f ~/dotfiles/install-aur.local ]]; then
+    aur_overrides="$(<~/dotfiles/install-aur.local)"
+    printf -v aur "${aur}\n${aur_overrides}"
+fi
+if [[ -f ~/dotfiles/install-apt.local ]]; then
+    apt_overrides="$(<~/dotfiles/install-apt.local)"
+    printf -v apt "${apt}\n${apt_overrides}"
+fi
 
 # Returns 1 if program is installed and 0 otherwise
 function program_installed {
@@ -146,85 +77,51 @@ function program_installed {
 }
 
 function link_dotfiles {
-    # create dotfiles_old in homedir
-    echo -n "Creating $olddir for backup of any existing dotfiles in ~ ..."
-    mkdir -p $olddir
-
     # change to the dotfiles directory
     cd $dir
+    echo ""
 
-    # move any existing dotfiles in homedir to dotfiles_old directory, then create symlinks from the
-    # homedir to any files in the ~/dotfiles directory specified in $files
-    for file in $files; do
+    # Check if existing file in homedir and warn if so, otherwise create symlinks from the
+    # files in the dotfiles directory specified in $files to the homedir
+    for file in $home_files; do
         if [[ -f $file || -d $file ]]; then
-            echo ""
             if [[ -f ~/.$file || -d ~/.$file ]]; then
-                echo "Moving : .$file (~/.$file -> $olddir/.$file)"
-                rm -r $olddir/.$file
-                mv ~/.$file $olddir/
+                echo "Skipping: $file because ~/.$file already exists"
+            else
+                echo "Linking: $file ($dir/$file -> ~/.$file)"
+                ln -s $dir/$file ~/.$file
             fi
-            echo "Linking: $file ($dir/$file -> ~/.$file)"
-            ln -s $dir/$file ~/.$file
         fi
     done
-    for file in $overrides; do
-        if [[ -f dotfile_overrides/$file || -d dotfile_overrides/$file ]]; then
-            echo ""
-            if [[ -f ~/.$file || -d ~/.$file ]]; then
-                echo "Moving : .$file (~/.$file -> $olddir/.$file)"
-                rm -r $olddir/.$file
-                mv ~/.$file $olddir/
+    for file in $configs; do
+        if [[ -f $file || -d $file ]]; then
+            if [[ -f ~/.config/$file || -d ~/.config/$file ]]; then
+                echo "Skipping: $file because ~/.config/$file already exists"
+            else
+                echo "Linking: $file ($dir/$file -> ~/.config/$file)"
+                ln -s $dir/$file ~/.config/$file
             fi
-            echo "Linking: $file ($dir/dotfile_overrides/$file -> ~/.$file)"
-            ln -s $dir/dotfile_overrides/$file ~/.$file
         fi
     done
-    # create symlink for bin directory
-    if [[ ! -d ~/bin ]]; then
-        ln -s ~/dotfiles/bin ~/bin
-    fi
-    if [[ ! -f ~/.z ]]; then
-       touch ~/.z
-    fi
+    cd - > /dev/null
 }
 
-# function install_all() {
-
-# }
-
-function install_AUR() {
+function install_aur() {
     # install AUR programs if on Arch
-    if [ $(program_installed pacman) == 1 ]; then
+    if [ $(program_installed yay) == 1 ]; then
         echo -n "Do you want to upgrade/install from AUR? (y/n) "
         read response
         if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            echo "Creating ~/builds to hold AUR programs."
-            mkdir -p ~/builds
-            echo "Installing git if it's not installed."
-            sudo pacman -Sq $pacman_args git
-            echo "Installing base-devel if it's not installed."
-            sudo pacman -Sq $pacman_args base-devel
-            echo "Installing pacaur."
-            for program in $AUR; do
-                if [[ ! -d ~/builds/$program ]]; then
-                    echo "Git cloning $program to ~/builds/$program ."
-                    git clone https://aur.archlinux.org/$program.git ~/builds/$program
-                    cd ~/builds/$program
-                    # Problem here with still being root
-                    makepkg -sri $pacman_args
-                    cd $dir
-                fi
-            done
-            echo "Installing AUR programs through pacaur."
-            pacaur -Syua $pacman_args
+            echo "Installing AUR programs through yay."
+            yay -Syua $pacman_args
             echo -n "Would you like to install all AUR programs? (y/n) "
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 echo "Installing AUR programs."
-                for program in $PACAUR; do
-                    # if [ $(program_installed $program) == 0 ]; then
-                        pacaur -Sqa $pacman_args $program
-                    # fi
+                for program in $aur; do
+                    if [ $(program_installed $program) == 0 ]; then
+                        yay -Sqa $pacman_args $program
+                    fi
                 done
             fi
         fi
@@ -234,184 +131,130 @@ function install_AUR() {
 function install_programs() {
     if [ $(program_installed pacman) == 1 ]; then
         sudo pacman -Syuq
-        for program in $PROGRAMS; do
-            sudo pacman -Sq $pacman_args $program
+        for program in $arch; do
+            if [ $(program_installed $program) == 0 ]; then
+                sudo pacman -Sq $pacman_args $program
+            fi
         done
     elif [ $(program_installed apt-get) == 1 ]; then
         sudo apt-get update
-        for program in $PROGRAMS; do
-            sudo apt-get install $program
+        for program in $apt; do
+            if [ $(program_installed $program) == 0 ]; then
+                sudo apt-get install $program
+            fi
         done
     else
         echo "Cannot install tools, no compatible package manager."
     fi
-
-    # cd into $dir
-    cd $dir
 }
 
-function install_github() {
-    # clone github repos
-    for repo in $GIT; do
-        git clone https://github.com/$repo
-    done
-}
-
-function install_gems() {
-    if [ $(program_installed ruby) == 1 ]; then
-        for program in $GEMS; do
-            gem install $program
-        done
+function setup_zsh() {
+    echo
+    if [[ $(program_installed zsh) == 1 && "$SHELL" != "$(which zsh)" ]]; then
+        echo -n "Would you like to set zsh as your default shell? (y/n) "
+        read response
+        if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+            echo "Setting zsh as default shell"
+            chsh -s /usr/bin/zsh
+        fi
     fi
 }
 
-function install_rust_src () {
-    if [[ $platform == 'Linux' ]]; then
-        if [[ ! -d /usr/local/src/rust/ ]]; then
-            echo "Cloning rust source into /usr/local/src/rust."
-            sudo git clone https://github.com/rust-lang/rust.git /usr/local/src/rust
+function setup_system_configs() {
+    setup_zsh
+    echo
+    if [ $(program_installed lightdm) == 1 ]; then
+        echo "Enabling numlock at startup"
+        original=`cat /etc/lightdm/lightdm.conf` >> /dev/null
+        sudo sed --in-place=.backup 's/#greeter-setup-script=/greeter-setup-script=\/usr\/bin\/numlockx on/g' /etc/lightdm/lightdm.conf
+        edited=`cat /etc/lightdm/lightdm.conf` >> /dev/null
+        diff=`diff <(echo "$original") <(echo "$edited")`
+        if [[ "$diff" != '' ]]; then
+            echo "$diff"
+            restart_needed=1
         else
-            # Update if already installed
-            echo "Updating rust source"
-            cd /usr/local/src/rust
-            sudo git pull
-            cd $dir
+            echo "No changes were made"
         fi
+        echo
+    fi
+    if [[ -f /usr/share/xdg-desktop-portal/portals/gtk.portal && $(program_installed i3) == 1 ]]; then
+        echo "Enabling xdg-desktop-portal-gtk in i3 (needed for Steam)"
+        original=`cat /usr/share/xdg-desktop-portal/portals/gtk.portal` >> /dev/null
+        sudo sed --in-place=.backup 's/^UseIn=gnome$/UseIn=gnome;i3/g' /usr/share/xdg-desktop-portal/portals/gtk.portal
+        edited=`cat /usr/share/xdg-desktop-portal/portals/gtk.portal` >> /dev/null
+        diff=`diff <(echo "$original") <(echo "$edited")`
+        if [[ "$diff" != '' ]]; then
+            echo "$diff"
+            restart_needed=1
+        else
+            echo "No changes were made"
+        fi
+        echo
     fi
 }
 
-function install_zsh() {
-    # Test to see if zshell is installed.  If it is:
-    if [ -f /bin/zsh -o -f /usr/bin/zsh ]; then
-        # Clone my oh-my-zsh repository from GitHub only if it isn't already present
-        if [[ ! -d $dir/oh-my-zsh/ ]]; then
-            cd $dir
-            git clone http://github.com/robbyrussell/oh-my-zsh.git
-        fi
-        # Set the default shell to zsh if it isn't currently set to zsh
-        if [[ ! $(echo $SHELL) == $(which zsh) ]]; then
-            chsh -s $(which zsh)
-        fi
-    else
-        # If zsh isn't installed, get the platform of the current machine
-        platform=$(uname);
-        # If the platform is Linux, try an apt-get to install zsh and then recurse
-        if [[ $platform == 'Linux' ]]; then
-            if [ $(program_installed apt-get) == 1 ]; then
-                sudo apt-get install zsh
-                install_zsh
-            elif [ $(program_installed pacman) == 1 ]; then
-                sudo pacman -S zsh
-                install_zsh
-            else
-                echo "Cannot install zsh, no compatible package manager."
+function setup_samba() {
+    echo
+    echo -n "What samba host would you like to configure? "
+    read samba_host
+    if [[ "$samba_host" != '' ]]; then
+        echo -n "Would you like to configure samba credentials? (y/n) "
+        read response
+        if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+            [[ ! -d "/etc/samba" ]] && sudo mkdir /etc/samba
+            [[ ! -d "/etc/samba/credentials" ]] && sudo mkdir /etc/samba/credentials
+            if [[ -d "/etc/samba/credentials" ]]; then
+                echo
+                echo -n "username: "
+                read username
+                echo -n "password: "
+                read -s password
+                echo
+                echo "Writing config to /etc/samba/credentials/$samba_host"
+                printf "username=$username\npassword=$password" | sudo tee "/etc/samba/credentials/$samba_host" >> /dev/null
+                unset username
+                unset password
             fi
-        # If the platform is OS X, tell the user to install zsh :)
-        elif [[ $platform == 'Darwin' ]]; then
-            echo "Please install zsh, then re-run this script!"
-            exit
         fi
+        echo
+        echo "Add lines to /etc/fstab for each share to mount:"
+        echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
     fi
-
-    # clone zsh-syntax-highlighting
-    if [[ ! -d $dir/oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting $dir/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-    fi
-    # install gibo
-    if [[ ! -d $dir/gibo ]]; then
-        curl -L https://raw.github.com/simonwhitaker/gibo/master/gibo \
-            -so ~/bin/gibo && chmod +x ~/bin/gibo && gibo -u
-    fi
-    # clone gibo completion
-    if [[ ! -d $dir/oh-my-zsh/custom/plugins/gibo ]]; then
-        if [[ -f $dir/gibo/gibo-completion.zsh ]]; then
-            mkdir $dir/oh-my-zsh/custom/plugins/gibo
-            ln -s $dir/gibo/gibo-completion.zsh $ZSH//custom/plugins/gibo/gibo.plugin.zsh
-        fi
-    fi
-}
-
-install_nerd_fonts() {
-    # TODO: Clean this up a bit
-    if [[ $platform == 'Linux' ]]; then
-        if [ $(program_installed pacaur) == 1 ]; then
-            pacaur -Sqa $pacman_args nerd-fonts-source-code-pro
-        else
-            cd $dir
-            git clone --depth 1 http://github.com/ryanoasis/nerd-fonts.git
-            nerd-fonts/install.sh SauceCode
-            rm -rf nerd-fonts
-        fi
-    elif [[ $platform == 'Darwin' ]]; then
-        # TODO: Make sure we have homebrew
-        brew tap caskroom/fonts
-        brew cask install font-sourcecodepro-nerd-font-mono
-    fi
-}
-
-install_powerline_fonts() {
-    cd $dir
-    git clone http://github.com/powerline/fonts.git
-    fonts/install.sh
-    rm -rf fonts
-}
-
-function install_pip() {
-    for program in $PIP2; do
-        sudo pip2 install $program
-    done
-}
-
-function install_npm() {
-    for program in $NPM; do
-        sudo npm install -g $program
-    done
+    echo
+    unset samba_host
 }
 
 function fix_package_query() {
-    echo "Removing old installs."
-    if [ $(program_installed package-query) == 1 ]; then
-        sudo pacman -Rdd package-query
-    fi
-    if [ $(program_installed pacaur) == 1 ]; then
-        # TODO: Will this work?
-        sudo pacman -Rdd pacaur
-    fi
-    echo "Upgrading system."
-    sudo pacman -Syuq
-    echo "Creating ~/builds to hold AUR programs."
-    mkdir -p ~/builds
-    echo "Installing git if it's not installed."
-    sudo pacman -Sq $pacman_args git
-    echo "Installing base-devel if it's not installed."
-    sudo pacman -Sq $pacman_args base-devel
-    echo "Installing package_query and pacaur."
-    cd ~/builds
-    echo "Removing old builds if they exist."
-    rm -rf package-query
-    rm -rf pacaur
-    git clone https://aur.archlinux.org/package-query.git ~/builds/package-query
-    cd ~/builds/package-query
-    makepkg -sri $pacman_args
-    git clone https://aur.archlinux.org/pacaur.git ~/builds/pacaur
-    cd ~/builds/pacaur
-    makepkg -sri $pacman_args
-    cd $dir
-}
-
-function configure_system() {
-    # If on arch, set time
     if [ $(program_installed pacman) == 1 ]; then
-        timedatectl set-ntp true
+        echo "Removing old installs."
+        if [ $(program_installed package-query) == 1 ]; then
+            sudo pacman -Rdd package-query
+        fi
+        if [ $(program_installed pacaur) == 1 ]; then
+            # TODO: Will this work?
+            sudo pacman -Rdd pacaur
+        fi
+        echo "Upgrading system."
+        sudo pacman -Syuq
+        echo "Creating ~/builds to hold AUR programs."
+        mkdir -p ~/builds
+        echo "Installing git if it's not installed."
+        sudo pacman -Sq $pacman_args git
+        echo "Installing base-devel if it's not installed."
+        sudo pacman -Sq $pacman_args base-devel
+        echo "Installing package_query and pacaur."
+        cd ~/builds
+        echo "Removing old builds if they exist."
+        rm -rf package-query
+        rm -rf pacaur
+        git clone https://aur.archlinux.org/package-query.git ~/builds/package-query
+        cd ~/builds/package-query
+        makepkg -sri $pacman_args
+        git clone https://aur.archlinux.org/pacaur.git ~/builds/pacaur
+        cd ~/builds/pacaur
+        makepkg -sri $pacman_args
+        cd $dir
     fi
-    # Enable crontab
-    systemctl enable cronie.service
-}
-
-function configure_freetype2() {
-    sudo ln -s /etc/fonts/conf.avail/11-lcdfilter-default.conf /etc/fonts/conf.d
-    sudo ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d
-    sudo ln -s /etc/fonts/conf.avail/30-infinality-aliases.conf /etc/fonts/conf.d
 }
 
 function push_dotfiles() {
@@ -427,84 +270,73 @@ function update_dotfiles() {
     git pull
 }
 
+function local_install() {
+    if [ -f "~/dotfiles/install_local.sh" ]; then
+        ~/dotfiles/install_local.sh
+    fi
+}
+
 function main() {
-    echo "[1] Complete install and configuration"
-    echo "[2] Push to github"
-    echo "[3] Pull from github"
-    echo "[4] Install dotfiles only"
-    echo "[5] Install programs only"
-    echo "[6] Configure system only"
-    echo "[7] Install official repository programs only"
-    echo "[8] Install AUR programs only"
-    echo "[9] Install development sources only"
-    echo "[10] Fix outdated package-query"
-    echo "[11] Install gems only"
-    echo "[12] Install github repositories only"
-    echo "[13] Install npm packages only"
+    if [[ $(program_installed pacman) == 1 ]]; then
+        echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba)"
+    elif [[ $(program_installed apt) == 1 ]]; then
+        echo "[complete] Complete install (dotfiles, apt, system-configs, samba)"
+    fi
+    echo "[push] Push to github"
+    echo "[pull] Pull from github"
+    echo "[dotfiles] Install dotfiles only"
+    if [[ $(program_installed pacman) == 1 ]]; then
+        echo "[programs] Install programs (pacman, aur) only"
+    elif [[ $(program_installed apt) == 1 ]]; then
+        echo "[programs] Install programs (apt) only"
+    fi
+    if [[ $(program_installed pacman) == 1 ]]; then
+        echo "[programs-official] Install official repository programs (pacman) only"
+        echo "[aur-only] Install AUR programs only"
+        echo "[package-query] Fix outdated package-query"
+    fi
+    echo "[system-configs] Set up system configs only"
+    echo "[samba] Set up samba credentials only"
     echo "[0] Quit"
     echo ""
     echo "What would you like to do?"
     read response
-    if [[ $response == "1" ]]; then
+    if [[ $response == "complete" ]]; then
         link_dotfiles
         install_programs
-        install_AUR
-        install_github
-        install_pip
-        install_npm
-        install_gems
-        install_rust_src
-        install_zsh
-        install_nerd_fonts
-        install_powerline_fonts
-        configure_system
-        configure_freetype2
-    elif [[ $response == "2" ]]; then
+        install_aur
+        setup_system_configs
+    elif [[ $response == "push" ]]; then
         push_dotfiles
-    elif [[ $response == "3" ]]; then
+    elif [[ $response == "pull" ]]; then
         update_dotfiles
-    elif [[ $response == "4" ]]; then
+    elif [[ $response == "dotfiles" ]]; then
         link_dotfiles
         echo ""
         main
-    elif [[ $response == "5" ]]; then
+    elif [[ $response == "programs" ]]; then
         install_programs
-        install_AUR
-        install_github
-        install_pip
-        install_npm
-        install_gems
+        install_aur
         echo ""
         main
-    elif [[ $response == "6" ]]; then
-        configure_system
-        configure_freetype2
-        echo ""
-        main
-    elif [[ $response == "7" ]]; then
+    elif [[ $response == "programs-official" ]]; then
         install_programs
         echo ""
         main
-    elif [[ $response == "8" ]]; then
-        install_AUR
+    elif [[ $response == "aur-only" ]]; then
+        install_aur
+        echo ""
         main
-    elif [[ $response == "9" ]]; then
-        install_rust_src
-        main
-    elif [[ $response == "10" ]]; then
+    elif [[ $response == "package-query" ]]; then
         fix_package_query
         echo ""
         main
-    elif [[ $response == "11" ]]; then
-        install_gems
+    elif [[ $response == "system-configs" ]]; then
+        setup_system_configs
         echo ""
         main
-    elif [[ $response == "12" ]]; then
-        install_github
-        echo ""
-        main
-    elif [[ $response == "13" ]]; then
-        install_npm
+    elif [[ $response == "samba" ]]; then
+        setup_samba
         echo ""
         main
     fi

@@ -1,0 +1,4 @@
+export TERMINAL=alacritty
+export EDITOR=nvim
+alias vim=nvim
+

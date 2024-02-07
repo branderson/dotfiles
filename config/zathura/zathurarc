@@ -1,7 +1,0 @@
-# --- Default config ---
-set recolor
-# Copy to system clipboard
-set selection-clipboard clipboard
-
-# --- Keybindings ---
-map <C-r> toggle recolor

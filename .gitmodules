@@ -1,9 +1,9 @@
-[submodule "gruvbox"]
-	path = gruvbox
-	url = https://github.com/morhetz/gruvbox
-[submodule "oh-my-zsh"]
-	path = oh-my-zsh
-	url = https://github.com/robbyrussell/oh-my-zsh
-[submodule "gruvbox-contrib"]
-	path = gruvbox-contrib
-	url = https://github.com/morhetz/gruvbox-contrib
+[submodule "config/alacritty/themes"]
+	path = config/alacritty/themes
+	url = https://github.com/alacritty/alacritty-theme
+[submodule "Gruvbox-GTK-Theme"]
+	path = dependencies/Gruvbox-GTK-Theme
+	url = https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme
+[submodule "dependencies/tmux-powerline-gruvbox-colorscheme"]
+	path = dependencies/tmux-powerline-gruvbox-colorscheme
+	url = https://github.com/PetrusZ/tmux-powerline-gruvbox-colorscheme

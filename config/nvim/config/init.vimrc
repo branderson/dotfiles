@@ -120,7 +120,7 @@ Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'michal-h21/vim-zettel'
 " TODO Make this pull on buffer open / load
-Plug 'michal-h21/vimwiki-sync'
+" Plug 'michal-h21/vimwiki-sync'
 
 " --- Language specific ---
 " - All -
