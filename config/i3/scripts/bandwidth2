@@ -53,7 +53,7 @@ Options:
 " && exit 0;;
     esac
 done
-407437
+# 407437
 check_proc_net_dev
 
 iface="${iface:-$(default_interface)}"

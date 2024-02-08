@@ -9,6 +9,8 @@
 #+ volume = merge
 
 # TODO: Install gruvbox themes
+# cd dotfiles && git submodule update --init
+# cd ~/dotfiles/dependencies && git clone https://github.com/ohmyzsh/ohmyzsh
 # cd ~/dotfiles/dependencies && git clone https://github.com/gruvbox-community/gruvbox-contrib
 # cd ~/dotfiles/dependencies && git clone https://github.com/morhetz/gruvbox
 
@@ -27,6 +29,7 @@ profile.local
 tmux.conf
 tmux
 gtkrc-2.0.mine
+themes
 "
 # Directories under ~/.config
 configs="
@@ -306,6 +309,7 @@ function main() {
         install_programs
         install_aur
         setup_system_configs
+        setup_samba
     elif [[ $response == "push" ]]; then
         push_dotfiles
     elif [[ $response == "pull" ]]; then

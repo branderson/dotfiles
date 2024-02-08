@@ -1,5 +1,4 @@
 existing
-dependencies
 minimal
 *.local
 install_local.sh

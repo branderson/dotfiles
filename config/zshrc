@@ -6,7 +6,7 @@
 source "$HOME/.zsh_functions"
 
 # Path to your oh-my-zsh installation.
- export ZSH=$HOME/dotfiles/dependencies/oh-my-zsh
+ export ZSH=$HOME/dotfiles/dependencies/ohmyzsh
 #export RUST_SRC_PATH=/usr/local/src/rust/src
 
 # Z
