@@ -4,6 +4,7 @@ xdotool
 samba
 zsh
 zsh-syntax-highlighting
+github-cli
 gtk-engine-murrine
 neovim
 tmux

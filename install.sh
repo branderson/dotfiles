@@ -30,6 +30,10 @@
 # cp ~/dotfiles/assets/lightdm-background.png /usr/share/endeavouros/backgrounds/custom-wallpaper.png
 # sudo sed --in-place=.backup 's/background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png/background=/usr/share/endeavouros/backgrounds/custom-wallpaper.png/g' /etc/lightdm/slick-greeter.conf
 
+# TODO: Setup github credentials
+# gh auth login
+# Possibly set up a credential store
+
 # TODO: Restart needed
 
 dir=~/dotfiles                      # dotfiles repository directory
