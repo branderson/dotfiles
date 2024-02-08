@@ -2,4 +2,7 @@ existing
 minimal
 *.local
 install_local.sh
+config/gtk-3.0/bookmarks
 config/powerline
+config/themes
+config/icons

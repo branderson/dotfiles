@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# TODO: Update /usr/share/alsa-card-profile/mixer/paths/analog-output-lineout.conf
+# TODO: Fix audio issues specific to my motherboard (put this in install_local.sh)
+# Update /usr/share/alsa-card-profile/mixer/paths/analog-output-lineout.conf
 # https://forum.level1techs.com/t/speaker-audio-not-working-until-alsamixer-headphone-volume-manually-raised/177397/51
 # [Element Headphone]
 #- switch = off
@@ -13,6 +14,15 @@
 # cd ~/dotfiles/dependencies && git clone https://github.com/ohmyzsh/ohmyzsh
 # cd ~/dotfiles/dependencies && git clone https://github.com/gruvbox-community/gruvbox-contrib
 # cd ~/dotfiles/dependencies && git clone https://github.com/morhetz/gruvbox
+
+# TODO: Customize lightdm
+# Move some wallpaper assets into this repo
+# cp ~/dotfiles/assets/lightdm-background.png /usr/share/endeavouros/backgrounds/custom-wallpaper.png
+# sudo sed --in-place=.backup 's/background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png/background=/usr/share/endeavouros/backgrounds/custom-wallpaper.png/g' /etc/lightdm/slick-greeter.conf
+
+# TODO: Set the primary display
+# display-setup-script=xrandr --output DP-4 --primary
+# sudo sed --in-place=.backup 's/#display-setup-script=/display-setup-script=xrandr --output DP-4 --primary/g' /etc/lightdm/lightdm.conf
 
 dir=~/dotfiles/config            # dotfiles directory
 platform=$(uname)
@@ -30,6 +40,7 @@ tmux.conf
 tmux
 gtkrc-2.0.mine
 themes
+icons
 "
 # Directories under ~/.config
 configs="

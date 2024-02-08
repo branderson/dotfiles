@@ -495,9 +495,9 @@ exec_always --no-startup-id autotiling
 # Autostart apps as you like
 #exec --no-startup-id sleep 2 && xfce4-terminal
 #exec --no-startup-id sleep 7 && firefox https://github.com/endeavouros-team/endeavouros-i3wm-setup/blob/main/force-knowledge.md
-exec --no-startup-id sleep 10 && firefox https://todo.bradina.haus/
-exec --no-startup-id sleep 12 && Plexamp
-exec --no-startup-id sleep 12 && element-desktop-nightly
+exec --no-startup-id sleep 7 && firefox https://todo.bradina.haus/
+exec --no-startup-id sleep 7 && Plexamp.AppImage
+exec --no-startup-id sleep 7 && element-desktop-nightly
 #exec --no-startup-id sleep 3 && thunar
 
 ###############
