@@ -1,33 +1,45 @@
 #!/bin/bash
 
-# TODO: Fix audio issues specific to my motherboard (put this in install_local.sh)
-# Update /usr/share/alsa-card-profile/mixer/paths/analog-output-lineout.conf
-# https://forum.level1techs.com/t/speaker-audio-not-working-until-alsamixer-headphone-volume-manually-raised/177397/51
-# [Element Headphone]
-#- switch = off
-#- volume = off
-#+ switch = mute
-#+ volume = merge
+# =================================================================================================
+#
+# This program provides helpful tools for initializing a new system based on my personal dotfiles.
+# It aims to provide a core set of common configs across a number of tools I use, while remaining
+# flexible to a variety of deployment scenarios with different requirements.
+#
+# To support flexibility, this installer reads from a set of package lists. These are stored in the
+# `packages` directory, in `[arch,aur,apt].[global,local]` files, corresponding to the repository
+# and scope of the package.
+#
+# To add an Arch User Repository (AUR) package to your local config, `touch ./packages/aur.local`
+# and add the package name, one per line. These will be included when installing packages from their
+# respective installer commands.
+#
+#
+# =================================================================================================
 
+# TODO: Put installer script in path
+#
 # TODO: Install gruvbox themes
 # cd dotfiles && git submodule update --init
-# cd ~/dotfiles/dependencies && git clone https://github.com/ohmyzsh/ohmyzsh
-# cd ~/dotfiles/dependencies && git clone https://github.com/gruvbox-community/gruvbox-contrib
-# cd ~/dotfiles/dependencies && git clone https://github.com/morhetz/gruvbox
+# mkdir ~/dotfiles/config/themes ~/dotfiles/config/icons
+# cp -r ~/dotfiles/dependencies/Gruvbox-GTK-Theme/themes/* ~/dotfiles/config/themes
+# cp -r ~/dotfiles/dependencies/Gruvbox-GTK-Theme/icons/* ~/dotfiles/config/icons
 
 # TODO: Customize lightdm
 # Move some wallpaper assets into this repo
 # cp ~/dotfiles/assets/lightdm-background.png /usr/share/endeavouros/backgrounds/custom-wallpaper.png
 # sudo sed --in-place=.backup 's/background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png/background=/usr/share/endeavouros/backgrounds/custom-wallpaper.png/g' /etc/lightdm/slick-greeter.conf
 
-# TODO: Set the primary display
-# display-setup-script=xrandr --output DP-4 --primary
-# sudo sed --in-place=.backup 's/#display-setup-script=/display-setup-script=xrandr --output DP-4 --primary/g' /etc/lightdm/lightdm.conf
+# TODO: Restart needed
 
-dir=~/dotfiles/config            # dotfiles directory
+dir=~/dotfiles                      # dotfiles repository directory
+config_dir="$dir"/config
+packages_dir="$dir"/packages
 platform=$(uname)
 pacman_args="--noconfirm --needed"
 restart_needed=0
+
+source "$dir"/functions.sh
 
 # Files and directories to link to home directory
 home_files="
@@ -59,40 +71,33 @@ apt=""
 aur="
 "
 
-if [[ -f ~/dotfiles/install-arch.global ]]; then
-    arch="$(<~/dotfiles/install-arch.global)"
-fi
-if [[ -f ~/dotfiles/install-aur.global ]]; then
-    aur="$(<~/dotfiles/install-aur.global)"
-fi
-if [[ -f ~/dotfiles/install-apt.global ]]; then
-    apt="$(<~/dotfiles/install-apt.global)"
-fi
-if [[ -f ~/dotfiles/install-arch.local ]]; then
-    arch_overrides="$(<~/dotfiles/install-arch.local)"
-    printf -v arch "${arch}\n${arch_overrides}"
-fi
-if [[ -f ~/dotfiles/install-aur.local ]]; then
-    aur_overrides="$(<~/dotfiles/install-aur.local)"
-    printf -v aur "${aur}\n${aur_overrides}"
-fi
-if [[ -f ~/dotfiles/install-apt.local ]]; then
-    apt_overrides="$(<~/dotfiles/install-apt.local)"
-    printf -v apt "${apt}\n${apt_overrides}"
-fi
-
-# Returns 1 if program is installed and 0 otherwise
-function program_installed {
-    local return_=1
-
-    type $1 >/dev/null 2>&1 || { local return_=0; }
-
-    echo "$return_"
+function load_package_lists() {
+    if [[ -f "$packages_dir"/arch.global ]]; then
+        arch="$(<"$packages_dir"/arch.global)"
+    fi
+    if [[ -f "$packages_dir"/aur.global ]]; then
+        aur="$(<"$packages_dir"/aur.global)"
+    fi
+    if [[ -f "$packages_dir"/apt.global ]]; then
+        apt="$(<"$packages_dir"/apt.global)"
+    fi
+    if [[ -f "$packages_dir"/arch.local ]]; then
+        arch_overrides="$(<"$packages_dir"/arch.local)"
+        printf -v arch "${arch}\n${arch_overrides}"
+    fi
+    if [[ -f "$packages_dir"/aur.local ]]; then
+        aur_overrides="$(<"$packages_dir"/aur.local)"
+        printf -v aur "${aur}\n${aur_overrides}"
+    fi
+    if [[ -f "$packages_dir"/apt.local ]]; then
+        apt_overrides="$(<"$packages_dir"/apt.local)"
+        printf -v apt "${apt}\n${apt_overrides}"
+    fi
 }
 
 function link_dotfiles {
     # change to the dotfiles directory
-    cd $dir
+    cd $config_dir
     echo ""
 
     # Check if existing file in homedir and warn if so, otherwise create symlinks from the
@@ -102,8 +107,8 @@ function link_dotfiles {
             if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
-                echo "Linking: $file ($dir/$file -> ~/.$file)"
-                ln -s $dir/$file ~/.$file
+                echo "Linking: $file ($config_dir/$file -> ~/.$file)"
+                ln -s $config_dir/$file ~/.$file
             fi
         fi
     done
@@ -112,8 +117,8 @@ function link_dotfiles {
             if [[ -f ~/.config/$file || -d ~/.config/$file ]]; then
                 echo "Skipping: $file because ~/.config/$file already exists"
             else
-                echo "Linking: $file ($dir/$file -> ~/.config/$file)"
-                ln -s $dir/$file ~/.config/$file
+                echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
+                ln -s $config_dir/$file ~/.config/$file
             fi
         fi
     done
@@ -126,12 +131,12 @@ function install_aur() {
         echo -n "Do you want to upgrade/install from AUR? (y/n) "
         read response
         if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            echo "Installing AUR programs through yay."
+            echo "Updating AUR programs."
             yay -Syua $pacman_args
-            echo -n "Would you like to install all AUR programs? (y/n) "
+            echo -n "Would you like to install all AUR programs from package lists? (y/n) "
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-                echo "Installing AUR programs."
+                echo "Installing AUR programs from package lists."
                 for program in $aur; do
                     if [ $(program_installed $program) == 0 ]; then
                         yay -Sqa $pacman_args $program
@@ -163,8 +168,9 @@ function install_programs() {
 }
 
 function setup_zsh() {
-    echo
+    # Only ask to setup if zsh installed and not the current shell
     if [[ $(program_installed zsh) == 1 && "$SHELL" != "$(which zsh)" ]]; then
+        echo
         echo -n "Would you like to set zsh as your default shell? (y/n) "
         read response
         if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
@@ -176,8 +182,8 @@ function setup_zsh() {
 
 function setup_system_configs() {
     setup_zsh
-    echo
     if [ $(program_installed lightdm) == 1 ]; then
+        echo
         echo "Enabling numlock at startup"
         original=`cat /etc/lightdm/lightdm.conf` >> /dev/null
         sudo sed --in-place=.backup 's/#greeter-setup-script=/greeter-setup-script=\/usr\/bin\/numlockx on/g' /etc/lightdm/lightdm.conf
@@ -187,11 +193,14 @@ function setup_system_configs() {
             echo "$diff"
             restart_needed=1
         else
+            echo
             echo "No changes were made"
         fi
-        echo
     fi
+
+    # Assume Steam is desired if xdg-desktop-portal is installed
     if [[ -f /usr/share/xdg-desktop-portal/portals/gtk.portal && $(program_installed i3) == 1 ]]; then
+        echo
         echo "Enabling xdg-desktop-portal-gtk in i3 (needed for Steam)"
         original=`cat /usr/share/xdg-desktop-portal/portals/gtk.portal` >> /dev/null
         sudo sed --in-place=.backup 's/^UseIn=gnome$/UseIn=gnome;i3/g' /usr/share/xdg-desktop-portal/portals/gtk.portal
@@ -201,6 +210,7 @@ function setup_system_configs() {
             echo "$diff"
             restart_needed=1
         else
+            echo
             echo "No changes were made"
         fi
         echo
@@ -209,36 +219,41 @@ function setup_system_configs() {
 
 function setup_samba() {
     echo
-    echo -n "What samba host would you like to configure? "
-    read samba_host
-    if [[ "$samba_host" != '' ]]; then
-        echo -n "Would you like to configure samba credentials? (y/n) "
-        read response
-        if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
-            [[ ! -d "/etc/samba" ]] && sudo mkdir /etc/samba
-            [[ ! -d "/etc/samba/credentials" ]] && sudo mkdir /etc/samba/credentials
-            if [[ -d "/etc/samba/credentials" ]]; then
-                echo
-                echo -n "username: "
-                read username
-                echo -n "password: "
-                read -s password
-                echo
-                echo "Writing config to /etc/samba/credentials/$samba_host"
-                printf "username=$username\npassword=$password" | sudo tee "/etc/samba/credentials/$samba_host" >> /dev/null
-                unset username
-                unset password
+    echo -n "Would you like to configure samba? (y/n) "
+    read response
+    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+        echo -n "What samba host would you like to configure? "
+        read samba_host
+        if [[ "$samba_host" != '' ]]; then
+            echo -n "Would you like to configure samba credentials? (y/n) "
+            read response
+            if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                [[ ! -d "/etc/samba" ]] && sudo mkdir /etc/samba
+                [[ ! -d "/etc/samba/credentials" ]] && sudo mkdir /etc/samba/credentials
+                if [[ -d "/etc/samba/credentials" ]]; then
+                    echo
+                    echo -n "username: "
+                    read username
+                    echo -n "password: "
+                    read -s password
+                    echo
+                    echo "Writing config to /etc/samba/credentials/$samba_host"
+                    printf "username=$username\npassword=$password" | sudo tee "/etc/samba/credentials/$samba_host" >> /dev/null
+                    unset username
+                    unset password
+                fi
             fi
+            echo
+            echo "Add lines to /etc/fstab for each share to mount:"
+            echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
         fi
-        echo
-        echo "Add lines to /etc/fstab for each share to mount:"
-        echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
     fi
     echo
     unset samba_host
 }
 
 function fix_package_query() {
+    # TODO: This is outdated, endeavouros uses yay instead of pacaur
     if [ $(program_installed pacman) == 1 ]; then
         echo "Removing old installs."
         if [ $(program_installed package-query) == 1 ]; then
@@ -267,12 +282,12 @@ function fix_package_query() {
         git clone https://aur.archlinux.org/pacaur.git ~/builds/pacaur
         cd ~/builds/pacaur
         makepkg -sri $pacman_args
-        cd $dir
+        cd "$dir"
     fi
 }
 
 function push_dotfiles() {
-    cd $dir
+    cd "$dir"
     echo "Pushing dotfiles"
     git add -A
     git commit
@@ -280,21 +295,23 @@ function push_dotfiles() {
 }
 
 function update_dotfiles() {
-    cd $dir
-    git pull
+    cd "$dir"
+    git pull origin master
 }
 
-function local_install() {
-    if [ -f "~/dotfiles/install_local.sh" ]; then
-        ~/dotfiles/install_local.sh
+function install_local() {
+    if [ -f "$dir/install_local.sh" ]; then
+        "$dir"/install_local.sh
+    else
+        echo "No file at install_local.sh, skipping local installation script."
     fi
 }
 
 function main() {
     if [[ $(program_installed pacman) == 1 ]]; then
-        echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba)"
+        echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
     elif [[ $(program_installed apt) == 1 ]]; then
-        echo "[complete] Complete install (dotfiles, apt, system-configs, samba)"
+        echo "[complete] Complete install (dotfiles, apt, system-configs, samba, local-install)"
     fi
     echo "[push] Push to github"
     echo "[pull] Pull from github"
@@ -311,6 +328,7 @@ function main() {
     fi
     echo "[system-configs] Set up system configs only"
     echo "[samba] Set up samba credentials only"
+    echo "[install-local] Run local installer only ($dir/install_local.sh)"
     echo "[0] Quit"
     echo ""
     echo "What would you like to do?"
@@ -354,7 +372,12 @@ function main() {
         setup_samba
         echo ""
         main
+    elif [[ $response == "install-local" ]]; then
+        install_local
+        echo ""
+        main
     fi
 }
 
+load_package_lists
 main

@@ -1,9 +1,10 @@
 cifs-utils
+xorg-xev
+xdotool
 samba
 zsh
 zsh-syntax-highlighting
 gtk-engine-murrine
-gnome-tweaks
 neovim
 tmux
 xclip

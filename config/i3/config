@@ -291,6 +291,7 @@ bindsym $mod+minus split h
 bindsym $mod+Shift+bar split v
 
 # enter fullscreen mode for the focused container
+# TODO: tigervnc can get stuck in fullscreen and swallow all the commands to escape it. F8 is for keyboard escape
 bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
@@ -337,6 +338,11 @@ bindsym XF86AudioPlay exec --no-startup-id playerctl play
 bindsym XF86AudioPause exec --no-startup-id playerctl pause
 bindsym XF86AudioNext exec --no-startup-id playerctl next
 bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+
+# mouse buttons
+# TODO: Anything based on the titlebar never really runs since titlebars are disabled
+bindsym --release button2 kill
+bindsym --whole-window $mod+button2 kill
 
 # Redirect sound to headphones
 bindsym $mod+p exec --no-startup-id /usr/local/bin/switch-audio-port
