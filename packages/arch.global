@@ -1,20 +1,39 @@
-cifs-utils
-xorg-xev
-xdotool
+# connect to network shares
 samba
-zsh
-zsh-syntax-highlighting
-github-cli
-gtk-engine-murrine
+cifs-utils
+
+# basic utilities
 neovim
 tmux
-xclip
-numlockx
 wget
-zsh
+# clipboard manager
+xclip
+# set numlock
+numlockx
 python-pip
+# ag - fuzzy search anywhere, `,mag` in nvim!
 the_silver_searcher
 tree
+
+# zsh shell instead of bash
+zsh
+zsh-syntax-highlighting
+
+# credential management and git
+github-cli
+gnome-keyring
+
+# theme
+# Needed for GTK theme
+gtk-engine-murrine
 powerline
+
+# run xev to get keysyms for i3 and other applications
+xorg-xev
+
+# for sending keystrokes from i3, currently unused
+xdotool
+
+# useless stuff
 conky
 neofetch

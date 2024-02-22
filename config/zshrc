@@ -57,7 +57,8 @@ ZSH_THEME="agnoster"
 # # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # # zsh-syntax-highlighting must come last
-plugins=(archlinux colorize command-not-found cp git github tmux  bower grunt npm macos)
+plugins=(archlinux colorize command-not-found cp git github bower grunt npm macos)
+# tmux
 zmodload zsh/zpty
 
 # # User configuration

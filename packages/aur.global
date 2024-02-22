@@ -1,6 +1,18 @@
+# tldr {program} for example usage
+tldr
+
+# clipboard introspection in rofi
+rofi-greenclip
+
+# preconfigured tmux sessions
+tmuxinator
+
+# fonts with powerline glyphs
+powerline-fonts-git
+
+# transparency
+picom
+
+# useless stuff for vim
 fortune-mod
 cowsay
-tldr
-rofi-greenclip
-tmuxinator
-powerline-fonts-git

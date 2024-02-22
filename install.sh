@@ -58,7 +58,7 @@ gtkrc-2.0.mine
 themes
 icons
 "
-# Directories under ~/.config
+# Files and directories under ~/.config
 configs="
 nvim
 i3
@@ -68,6 +68,8 @@ conky
 rofi
 gtk-3.0
 powerline
+xfce4
+picom.conf
 "
 arch="
 "
@@ -141,11 +143,15 @@ function install_aur() {
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 echo "Installing AUR programs from package lists."
-                for program in $aur; do
+                while IFS= read -r program || [[ -n $program ]]; do
+                    # Check for comment or whitespace
+                    if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                        continue
+                    fi
                     if [ $(program_installed $program) == 0 ]; then
                         yay -Sqa $pacman_args $program
                     fi
-                done
+                done < <(printf '%s' "$aur")
             fi
         fi
     fi
@@ -154,18 +160,27 @@ function install_aur() {
 function install_programs() {
     if [ $(program_installed pacman) == 1 ]; then
         sudo pacman -Syuq
-        for program in $arch; do
+        # https://superuser.com/a/284226
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
             if [ $(program_installed $program) == 0 ]; then
                 sudo pacman -Sq $pacman_args $program
             fi
-        done
+        done < <(printf '%s' "$arch")
     elif [ $(program_installed apt-get) == 1 ]; then
         sudo apt-get update
-        for program in $apt; do
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
             if [ $(program_installed $program) == 0 ]; then
                 sudo apt-get install $program
             fi
-        done
+        done < <(printf '%s' "$apt")
     else
         echo "Cannot install tools, no compatible package manager."
     fi
@@ -186,6 +201,12 @@ function setup_zsh() {
 
 function setup_system_configs() {
     setup_zsh
+    if [ $(program_installed sshd) == 1 ]; then
+        echo
+        echo "Enabling SSH server"
+        sudo systemctl enable sshd.service
+        sudo systemctl start sshd.service
+    fi
     if [ $(program_installed lightdm) == 1 ]; then
         echo
         echo "Enabling numlock at startup"
@@ -197,7 +218,6 @@ function setup_system_configs() {
             echo "$diff"
             restart_needed=1
         else
-            echo
             echo "No changes were made"
         fi
     fi
@@ -214,11 +234,16 @@ function setup_system_configs() {
             echo "$diff"
             restart_needed=1
         else
-            echo
             echo "No changes were made"
         fi
-        echo
     fi
+
+    if [[ ! $(program_installed vim) == 1 && $(program_installed nvim) == 1 ]]; then
+        echo
+        echo "Preventing missing vim issues"
+        sudo ln -s "$(which nvim)" /usr/bin/vim
+    fi
+    echo
 }
 
 function setup_samba() {
@@ -343,6 +368,7 @@ function main() {
         install_aur
         setup_system_configs
         setup_samba
+        install_local
     elif [[ $response == "push" ]]; then
         push_dotfiles
     elif [[ $response == "pull" ]]; then

@@ -3,6 +3,8 @@ minimal
 *.local
 install_local.sh
 config/gtk-3.0/bookmarks
+config/xfce4/xfconf/xfce-perchannel-xml
+config/xfce4/terminal
 config/powerline
 config/themes
 config/icons

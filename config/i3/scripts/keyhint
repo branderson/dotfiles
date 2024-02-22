@@ -4,7 +4,7 @@ Main() {
     source /usr/share/endeavouros/scripts/eos-script-lib-yad || return 1
 
     local command=(
-        eos_yad --title="EndeavourOS i3-wm keybindings:" --no-buttons --geometry=400x345-15-400 --list
+        eos_yad --title="EndeavourOS i3-wm keybindings:" --no-buttons --geometry=500x800-15-400 --list
         --column=key: --column=description: --column=command:
         "ESC" "close this app" ""
         "=" "modkey" "(set mod Mod4)"
@@ -12,11 +12,35 @@ Main() {
         "+Shift+n" "new empty workspace" ""
         "+w" "open Browser" ""
         "+n" "open Filebrowser" ""
+        "+/" "open notes scratchpad" "🗒"
         "+d" "app menu" ""
+        "+t" "window menu" ""
+        "+c" "clipboard menu" ""
         "+q" "close focused app" ""
+        "+mid mouse" "close focused app" ""
         "Print-key" "screenshot" ""
         "+Shift+e" "logout menu" ""
+        "+Shift+p" "power profiles menu" ""
+        "+Delete" "lock screen" ""
         "F1" "open keybinding helper" ""
+        "" "" ""
+        "+{1,2,etc}" "switch to workspace" ""
+        "+Shift+{1,2,etc}" "move focused app to workspace" ""
+        "+tab" "next workspace" ""
+        "+Shift+tab" "previous workspace" ""
+        "+{hjkl}" "move focus" ""
+        "+a" "focus parent" ""
+        "+space" "focus tiling / floating windows" ""
+        "+f" "fullscreen toggle" ""
+        "+Shift+space" "floating toggle" ""
+        "+e" "split (tiled) layout" ""
+        "+s" "stacking layout" ""
+        "+g" "tabbed layout" ""
+        "+-" "split next window hortizontally" ""
+        "+|" "split next window vertically" ""
+        "+r" "resize window (hjkl)" ""
+        "+Shift+g" "resize gaps (hjkl)" ""
+        "+Ctrl+g" "toggle gaps" ""
     )
 
     "${command[@]}"

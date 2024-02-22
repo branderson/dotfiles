@@ -55,7 +55,7 @@ function check_dotfiles_version {
         return 2
     fi
 
-    pushd $HOME/dotfiles
+    pushd $HOME/dotfiles > /dev/null
 
     git fetch origin
     UPSTREAM=${1:-'@{u}'}
@@ -63,7 +63,7 @@ function check_dotfiles_version {
     REMOTE=$(git rev-parse "$UPSTREAM")
     BASE=$(git merge-base @ "$UPSTREAM")
 
-    popd
+    popd > /dev/null
 
     if [[ $LOCAL = $REMOTE ]]; then
         return 0
