@@ -34,6 +34,8 @@
 # gh auth login
 # Possibly set up a credential store
 
+# TODO: Separate out themes and make gruvbox optional
+
 # TODO: Restart needed
 
 dir=~/dotfiles                      # dotfiles repository directory
@@ -70,6 +72,9 @@ gtk-3.0
 powerline
 xfce4
 picom.conf
+"
+systemd_services="
+plasma-i3.service
 "
 arch="
 "
@@ -125,6 +130,16 @@ function link_dotfiles {
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
                 ln -s $config_dir/$file ~/.config/$file
+            fi
+        fi
+    done
+    for file in $systemd_services; do
+        if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
+            if [[ -f ~/.config/systemd/user/$file || -d ~/.config/systemd/user/$file ]]; then
+                echo "Skipping: $file because ~/.config/systemd/user/$file already exists"
+            else
+                echo "Linking: $file ($config_dir/systemd/user/$file -> ~/.config/systemd/user/$file)"
+                ln -s $config_dir/systemd/user/$file ~/.config/systemd/user/$file
             fi
         fi
     done
@@ -201,7 +216,7 @@ function setup_zsh() {
 
 function setup_system_configs() {
     setup_zsh
-    if [ $(program_installed sshd) == 1 ]; then
+    if [[ $(program_installed sshd) == 1 && $(service_enabled sshd.service) == 0 ]]; then
         echo
         echo "Enabling SSH server"
         sudo systemctl enable sshd.service
@@ -243,7 +258,14 @@ function setup_system_configs() {
         echo "Preventing missing vim issues"
         sudo ln -s "$(which nvim)" /usr/bin/vim
     fi
-    echo
+
+    # TODO: Make sure bluetooth is installed
+    if [[ $(service_enabled bluetooth.service) == 0 ]]; then
+        echo
+        echo "Enabling Bluetooth"
+        sudo systemctl enable bluetooth.service
+        sudo systemctl start bluetooth.service
+    fi
 }
 
 function setup_samba() {
@@ -279,40 +301,6 @@ function setup_samba() {
     fi
     echo
     unset samba_host
-}
-
-function fix_package_query() {
-    # TODO: This is outdated, endeavouros uses yay instead of pacaur
-    if [ $(program_installed pacman) == 1 ]; then
-        echo "Removing old installs."
-        if [ $(program_installed package-query) == 1 ]; then
-            sudo pacman -Rdd package-query
-        fi
-        if [ $(program_installed pacaur) == 1 ]; then
-            # TODO: Will this work?
-            sudo pacman -Rdd pacaur
-        fi
-        echo "Upgrading system."
-        sudo pacman -Syuq
-        echo "Creating ~/builds to hold AUR programs."
-        mkdir -p ~/builds
-        echo "Installing git if it's not installed."
-        sudo pacman -Sq $pacman_args git
-        echo "Installing base-devel if it's not installed."
-        sudo pacman -Sq $pacman_args base-devel
-        echo "Installing package_query and pacaur."
-        cd ~/builds
-        echo "Removing old builds if they exist."
-        rm -rf package-query
-        rm -rf pacaur
-        git clone https://aur.archlinux.org/package-query.git ~/builds/package-query
-        cd ~/builds/package-query
-        makepkg -sri $pacman_args
-        git clone https://aur.archlinux.org/pacaur.git ~/builds/pacaur
-        cd ~/builds/pacaur
-        makepkg -sri $pacman_args
-        cd "$dir"
-    fi
 }
 
 function push_dotfiles() {
@@ -353,7 +341,6 @@ function main() {
     if [[ $(program_installed pacman) == 1 ]]; then
         echo "[programs-official] Install official repository programs (pacman) only"
         echo "[aur-only] Install AUR programs only"
-        echo "[package-query] Fix outdated package-query"
     fi
     echo "[system-configs] Set up system configs only"
     echo "[samba] Set up samba credentials only"
@@ -388,10 +375,6 @@ function main() {
         main
     elif [[ $response == "aur-only" ]]; then
         install_aur
-        echo ""
-        main
-    elif [[ $response == "package-query" ]]; then
-        fix_package_query
         echo ""
         main
     elif [[ $response == "system-configs" ]]; then

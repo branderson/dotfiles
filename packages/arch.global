@@ -23,6 +23,12 @@ zsh-syntax-highlighting
 github-cli
 gnome-keyring
 
+# bluetooth support
+bluez
+bluez-utils
+blueman
+#bluedevil
+
 # theme
 # Needed for GTK theme
 gtk-engine-murrine
