@@ -40,6 +40,9 @@ xorg-xev
 # for sending keystrokes from i3, currently unused
 xdotool
 
+# flatpak support
+flatpak
+
 # useless stuff
 conky
 neofetch

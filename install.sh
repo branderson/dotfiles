@@ -81,6 +81,8 @@ arch="
 apt=""
 aur="
 "
+flatpak="
+"
 
 function load_package_lists() {
     if [[ -f "$packages_dir"/arch.global ]]; then
@@ -103,6 +105,10 @@ function load_package_lists() {
     if [[ -f "$packages_dir"/apt.local ]]; then
         apt_overrides="$(<"$packages_dir"/apt.local)"
         printf -v apt "${apt}\n${apt_overrides}"
+    fi
+    if [[ -f "$packages_dir"/flatpak.local ]]; then
+        flatpak_overrides="$(<"$packages_dir"/flatpak.local)"
+        printf -v flatpak "${flatpak}\n${flatpak_overrides}"
     fi
 }
 
@@ -197,7 +203,20 @@ function install_programs() {
             fi
         done < <(printf '%s' "$apt")
     else
-        echo "Cannot install tools, no compatible package manager."
+        echo "Cannot install programs, no compatible package manager."
+    fi
+    if [ $(program_installed flatpak) == 1 ]; then
+        flatpak update --noninteractive --assumeyes
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
+            program_array=($program)
+            remote=${program_array[0]}
+            app=${program_array[1]}
+            flatpak install --noninteractive --assumeyes $remote $app
+        done < <(printf '%s' "$flatpak")
     fi
 }
 
