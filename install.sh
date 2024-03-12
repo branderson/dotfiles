@@ -327,11 +327,11 @@ function setup_system_configs() {
         echo "Configure syncthing here:"
         echo "http://localhost:8384"
     fi
-    setup_sessions
-    setup_plasma_i3
+    choose_desktop_environment
 }
 
 function setup_sessions() {
+    # Install plasma + i3 sessions
     echo
     echo -n "Would you like to install X11 / Wayland sessions? (y/n) "
     read response
@@ -365,19 +365,51 @@ function setup_sessions() {
     fi
 }
 
-function setup_plasma_i3() {
+function choose_desktop_environment() {
     echo
     echo -n "Would you like to run plasma alongside i3? (y/n) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
-        echo "Disabling plasma systemd autostart"
-        if [[ $(program_installed kwriteconfig5) == 1 ]]; then
-            kwriteconfig5 --file startkderc --group General --key systemdBoot false
-        fi
-        if [[ $(program_installed kwriteconfig6) == 1 ]]; then
-            kwriteconfig6 --file startkderc --group General --key systemdBoot false
-        fi
+        setup_plasma_i3
+    else
+        setup_bare_i3
     fi
+}
+
+function setup_bare_i3() {
+    echo "Configuring i3"
+    echo "Linking: i3-keybindings.conf ($config_dir/bare-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
+    ln -s $config_dir/bare-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+
+    echo "Linking: i3-bar.conf ($config_dir/bare-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
+    ln -s $config_dir/bare-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+
+    echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.d/i3-autostart.conf)"
+    ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.d/i3-autostart.conf
+}
+
+function setup_plasma_i3() {
+    if [[ ! $(program_installed plasmashell) == 1 ]]; then
+        echo "Plasma not installed, please install and rerun"
+        return 1
+    fi
+
+    echo "Configuring i3"
+    echo "Linking: i3-keybindings.conf ($config_dir/plasma-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
+    ln -s $config_dir/plasma-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+
+    echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
+    ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+
+    echo "Disabling plasma systemd autostart"
+    if [[ $(program_installed kwriteconfig5) == 1 ]]; then
+        kwriteconfig5 --file startkderc --group General --key systemdBoot false
+    fi
+    if [[ $(program_installed kwriteconfig6) == 1 ]]; then
+        kwriteconfig6 --file startkderc --group General --key systemdBoot false
+    fi
+
+    setup_sessions
 }
 
 function setup_samba() {

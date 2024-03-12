@@ -23,5 +23,19 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
+# Define colors variables:
+# gruvbox colors
+set $bg #282828
+set $red #cc241d
+set $green #98971a
+set $yellow #d79921
+set $blue #458588
+set $purple #b16286
+set $aqua #689d6a
+set $gray #a89984
+set $darkgray #1d2021
+set $white #ebdbb2
+
+
 # Include configs
 include config.d/*.conf

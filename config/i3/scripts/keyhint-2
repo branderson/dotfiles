@@ -1,3 +1,4 @@
+# TODO: Doesn't include keybindings in i3-keybindings.conf
 I3_CONFIG=$HOME/.config/i3/config.d/keybindings.conf
 mod_key=$(sed -nre 's/^set \$mod (.*)/\1/p' ${I3_CONFIG})
 grep "^bindsym" ${I3_CONFIG} \
