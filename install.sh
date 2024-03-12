@@ -378,25 +378,25 @@ function choose_desktop_environment() {
 
 function setup_bare_i3() {
     echo "Configuring i3"
-    if [[ -f ~/.config/i3/config.d/i3-keybindings.conf ]]; then
-        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.d/i3-keybindings.conf already exists"
+    if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
+        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.de/i3-keybindings.conf already exists"
     else
-        echo "Linking: i3-keybindings.conf ($config_dir/bare-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
-        ln -s $config_dir/bare-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+        echo "Linking: i3-keybindings.conf ($config_dir/bare-i3/i3-keybindings.conf -> ~/.config/i3/config.de/i3-keybindings.conf)"
+        ln -s $config_dir/bare-i3/i3-keybindings.conf ~/.config/i3/config.de/i3-keybindings.conf
     fi
 
-    if [[ -f ~/.config/i3/config.d/i3-bar.conf ]]; then
-        echo "Skipping: i3-bar.conf because ~/.config/i3/config.d/i3-bar.conf already exists"
+    if [[ -f ~/.config/i3/config.de/i3-bar.conf ]]; then
+        echo "Skipping: i3-bar.conf because ~/.config/i3/config.de/i3-bar.conf already exists"
     else
-        echo "Linking: i3-bar.conf ($config_dir/bare-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
-        ln -s $config_dir/bare-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+        echo "Linking: i3-bar.conf ($config_dir/bare-i3/i3-bar.conf -> ~/.config/i3/config.de/i3-bar.conf)"
+        ln -s $config_dir/bare-i3/i3-bar.conf ~/.config/i3/config.de/i3-bar.conf
     fi
 
-    if [[ -f ~/.config/i3/config.d/i3-autostart.conf ]]; then
-        echo "Skipping: i3-autostart.conf because ~/.config/i3/config.d/i3-autostart.conf already exists"
+    if [[ -f ~/.config/i3/config.de/i3-autostart.conf ]]; then
+        echo "Skipping: i3-autostart.conf because ~/.config/i3/config.de/i3-autostart.conf already exists"
     else
-        echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.d/i3-autostart.conf)"
-        ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.d/i3-autostart.conf
+        echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.de/i3-autostart.conf)"
+        ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.de/i3-autostart.conf
     fi
 }
 
@@ -407,18 +407,18 @@ function setup_plasma_i3() {
     fi
 
     echo "Configuring i3"
-    if [[ -f ~/.config/i3/config.d/i3-keybindings.conf ]]; then
-        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.d/i3-keybindings.conf already exists"
+    if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
+        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.de/i3-keybindings.conf already exists"
     else
-        echo "Linking: i3-keybindings.conf ($config_dir/plasma-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
-        ln -s $config_dir/plasma-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+        echo "Linking: i3-keybindings.conf ($config_dir/plasma-i3/i3-keybindings.conf -> ~/.config/i3/config.de/i3-keybindings.conf)"
+        ln -s $config_dir/plasma-i3/i3-keybindings.conf ~/.config/i3/config.de/i3-keybindings.conf
     fi
 
-    if [[ -f ~/.config/i3/config.d/i3-bar.conf ]]; then
-        echo "Skipping: i3-bar.conf because ~/.config/i3/config.d/i3-bar.conf already exists"
+    if [[ -f ~/.config/i3/config.de/i3-bar.conf ]]; then
+        echo "Skipping: i3-bar.conf because ~/.config/i3/config.de/i3-bar.conf already exists"
     else
-        echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
-        ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+        echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.de/i3-bar.conf)"
+        ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.de/i3-bar.conf
     fi
 
     echo "Disabling plasma systemd autostart"

@@ -39,3 +39,5 @@ set $white #ebdbb2
 
 # Include configs
 include config.d/*.conf
+include config.de/*.conf
+include config.local/*.conf
