@@ -350,14 +350,14 @@ function setup_sessions() {
             done
         fi
         # Check if wayland_sessions directory exists
-        if [[ -d /usr/share/xsessions ]]; then
+        if [[ -d /usr/share/wayland-sessions ]]; then
             for file in $wayland_sessions; do
-                if [[ -f wayland_sessions/$file ]]; then
-                    if [[ -f /usr/share/wayland_sessions/$file ]]; then
-                        echo "Skipping: $file because /usr/share/wayland_sessions/$file already exists"
+                if [[ -f wayland-sessions/$file ]]; then
+                    if [[ -f /usr/share/wayland-sessions/$file ]]; then
+                        echo "Skipping: $file because /usr/share/wayland-sessions/$file already exists"
                     else
-                        echo "Copying: $file ($config_dir/wayland_sessions/$file -> /usr/share/wayland_sessions/$file)"
-                        sudo cp $config_dir/wayland_sessions/$file /usr/share/wayland_sessions/$file
+                        echo "Copying: $file ($config_dir/wayland-sessions/$file -> /usr/share/wayland-sessions/$file)"
+                        sudo cp $config_dir/wayland-sessions/$file /usr/share/wayland-sessions/$file
                     fi
                 fi
             done
@@ -378,14 +378,26 @@ function choose_desktop_environment() {
 
 function setup_bare_i3() {
     echo "Configuring i3"
-    echo "Linking: i3-keybindings.conf ($config_dir/bare-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
-    ln -s $config_dir/bare-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+    if [[ -f ~/.config/i3/config.d/i3-keybindings.conf ]]; then
+        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.d/i3-keybindings.conf already exists"
+    else
+        echo "Linking: i3-keybindings.conf ($config_dir/bare-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
+        ln -s $config_dir/bare-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+    fi
 
-    echo "Linking: i3-bar.conf ($config_dir/bare-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
-    ln -s $config_dir/bare-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+    if [[ -f ~/.config/i3/config.d/i3-bar.conf ]]; then
+        echo "Skipping: i3-bar.conf because ~/.config/i3/config.d/i3-bar.conf already exists"
+    else
+        echo "Linking: i3-bar.conf ($config_dir/bare-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
+        ln -s $config_dir/bare-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+    fi
 
-    echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.d/i3-autostart.conf)"
-    ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.d/i3-autostart.conf
+    if [[ -f ~/.config/i3/config.d/i3-autostart.conf ]]; then
+        echo "Skipping: i3-autostart.conf because ~/.config/i3/config.d/i3-autostart.conf already exists"
+    else
+        echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.d/i3-autostart.conf)"
+        ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.d/i3-autostart.conf
+    fi
 }
 
 function setup_plasma_i3() {
@@ -395,11 +407,19 @@ function setup_plasma_i3() {
     fi
 
     echo "Configuring i3"
-    echo "Linking: i3-keybindings.conf ($config_dir/plasma-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
-    ln -s $config_dir/plasma-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+    if [[ -f ~/.config/i3/config.d/i3-keybindings.conf ]]; then
+        echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.d/i3-keybindings.conf already exists"
+    else
+        echo "Linking: i3-keybindings.conf ($config_dir/plasma-i3/i3-keybindings.conf -> ~/.config/i3/config.d/i3-keybindings.conf)"
+        ln -s $config_dir/plasma-i3/i3-keybindings.conf ~/.config/i3/config.d/i3-keybindings.conf
+    fi
 
-    echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
-    ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+    if [[ -f ~/.config/i3/config.d/i3-bar.conf ]]; then
+        echo "Skipping: i3-bar.conf because ~/.config/i3/config.d/i3-bar.conf already exists"
+    else
+        echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.d/i3-bar.conf)"
+        ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.d/i3-bar.conf
+    fi
 
     echo "Disabling plasma systemd autostart"
     if [[ $(program_installed kwriteconfig5) == 1 ]]; then
