@@ -19,6 +19,19 @@
 
 # TODO: Put installer script in path
 #
+# TODO: Setup fingerprint reader
+# Copy /etc/pam.d/ configs
+# auth sufficient pam_fprintd.so
+# /etc/pam.d/[kde, kde-fingerprint, login, sddm, sudo, i3lock, etc?]
+#
+# TODO: Setup touchpad gestures
+# yay -S libinput-gestures
+# sudo gpasswd -a "$USER" input
+# libinput-gestures-setup autostart
+# Need to logout here or otherwise reload groups
+# libinput-gestures-setup start
+# Config in .config/libinput-gestures.conf
+
 # TODO: Install gruvbox themes
 # cd dotfiles && git submodule update --init
 # mkdir ~/dotfiles/config/themes ~/dotfiles/config/icons
@@ -72,9 +85,19 @@ gtk-3.0
 powerline
 xfce4
 picom.conf
+picom-extended.conf
+libinput-gestures.conf
+"
+bin="
+startplasma-sway-wayland
 "
 systemd_services="
-plasma-i3.service
+"
+xsessions="
+plasma-i3.desktop
+"
+wayland_sessions="
+plasma-sway.desktop
 "
 arch="
 "
@@ -139,6 +162,16 @@ function link_dotfiles {
             fi
         fi
     done
+    for file in $bin; do
+        if [[ -f bin/$file && -x $file ]]; then
+            if [[ -f /usr/local/bin/$file ]]; then
+                echo "Skipping: $file because /usr/local/bin/$file already exists"
+            else
+                echo "Copying: $file ($config_dir/bin/$file -> /usr/local/bin/$file)"
+                sudo cp $config_dir/bin/$file /usr/local/bin/$file
+            fi
+        fi
+    done
     for file in $systemd_services; do
         if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
             if [[ -f ~/.config/systemd/user/$file || -d ~/.config/systemd/user/$file ]]; then
@@ -146,6 +179,8 @@ function link_dotfiles {
             else
                 echo "Linking: $file ($config_dir/systemd/user/$file -> ~/.config/systemd/user/$file)"
                 ln -s $config_dir/systemd/user/$file ~/.config/systemd/user/$file
+                # TODO: Probably should also enable the service
+                #systemctl --user enable --now $file
             fi
         fi
     done
@@ -282,8 +317,66 @@ function setup_system_configs() {
     if [[ $(service_enabled bluetooth.service) == 0 ]]; then
         echo
         echo "Enabling Bluetooth"
-        sudo systemctl enable bluetooth.service
-        sudo systemctl start bluetooth.service
+        sudo systemctl enable --now bluetooth.service
+    fi
+
+    if [[ $(program_installed syncthing) == 1 ]]; then
+        echo
+        echo "Enabling Syncthing"
+        systemctl enable --user --now syncthing.service
+        echo "Configure syncthing here:"
+        echo "http://localhost:8384"
+    fi
+    setup_sessions
+    setup_plasma_i3
+}
+
+function setup_sessions() {
+    echo
+    echo -n "Would you like to install X11 / Wayland sessions? (y/n) "
+    read response
+    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+        # Check if xsessions directory exists
+        if [[ -d /usr/share/xsessions ]]; then
+            for file in $xsessions; do
+                if [[ -f xsessions/$file ]]; then
+                    if [[ -f /usr/share/xsessions/$file ]]; then
+                        echo "Skipping: $file because /usr/share/xsessions/$file already exists"
+                    else
+                        echo "Copying: $file ($config_dir/xsessions/$file -> /usr/share/xsessions/$file)"
+                        sudo cp $config_dir/xsessions/$file /usr/share/xsessions/$file
+                    fi
+                fi
+            done
+        fi
+        # Check if wayland_sessions directory exists
+        if [[ -d /usr/share/xsessions ]]; then
+            for file in $wayland_sessions; do
+                if [[ -f wayland_sessions/$file ]]; then
+                    if [[ -f /usr/share/wayland_sessions/$file ]]; then
+                        echo "Skipping: $file because /usr/share/wayland_sessions/$file already exists"
+                    else
+                        echo "Copying: $file ($config_dir/wayland_sessions/$file -> /usr/share/wayland_sessions/$file)"
+                        sudo cp $config_dir/wayland_sessions/$file /usr/share/wayland_sessions/$file
+                    fi
+                fi
+            done
+        fi
+    fi
+}
+
+function setup_plasma_i3() {
+    echo
+    echo -n "Would you like to run plasma alongside i3? (y/n) "
+    read response
+    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+        echo "Disabling plasma systemd autostart"
+        if [[ $(program_installed kwriteconfig5) == 1 ]]; then
+            kwriteconfig5 --file startkderc --group General --key systemdBoot false
+        fi
+        if [[ $(program_installed kwriteconfig6) == 1 ]]; then
+            kwriteconfig6 --file startkderc --group General --key systemdBoot false
+        fi
     fi
 }
 

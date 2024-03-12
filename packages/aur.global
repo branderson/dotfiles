@@ -8,6 +8,7 @@ rofi-greenclip
 tmuxinator
 
 # fonts with powerline glyphs
+# TODO: This fails on install because of conflict with ttf-hack
 powerline-fonts-git
 
 # transparency

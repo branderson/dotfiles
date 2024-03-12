@@ -6,6 +6,10 @@ cifs-utils
 neovim
 tmux
 wget
+feh
+dmenu
+rofi
+scrot
 # clipboard manager
 xclip
 # set numlock
@@ -14,6 +18,8 @@ python-pip
 # ag - fuzzy search anywhere, `,mag` in nvim!
 the_silver_searcher
 tree
+arandr
+nodejs
 
 # zsh shell instead of bash
 zsh
@@ -22,6 +28,12 @@ zsh-syntax-highlighting
 # credential management and git
 github-cli
 gnome-keyring
+
+# needed for certain hardware support
+linux-firmware
+
+# media key support
+playerctl
 
 # bluetooth support
 bluez
@@ -39,6 +51,9 @@ xorg-xev
 
 # for sending keystrokes from i3, currently unused
 xdotool
+
+# syncing files, requires configuration
+syncthing
 
 # flatpak support
 flatpak
