@@ -378,6 +378,9 @@ function choose_desktop_environment() {
 
 function setup_bare_i3() {
     echo "Configuring i3"
+    if [[ ! -d ~/.config/i3/config.de ]]; then
+        mkdir ~/.config/i3/config.de
+    fi
     if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
         echo "Skipping: i3-keybindings.conf because ~/.config/i3/config.de/i3-keybindings.conf already exists"
     else
