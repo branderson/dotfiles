@@ -1,0 +1,14 @@
+{
+	"groups": {
+		"active_window_status": {"fg": "gb:faded_aqua",   "bg": "gb:dark1",    "attrs": []},
+		"window_status":        {"fg": "gb:light4",     "bg": "gb:dark1",    "attrs": []},
+		"activity_status":      {"fg": "gb:neutral_yellow",     "bg": "gb:dark1",    "attrs": []},
+		"bell_status":          {"fg": "gb:neutral_red",        "bg": "gb:dark1",    "attrs": []},
+		"window":               {"fg": "gb:light3",      "bg": "gb:dark1",    "attrs": []},
+		"window:divider":       {"fg": "gb:light2",      "bg": "gb:dark1",    "attrs": []},
+		"window:current":       {"fg": "gb:light1",      "bg": "gb:faded_aqua", "attrs": []},
+		"window_name":          {"fg": "gb:light0",      "bg": "gb:faded_aqua", "attrs": ["bold"]},
+		"session":              {"fg": "gb:dark0",      "bg": "gb:light4",   "attrs": ["bold"]},
+		"session:prefix":       {"fg": "gb:light4",     "bg": "gb:neutral_blue", "attrs": ["bold"]}
+	}
+}

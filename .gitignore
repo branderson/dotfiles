@@ -6,7 +6,6 @@ config/i3/config.local
 config/gtk-3.0/bookmarks
 config/xfce4/xfconf/xfce-perchannel-xml
 config/xfce4/terminal
-config/powerline
 config/themes
 config/icons
 packages/*.local
