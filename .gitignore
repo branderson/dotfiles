@@ -1,6 +1,5 @@
 existing
 minimal
-*.local
 install_local.sh
 config/i3/config.de
 config/i3/config.local
@@ -10,3 +9,4 @@ config/xfce4/terminal
 config/powerline
 config/themes
 config/icons
+packages/*.local

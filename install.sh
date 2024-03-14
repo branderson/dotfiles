@@ -64,9 +64,7 @@ source "$dir"/functions.sh
 home_files="
 zshrc
 zsh_functions
-zshrc_local
 profile
-profile.local
 tmux.conf
 tmux
 gtkrc-2.0.mine
@@ -87,6 +85,10 @@ xfce4
 picom.conf
 picom-extended.conf
 libinput-gestures.conf
+"
+local_home_templates="
+zshrc_local
+profile.local
 "
 bin="
 startplasma-sway-wayland
@@ -159,6 +161,16 @@ function link_dotfiles {
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
                 ln -s $config_dir/$file ~/.config/$file
+            fi
+        fi
+    done
+    for file in $local_home_templates; do
+        if [[ -f $file || -d $file ]]; then
+            if [[ -f ~/.$file || -d ~/.$file ]]; then
+                echo "Skipping: $file because ~/.$file already exists"
+            else
+                echo "Copying: $file ($config_dir/$file -> ~/.$file)"
+                ln -s $config_dir/$file ~/.$file
             fi
         fi
     done
@@ -367,17 +379,28 @@ function setup_sessions() {
 
 function choose_desktop_environment() {
     echo
-    echo -n "Would you like to run plasma alongside i3? (y/n) "
+    echo "Choose a desktop environment"
+    echo "[plasma-i3] Plasma desktop environment with i3 as window manager"
+    echo "[i3] i3 window manager only"
+    echo "[plasma] Set up samba credentials only"
+    echo "[0] No change"
+    echo ""
+    echo "What would you like to do?"
     read response
-    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+    if [[ $response == "plasma-i3" ]]; then
         setup_plasma_i3
-    else
+    elif [[ $response == "i3" ]]; then
         setup_bare_i3
+    elif [[ $response == "plasma" ]]; then
+        setup_bare_plasma
+    else
+        echo "Making no changes to desktop environment"
     fi
 }
 
 function setup_bare_i3() {
     echo "Configuring i3"
+    # TODO: Set display manager to lightdm?
     if [[ ! -d ~/.config/i3/config.de ]]; then
         mkdir ~/.config/i3/config.de
     fi
@@ -401,11 +424,13 @@ function setup_bare_i3() {
         echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.de/i3-autostart.conf)"
         ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.de/i3-autostart.conf
     fi
+    # TODO: Actually launch into i3 rather than plasma, need to set up DM configs
 }
 
 function setup_plasma_i3() {
     if [[ ! $(program_installed plasmashell) == 1 ]]; then
         echo "Plasma not installed, please install and rerun"
+        # TODO: echo the command to install plasma
         return 1
     fi
 
@@ -433,6 +458,17 @@ function setup_plasma_i3() {
     fi
 
     setup_sessions
+}
+
+function setup_bare_plasma() {
+    if [[ ! $(program_installed plasmashell) == 1 ]]; then
+        echo "Plasma not installed, please install and rerun"
+        return 1
+    fi
+
+    echo "Configuring plasma"
+    # TODO: Copy over plasma configs (or just do this by default with other configs)
+    # Mostly we just want to not do the things we do in the other DE functions here
 }
 
 function setup_samba() {
@@ -510,6 +546,7 @@ function main() {
         echo "[aur-only] Install AUR programs only"
     fi
     echo "[system-configs] Set up system configs only"
+    echo "[desktop-environment] Choose a desktop environment"
     echo "[samba] Set up samba credentials only"
     echo "[install-local] Run local installer only ($dir/install_local.sh)"
     echo "[0] Quit"
@@ -546,6 +583,10 @@ function main() {
         main
     elif [[ $response == "system-configs" ]]; then
         setup_system_configs
+        echo ""
+        main
+    elif [[ $response == "desktop-environment" ]]; then
+        choose_desktop_environment
         echo ""
         main
     elif [[ $response == "samba" ]]; then
