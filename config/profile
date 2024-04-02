@@ -1,5 +1,6 @@
 export TERMINAL=alacritty
 export EDITOR=nvim
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 alias vim=nvim
 XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 

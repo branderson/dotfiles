@@ -1,6 +1,7 @@
 # connect to network shares
 samba
 cifs-utils
+ssh-agent
 
 # basic utilities
 neovim

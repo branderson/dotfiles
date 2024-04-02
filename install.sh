@@ -285,8 +285,12 @@ function setup_system_configs() {
     if [[ $(program_installed sshd) == 1 && $(service_enabled sshd.service) == 0 ]]; then
         echo
         echo "Enabling SSH server"
-        sudo systemctl enable sshd.service
-        sudo systemctl start sshd.service
+        sudo systemctl enable --now sshd.service
+    fi
+    if [[ $(program_installed ssh-agent) == 1 && $(service_enabled ssh-agent.service) == 0 ]]; then
+        echo
+        echo "Enabling SSH agent"
+        sudo systemctl --user enable --now ssh-agent.service
     fi
     if [ $(program_installed lightdm) == 1 ]; then
         echo
@@ -506,6 +510,37 @@ function setup_samba() {
     unset samba_host
 }
 
+function setup_ssh() {
+    echo
+    echo -n "Would you like to configure an SSH host? (y/n) "
+    read response
+    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+        if [[ ! -f ~/.ssh/id_ed25519.pub ]]; then
+            echo "No SSH key found"
+            echo -n "Would you like to set up a new public/private key pair? (y/n) "
+            read response
+            if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                ssh-keygen -t ed25519
+                echo
+
+                echo -n "Would you like to add this key to ssh-agent? (y/n) "
+                read response
+                if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                    ssh-add ~/.ssh/id_ed25519
+                fi
+            fi
+            echo
+        fi
+        echo -n "What host would you like to send public key to? (eg user@host, host if user is same) "
+        read ssh_host
+        if [[ "$ssh_host" != '' ]]; then
+            ssh-copy-id -i ~/.ssh/id_ed25519.pub "$ssh_host"
+            unset ssh_host
+            setup_ssh
+        fi
+    fi
+}
+
 function push_dotfiles() {
     cd "$dir"
     echo "Pushing dotfiles"
@@ -548,6 +583,7 @@ function main() {
     echo "[system-configs] Set up system configs only"
     echo "[desktop-environment] Choose a desktop environment"
     echo "[samba] Set up samba credentials only"
+    echo "[ssh] Set up SSH or send public key to host"
     echo "[install-local] Run local installer only ($dir/install_local.sh)"
     echo "[0] Quit"
     echo ""
@@ -591,6 +627,10 @@ function main() {
         main
     elif [[ $response == "samba" ]]; then
         setup_samba
+        echo ""
+        main
+    elif [[ $response = "ssh" ]]; then
+        setup_ssh
         echo ""
         main
     elif [[ $response == "install-local" ]]; then
