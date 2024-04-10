@@ -595,6 +595,7 @@ function main() {
         install_aur
         setup_system_configs
         setup_samba
+        setup_ssh
         install_local
     elif [[ $response == "push" ]]; then
         push_dotfiles

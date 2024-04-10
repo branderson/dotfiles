@@ -1,3 +1,4 @@
+vim.cmd([[
 let g:vim_plug_install_dir = "~/.local/share/nvim/site/autoload"
 let g:plugin_install_dir = "~/.local/share/nvim/plugged"
 
@@ -183,3 +184,4 @@ Plug 'sophacles/vim-processing'
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
+]])

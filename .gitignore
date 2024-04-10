@@ -1,11 +1,7 @@
 existing
 minimal
-install_local.sh
-config/i3/config.de
-config/i3/config.local
 config/gtk-3.0/bookmarks
 config/xfce4/xfconf/xfce-perchannel-xml
 config/xfce4/terminal
 config/themes
 config/icons
-packages/*.local

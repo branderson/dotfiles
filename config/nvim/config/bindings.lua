@@ -1,3 +1,4 @@
+vim.cmd([[
 " --- Mappings ---
 " Explanation of mapping commands: https://stackoverflow.com/a/3776182
 " - General -
@@ -187,3 +188,4 @@ augroup Plugin_Mappings
     autocmd!
     autocmd VimEnter * :call MapPlugins()
 augroup END
+]])

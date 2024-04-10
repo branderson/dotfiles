@@ -1,3 +1,9 @@
+require('gen').setup({
+    model = "phi",
+    host = "10.0.2.11",
+    port = "11434"
+})
+vim.cmd([[
 " Table of Contents
 " --- General ---
 " - Visual -
@@ -113,7 +119,7 @@ let g:gitgutter_map_keys = 0
 " augroup END
 
 " Sort by modification date
-let NERDTreeSortOrder = ['[[-timestamp]]']
+let NERDTreeSortOrder = ['[ [-timestamp] ]']
 
 " Ctrl-P configuration
 " Use nearest version control directory as cwd
@@ -164,7 +170,7 @@ augroup filetype_vimwiki
 augroup END
 
 " Vim-Zettel configuration
-let g:zettel_options = [{}, {"front_matter": [["tags", ""], ["type", "note"]], "template": "~/work_notebook/templates/daily_note.tpl"}]
+let g:zettel_options = [{}, {"front_matter": [["tags", ""], ["type", "note"] ], "template": "~/work_notebook/templates/daily_note.tpl"}]
 
 " Table Mode configuration
 let g:table_mode_map_prefix = '<Leader><Leader>t'
@@ -324,3 +330,4 @@ let g:processing_fold = 1
 
 " - Markdown -
 let g:livedown_open = 1
+]])
