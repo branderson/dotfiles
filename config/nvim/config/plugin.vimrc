@@ -173,6 +173,7 @@ let g:table_mode_map_prefix = '<Leader><Leader>t'
 
 " COC
 " let g:coc_node_path = '$HOME/.nvm/versions/node/v12.16.3/bin/node'
+let g:coc_disable_startup_warning = 1
 
 set updatetime=300
 set shortmess+=c " don't give |ins-completion-menu| messages.
