@@ -65,6 +65,7 @@ home_files="
 zshrc
 zsh_functions
 profile
+bash_aliases
 tmux.conf
 tmux
 gtkrc-2.0.mine
