@@ -290,7 +290,7 @@ function setup_system_configs() {
     if [[ $(program_installed ssh-agent) == 1 && $(service_enabled ssh-agent.service) == 0 ]]; then
         echo
         echo "Enabling SSH agent"
-        sudo systemctl --user enable --now ssh-agent.service
+        systemctl --user enable --now ssh-agent.service
     fi
     if [ $(program_installed lightdm) == 1 ]; then
         echo

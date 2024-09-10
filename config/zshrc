@@ -71,6 +71,7 @@ unsetopt correctall
 # alias git='nocorrect git'
 
 #PATHs
+export PATH="$PATH:/home/brad/.local/bin"
 #export PATH=$HOME/bin:/usr/local/bin:$PATH
 #export MANPATH="/usr/local/man:$MANPATH"
 #PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"

@@ -59,6 +59,9 @@ syncthing
 # flatpak support
 flatpak
 
+# global pip applications and packages
+python-pipx
+
 # useless stuff
 conky
 neofetch
