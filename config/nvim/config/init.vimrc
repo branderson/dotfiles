@@ -126,7 +126,7 @@ Plug 'michal-h21/vim-zettel'
 " - All -
 Plug 'sheerun/vim-polyglot'
 " Integration with language servers but manual configuration
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Allows vim to configure filetype by file section (for svelte)
 Plug 'Shougo/context_filetype.vim'
 " Prettier
