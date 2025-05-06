@@ -19,6 +19,10 @@
 
 # TODO: Put installer script in path
 #
+# TODO: sed -i -e s/AddKeysToAgent.*$/AddKeysToAgent yes/g' .ssh/config
+# Create the file if doesn't exist
+# Add the line if it's not present
+#
 # TODO: Setup fingerprint reader
 # Copy /etc/pam.d/ configs
 # auth sufficient pam_fprintd.so
@@ -108,6 +112,9 @@ apt=""
 aur="
 "
 flatpak="
+"
+gem="
+xdg
 "
 
 function load_package_lists() {
@@ -265,6 +272,16 @@ function install_programs() {
             app=${program_array[1]}
             flatpak install --noninteractive --assumeyes $remote $app
         done < <(printf '%s' "$flatpak")
+    fi
+    if [ $(program_installed gem) == 1 ]; then
+        gem update
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
+            gem install $program
+        done < <(printf '%s' "$gem")
     fi
 }
 
