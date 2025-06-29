@@ -341,6 +341,22 @@ function setup_system_configs() {
         fi
     fi
 
+    # If gnome-keyring is installed and i3, enable its XDG portal backend
+    if [[ -f /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal && $(program_installed i3) == 1 ]]; then
+        echo
+        echo "Enabling xdg-desktop-portal-gnome-keyring in i3"
+        original=`cat /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal` >> /dev/null
+        sudo sed --in-place=.backup 's/^UseIn=gnome$/UseIn=gnome;i3/g' /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal
+        edited=`cat /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal` >> /dev/null
+        diff=`diff <(echo "$original") <(echo "$edited")`
+        if [[ "$diff" != '' ]]; then
+            echo "$diff"
+            restart_needed=1
+        else
+            echo "No changes were made"
+        fi
+    fi
+
     if [[ ! $(program_installed vim) == 1 && $(program_installed nvim) == 1 ]]; then
         echo
         echo "Preventing missing vim issues"
