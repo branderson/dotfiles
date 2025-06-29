@@ -236,6 +236,11 @@ if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
 fi
 
 # pyenv-virtualenv (for managing virtualenvs for different python versions)
-#export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-#eval "$(pyenv init -)"
-#eval "$(pyenv virtualenv-init -)"
+if [[ $(program_installed pyenv) == 1 ]]; then
+    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+    eval "$(pyenv init -)"
+    # eval "$(pyenv virtualenv-init -)"
+fi
+
+# Created by `pipx` on 2025-06-16 02:20:13
+export PATH="$PATH:/home/brad/.local/bin"

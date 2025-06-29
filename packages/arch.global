@@ -16,6 +16,7 @@ xclip
 # set numlock
 numlockx
 python-pip
+htop
 # ag - fuzzy search anywhere, `,mag` in nvim!
 the_silver_searcher
 tree
@@ -56,7 +57,9 @@ xdotool
 # syncing files, requires configuration
 syncthing
 
-# flatpak support
+# package managers
+pyenv
+pipx
 flatpak
 
 # global pip applications and packages

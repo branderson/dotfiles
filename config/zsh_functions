@@ -1,3 +1,11 @@
+function program_installed {
+    local return_=1
+
+    type $1 >/dev/null 2>&1 || { local return_=0; }
+
+    echo "$return_"
+}
+
 function list_processes() {
     # List all processes matching the given process name string
     ps aux | grep $(whoami) | grep -i "$1" | grep -v grep

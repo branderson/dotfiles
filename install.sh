@@ -24,6 +24,7 @@
 # Add the line if it's not present
 #
 # TODO: Setup fingerprint reader
+# fprintd-enroll brad -f right-index-finger
 # Copy /etc/pam.d/ configs
 # auth sufficient pam_fprintd.so
 # /etc/pam.d/[kde, kde-fingerprint, login, sddm, sudo, i3lock, etc?]
@@ -116,6 +117,8 @@ flatpak="
 gem="
 xdg
 "
+pipx="
+"
 
 function load_package_lists() {
     if [[ -f "$packages_dir"/arch.global ]]; then
@@ -126,6 +129,12 @@ function load_package_lists() {
     fi
     if [[ -f "$packages_dir"/apt.global ]]; then
         apt="$(<"$packages_dir"/apt.global)"
+    fi
+    if [[ -f "$packages_dir"/flatpak.global ]]; then
+        flatpak="$(<"$packages_dir"/flatpak.global)"
+    fi
+    if [[ -f "$packages_dir"/pipx.global ]]; then
+        pipx="$(<"$packages_dir"/pipx.global)"
     fi
     if [[ -f "$packages_dir"/arch.local ]]; then
         arch_overrides="$(<"$packages_dir"/arch.local)"
@@ -142,6 +151,10 @@ function load_package_lists() {
     if [[ -f "$packages_dir"/flatpak.local ]]; then
         flatpak_overrides="$(<"$packages_dir"/flatpak.local)"
         printf -v flatpak "${flatpak}\n${flatpak_overrides}"
+    fi
+    if [[ -f "$packages_dir"/pipx.local ]]; then
+        pipx_overrides="$(<"$packages_dir"/pipx.local)"
+        printf -v pipx "${pipx}\n${pipx_overrides}"
     fi
 }
 
@@ -282,6 +295,17 @@ function install_programs() {
             fi
             gem install $program
         done < <(printf '%s' "$gem")
+    if [ $(program_installed pipx) == 1 ]; then
+        pipx upgrade-all
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
+            if [ $(program_installed $program) == 0 ]; then
+                pipx install $program
+            fi
+        done < <(printf '%s' "$flatpak")
     fi
 }
 
@@ -389,7 +413,7 @@ function setup_sessions() {
         # Check if xsessions directory exists
         if [[ -d /usr/share/xsessions ]]; then
             for file in $xsessions; do
-                if [[ -f xsessions/$file ]]; then
+                if [[ -f $config_dir/xsessions/$file ]]; then
                     if [[ -f /usr/share/xsessions/$file ]]; then
                         echo "Skipping: $file because /usr/share/xsessions/$file already exists"
                     else
@@ -402,7 +426,7 @@ function setup_sessions() {
         # Check if wayland_sessions directory exists
         if [[ -d /usr/share/wayland-sessions ]]; then
             for file in $wayland_sessions; do
-                if [[ -f wayland-sessions/$file ]]; then
+                if [[ -f $config_dir/wayland-sessions/$file ]]; then
                     if [[ -f /usr/share/wayland-sessions/$file ]]; then
                         echo "Skipping: $file because /usr/share/wayland-sessions/$file already exists"
                     else

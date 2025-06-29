@@ -1,6 +1,9 @@
 # tldr {program} for example usage
 tldr
 
+# vim filename editor
+vimv
+
 # clipboard introspection in rofi
 rofi-greenclip
 
