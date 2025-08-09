@@ -295,6 +295,7 @@ function install_programs() {
             fi
             gem install $program
         done < <(printf '%s' "$gem")
+    fi
     if [ $(program_installed pipx) == 1 ]; then
         pipx upgrade-all
         while IFS= read -r program || [[ -n $program ]]; do
@@ -486,6 +487,20 @@ function setup_bare_i3() {
         echo "Linking: i3-autostart.conf ($config_dir/bare-i3/i3-autostart.conf -> ~/.config/i3/config.de/i3-autostart.conf)"
         ln -s $config_dir/bare-i3/i3-autostart.conf ~/.config/i3/config.de/i3-autostart.conf
     fi
+
+    if [[ -f /etc/systemd/system/update-wallpapers.service ]]; then
+        echo "Skipping: update-wallpapers.service because /etc/systemd/system/update-wallpapers.service already exists"
+    else
+        echo "Linking: update-wallpapers.service ($config_dir/systemd/update-wallpapers.service -> /etc/systemd/system/update-wallpapers.service)"
+        sudo ln -s $config_dir/systemd/update-wallpapers.service /etc/systemd/system/update-wallpapers.service
+    fi
+
+    if [[ -f /etc/udev/rules.d/85-drm-hotplug.rules ]]; then
+        echo "Skipping: 85-drm-hotplug.rules because /etc/udev/rules.d/85-drm-hotplug.rules already exists"
+    else
+        echo "Linking: 85-drm-hotplug.rules ($config_dir/udev/85-drm-hotplug.rules -> /etc/udev/rules.d/85-drm-hotplug.rules)"
+        sudo ln -s $config_dir/udev/85-drm-hotplug.rules /etc/udev/rules.d/85-drm-hotplug.rules
+    fi
     # TODO: Actually launch into i3 rather than plasma, need to set up DM configs
 }
 
@@ -509,6 +524,20 @@ function setup_plasma_i3() {
     else
         echo "Linking: i3-bar.conf ($config_dir/plasma-i3/i3-bar.conf -> ~/.config/i3/config.de/i3-bar.conf)"
         ln -s $config_dir/plasma-i3/i3-bar.conf ~/.config/i3/config.de/i3-bar.conf
+    fi
+
+    if [[ -f /etc/systemd/system/update-wallpapers.service ]]; then
+        echo "Skipping: update-wallpapers.service because /etc/systemd/system/update-wallpapers.service already exists"
+    else
+        echo "Linking: update-wallpapers.service ($config_dir/systemd/update-wallpapers.service -> /etc/systemd/system/update-wallpapers.service)"
+        sudo ln -s $config_dir/systemd/update-wallpapers.service /etc/systemd/system/update-wallpapers.service
+    fi
+
+    if [[ -f /etc/udev/rules.d/85-drm-hotplug.rules ]]; then
+        echo "Skipping: 85-drm-hotplug.rules because /etc/udev/rules.d/85-drm-hotplug.rules already exists"
+    else
+        echo "Linking: 85-drm-hotplug.rules ($config_dir/udev/85-drm-hotplug.rules -> /etc/udev/rules.d/85-drm-hotplug.rules)"
+        sudo ln -s $config_dir/udev/85-drm-hotplug.rules /etc/udev/rules.d/85-drm-hotplug.rules
     fi
 
     echo "Disabling plasma systemd autostart"

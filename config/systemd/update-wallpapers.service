@@ -1,0 +1,13 @@
+[Unit]
+Description=Update wallpapers when display change detected
+
+[Service]
+Type=simple
+User=brad
+Environment=DISPLAY=:0
+ExecStartPre=/bin/sleep 3
+ExecStart=/home/brad/dotfiles/bin/start-wallpaper.sh
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,6 +1,18 @@
 #!/bin/bash
-source ~/dotfiles/functions.sh
+source "$HOME/dotfiles/functions.sh"
 
+# XAUTHORITY file may be in /tmp or it may be ~/.XAUTHORITY
+if [ -f "$HOME/.Xauthority" ]; then
+    export XAUTHORITY="$HOME/.Xauthority"
+else
+    auth_path="$(find /tmp -maxdepth 1 -name "xauth_*")"
+    if [ ! -z "$auth_path" ]; then
+        export XAUTHORITY="$auth_path"
+    else
+        echo "No Xauthority file found. Exiting"
+        exit 1
+    fi
+fi
 wallpapers_path="$HOME/wallpapers"
 wallpapers_vertical_path="$HOME/wallpapers-vertical"
 
@@ -24,8 +36,9 @@ if [ $(program_installed xrandr) == 1 ]; then
         rotation="$(echo "$display_rotations" | sed "${i}q;d")"
         path="$wallpapers_path"
         resolution_segment=""
-        if [ "$rotation" != "normal" ]; then
+        if [ "$rotation" != "normal" ] && [ "$rotation" != "inverted" ]; then
             if [ ! -d "$wallpapers_vertical_path" ]; then
+                echo "$rotation"
                 echo "ERROR: Vertical display detected, but vertical wallpapers directory not found!"
                 echo "Please create vertical wallpapers directory in $wallpapers_vertical_path"
                 exit 1
@@ -44,6 +57,7 @@ if [ $(program_installed xrandr) == 1 ]; then
         display_wallpaper="$(shuf -en1 "$path$resolution_segment"/*)"
         feh_args+=("$display_wallpaper")
     done
+    echo "feh ${feh_args[@]}"
     feh "${feh_args[@]}"
 else
     # Default to ~/wallpapers/1080p or ~/wallpapers for first display if no xrandr
