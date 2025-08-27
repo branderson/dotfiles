@@ -60,7 +60,7 @@
 
 # TODO: Support different install types (user, server, hardened, IoT, devbox)
 
-dir=~/dotfiles                      # dotfiles repository directory
+dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles repository directory
 config_dir="$dir"/config
 packages_dir="$dir"/packages
 platform=$(uname)
@@ -735,7 +735,7 @@ function run_interactively() {
 load_package_lists
 
 # Check if running interactively
-if [[ $- == *i* ]]; then
+if [ -t 0 ]; then
     # Interactive session
     interactive=1
     run_interactively
