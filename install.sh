@@ -56,12 +56,17 @@
 
 # TODO: Restart needed
 
+# TODO: non-interactive
+
+# TODO: Support different install types (user, server, hardened, IoT, devbox)
+
 dir=~/dotfiles                      # dotfiles repository directory
 config_dir="$dir"/config
 packages_dir="$dir"/packages
 platform=$(uname)
 pacman_args="--noconfirm --needed"
 restart_needed=0
+interactive=0
 
 source "$dir"/functions.sh
 
@@ -649,7 +654,7 @@ function install_local() {
     fi
 }
 
-function main() {
+function run_interactively() {
     if [[ $(program_installed pacman) == 1 ]]; then
         echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
     elif [[ $(program_installed apt) == 1 ]]; then
@@ -728,4 +733,15 @@ function main() {
 }
 
 load_package_lists
-main
+
+# Check if running interactively
+if [[ $- == *i* ]]; then
+    # Interactive session
+    interactive=1
+    run_interactively
+else
+    # Non-interactive session (e.g. Coder workspace initialization)
+    link_dotfiles
+fi
+
+
