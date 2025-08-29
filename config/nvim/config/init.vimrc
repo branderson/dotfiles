@@ -1,5 +1,5 @@
 let g:vim_plug_install_dir = "~/.local/share/nvim/site/autoload"
-let g:plugin_install_dir = "~/.local/share/nvim/plugged"
+let g:plugin_install_dir = "~/.vim/plugged"
 
 " Install vim-plug if not present
 if empty(glob(g:vim_plug_install_dir . "/plug.vim"))
