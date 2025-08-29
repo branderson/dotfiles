@@ -54,9 +54,9 @@
 
 # TODO: Separate out themes and make gruvbox optional
 
-# TODO: Restart needed
+# TODO: Restart needed needs to be implemented
 
-# TODO: non-interactive
+# TODO: non-interactive should be used throughout the codebase
 
 # TODO: Support different install types (user, server, hardened, IoT, devbox)
 
@@ -172,7 +172,8 @@ function link_dotfiles {
     # files in the dotfiles directory specified in $files to the homedir
     for file in $home_files; do
         if [[ -f $file || -d $file ]]; then
-            if [[ -f ~/.$file || -d ~/.$file ]]; then
+            # Don't skip if not interactive as initial files often exist that should be replaced
+            if [[ (-f ~/.$file || -d ~/.$file) && "$interactive" -eq 1 ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.$file)"
@@ -695,40 +696,40 @@ function run_interactively() {
     elif [[ $response == "dotfiles" ]]; then
         link_dotfiles
         echo ""
-        main
+        run_interactively
     elif [[ $response == "programs" ]]; then
         install_programs
         install_aur
         echo ""
-        main
+        run_interactively
     elif [[ $response == "programs-official" ]]; then
         install_programs
         echo ""
-        main
+        run_interactively
     elif [[ $response == "aur-only" ]]; then
         install_aur
         echo ""
-        main
+        run_interactively
     elif [[ $response == "system-configs" ]]; then
         setup_system_configs
         echo ""
-        main
+        run_interactively
     elif [[ $response == "desktop-environment" ]]; then
         choose_desktop_environment
         echo ""
-        main
+        run_interactively
     elif [[ $response == "samba" ]]; then
         setup_samba
         echo ""
-        main
+        run_interactively
     elif [[ $response = "ssh" ]]; then
         setup_ssh
         echo ""
-        main
+        run_interactively
     elif [[ $response == "install-local" ]]; then
         install_local
         echo ""
-        main
+        run_interactively
     fi
 }
 

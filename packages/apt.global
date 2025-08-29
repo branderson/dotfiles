@@ -1,5 +1,7 @@
 vim
 neovim
+silversearcher-ag
+tree
 
 # Useless stuff
 fortune-mod

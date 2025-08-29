@@ -244,3 +244,4 @@ fi
 
 # Created by `pipx` on 2025-06-16 02:20:13
 export PATH="$PATH:/home/brad/.local/bin"
+export PATH=$PATH:/home/brad/bin
