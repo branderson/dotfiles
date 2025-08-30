@@ -192,12 +192,12 @@ function link_dotfiles {
         fi
     done
     for file in $local_home_templates; do
-        if [[ -f $file || -d $file ]]; then
+        if [[ -f local_templates/$file || -d local_templates/$file ]]; then
             if [[ -f ~/.$file || -d ~/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
-                echo "Copying: $file ($config_dir/$file -> ~/.$file)"
-                ln -s $config_dir/$file ~/.$file
+                echo "Copying: $file ($config_dir/local_templates/$file -> ~/.$file)"
+                ln -s $config_dir/local_templates/$file ~/.$file
             fi
         fi
     done
