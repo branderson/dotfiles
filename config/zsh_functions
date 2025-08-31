@@ -59,13 +59,14 @@ function check_dotfiles_version {
     # Return 2 if the repo is behind the remote
     # Return 3 if the repo is ahead of the remote
     # Return 4 if the repo has diverged from the remote
-    if [ ! -d $HOME/dotfiles ]; then
+    if [ ! -d $DOTFILES_DIR ]; then
         return 2
     fi
 
-    pushd $HOME/dotfiles > /dev/null
+    pushd $DOTFILES_DIR > /dev/null
 
-    git fetch origin
+    # TODO: This may be gitbox
+    git fetch
     UPSTREAM=${1:-'@{u}'}
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse "$UPSTREAM")

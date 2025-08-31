@@ -1,16 +1,17 @@
 # Dotfiles directory should be in environment or 
 if [ -f "$HOME/.dotfiles-dir" ]; then
-    $DOTFILES_DIR=$(cat "$HOME/.dotfiles-dir")
+    source "$HOME/.dotfiles-dir"
 fi
+echo "Dotfiles: $DOTFILES_DIR"
 if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
     # Gruvbox colors
     # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
-    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh"
     if [ ! -f "$DOTFILES_DIR/dependencies/ohmyzsh/oh-my-zsh.sh" ]; then
         cd "$DOTFILES_DIR"
         git submodule update --init
         cd -
     fi
+    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh"
     export ZSH=$DOTFILES_DIR/dependencies/ohmyzsh
 fi
 
