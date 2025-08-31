@@ -240,7 +240,7 @@ fi
 # Check dotfiles version
 if [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     # 5 second timeout to avoid delaying
-    timeout -k 5 5s sh -c 'source ~/.zsh_functions && check_dotfiles_version'
+    timeout -k 5 5s $(which zsh) -c 'source ~/.zsh_functions && check_dotfiles_version'
 fi
 dotfiles_version=$?
 if [[ $dotfiles_version = 1 ]]; then
