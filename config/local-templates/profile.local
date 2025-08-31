@@ -1,1 +1,3 @@
 POWERLINE_ROOT=/usr/share/powerline
+NO_NEOFETCH=1
+NO_GIT_CHECK=0
