@@ -1,17 +1,23 @@
 # Dotfiles directory should be in environment or 
-dotfiles_dir=$DOTFILES_DIR
 if [ -f "$HOME/.dotfiles-dir" ]; then
-    dotfiles_dir=$(cat "$HOME/.dotfiles-dir")
+    $DOTFILES_DIR=$(cat "$HOME/.dotfiles-dir")
 fi
-# Gruvbox colors
-# source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
-[[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh"
+if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
+    # Gruvbox colors
+    # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh"
+    if [ ! -f "$DOTFILES_DIR/dependencies/ohmyzsh/oh-my-zsh.sh" ]; then
+        cd "$DOTFILES_DIR"
+        git submodule update --init
+        cd -
+    fi
+    export ZSH=$DOTFILES_DIR/dependencies/ohmyzsh
+fi
 
 # Custom functions
 source "$HOME/.zsh_functions"
 
 # Path to your oh-my-zsh installation.
-export ZSH=$DOTFILES_DIR/dependencies/ohmyzsh
 #export RUST_SRC_PATH=/usr/local/src/rust/src
 
 # Z
