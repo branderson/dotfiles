@@ -69,6 +69,7 @@ restart_needed=0
 interactive=0
 
 source "$dir"/functions.sh
+echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-dir"
 
 # Files and directories to link to home directory
 home_files="

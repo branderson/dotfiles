@@ -1,16 +1,21 @@
+# Dotfiles directory should be in environment or 
+dotfiles_dir=$DOTFILES_DIR
+if [ -f "$HOME/.dotfiles-dir" ]; then
+    dotfiles_dir=$(cat "$HOME/.dotfiles-dir")
+fi
 # Gruvbox colors
 # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
-[[ -f "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh"
+[[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$HOME/dotfiles/dependencies/gruvbox/gruvbox_256palette.sh"
 
 # Custom functions
 source "$HOME/.zsh_functions"
 
 # Path to your oh-my-zsh installation.
-export ZSH=$HOME/dotfiles/dependencies/ohmyzsh
+export ZSH=$DOTFILES_DIR/dependencies/ohmyzsh
 #export RUST_SRC_PATH=/usr/local/src/rust/src
 
 # Z
-# . $HOME/dotfiles/z/z.sh
+# . $DOTFILES_DIR/z/z.sh
 # Set name of the theme to load.
 # # Look in ~/.oh-my-zsh/themes/
 # # Optionally, if you set this to "random", it'll load a random theme each
@@ -76,7 +81,7 @@ export PATH="$PATH:/home/brad/.local/bin"
 #export MANPATH="/usr/local/man:$MANPATH"
 #PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
 # Add user cowpath to COWPATH
-#COWPATH="$COWPATH:$HOME/dotfiles/cowfiles"
+#COWPATH="$COWPATH:$DOTFILES_DIR/cowfiles"
 # Make a random (cow?) with a random face say something
 # fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
@@ -152,7 +157,7 @@ DEFAULT_USER=brad
 
 # Source files
 #typeset -ga sources
-#sources+=$HOME/dotfiles/shortcuts.txt
+#sources+=$DOTFILES_DIR/shortcuts.txt
 
 # Powerline plugin from distribution agnostic install directory
 # pip install --user powerline-status &>/dev/null
@@ -208,13 +213,13 @@ fi
 check_dotfiles_version
 dotfiles_version=$?
 if [[ $dotfiles_version = 1 ]]; then
-    echo "Dotfiles repository not present at $HOME/dotfiles"
+    echo "Dotfiles repository not present at $DOTFILES_DIR"
 elif [[ $dotfiles_version = 2 ]]; then
-    echo "Dotfiles repository at $HOME/dotfiles is outdated"
+    echo "Dotfiles repository at $DOTFILES_DIR is outdated"
 elif [[ $dotfiles_version = 3 ]]; then
-    echo "Dotfiles repository at $HOME/dotfiles is ahead of origin"
+    echo "Dotfiles repository at $DOTFILES_DIR is ahead of origin"
 elif [[ $dotfiles_version = 4 ]]; then
-    echo "Dotfiles repository at $HOME/dotfiles has diverged from origin"
+    echo "Dotfiles repository at $DOTFILES_DIR has diverged from origin"
 fi
 
 # TMuxinator Completion
