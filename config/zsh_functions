@@ -71,7 +71,7 @@ function check_dotfiles_version {
     pushd $DOTFILES_DIR > /dev/null
 
     # TODO: This may be gitbox
-    git fetch origin
+    git fetch origin > /dev/null
     UPSTREAM=${1:-'@{u}'}
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse "$UPSTREAM")
