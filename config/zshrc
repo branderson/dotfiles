@@ -101,7 +101,12 @@ unsetopt correctall
 # alias git='nocorrect git'
 
 #PATHs
-export PATH="$PATH:/home/brad/.local/bin"
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$PATH:/$HOME/.local/bin"
+fi
+if [ -d /usr/games ]; then
+    export PATH="$PATH:/usr/games"
+fi
 #export PATH=$HOME/bin:/usr/local/bin:$PATH
 #export MANPATH="/usr/local/man:$MANPATH"
 #PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
@@ -174,7 +179,7 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
-DEFAULT_USER=brad
+DEFAULT_USER="$USER"
 
 # Syntax highlighting configuration
 # ZSH_HIGHLIGHT_STYLES[path]='bold'
@@ -309,5 +314,5 @@ if [[ $(program_installed pyenv) == 1 ]]; then
 fi
 
 # Created by `pipx` on 2025-06-16 02:20:13
-export PATH="$PATH:/home/brad/.local/bin"
-export PATH=$PATH:/home/brad/bin
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/bin"
