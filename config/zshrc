@@ -247,27 +247,28 @@ fi
 if [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     # 5 second timeout to avoid delaying
     timeout -k 5 5s $(which zsh) -c 'source ~/.zsh_functions && check_dotfiles_version'
-fi
-dotfiles_version=$?
-if [[ $dotfiles_version = 1 ]]; then
-    echo "Dotfiles repository not present at $DOTFILES_DIR"
-elif [[ $dotfiles_version = 2 ]]; then
-    echo "Dotfiles repository at $DOTFILES_DIR is outdated"
-elif [[ $dotfiles_version = 3 ]]; then
-    echo "Dotfiles repository at $DOTFILES_DIR is ahead of origin"
-elif [[ $dotfiles_version = 4 ]]; then
-    echo "Dotfiles repository at $DOTFILES_DIR has diverged from origin"
-elif [[ $dotfiles_version = 5 ]]; then
-    echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
-    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
-    echo "The following will not work until this is set:"
-    echo "  - oh-my-zsh will not be started"
-    echo "  - gruvbox color palette will not be loaded"
-    echo ""
+    dotfiles_version=$?
+    if [[ $dotfiles_version = 1 ]]; then
+        echo "Dotfiles repository not present at $DOTFILES_DIR"
+    elif [[ $dotfiles_version = 2 ]]; then
+        echo "Dotfiles repository at $DOTFILES_DIR is outdated"
+    elif [[ $dotfiles_version = 3 ]]; then
+        echo "Dotfiles repository at $DOTFILES_DIR is ahead of origin"
+    elif [[ $dotfiles_version = 4 ]]; then
+        echo "Dotfiles repository at $DOTFILES_DIR has diverged from origin"
+    elif [[ $dotfiles_version = 5 ]]; then
+        echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
+        echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
+        echo "The following will not work until this is set:"
+        echo "  - oh-my-zsh will not be started"
+        echo "  - gruvbox color palette will not be loaded"
+        echo ""
+    fi
 fi
 if [[ $(program_installed neofetch) == 1 ]]; then
     if [ -n "$NO_NEOFETCH" ] && [ "$NO_NEOFETCH" -eq 1 ]; then 
     else
+        echo "Output system stats"
         neofetch
     fi
 fi
