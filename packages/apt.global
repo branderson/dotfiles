@@ -2,6 +2,7 @@ vim
 neovim
 silversearcher-ag
 tree
+nodejs
 
 # Useless stuff
 fortune-mod

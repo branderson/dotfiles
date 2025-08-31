@@ -1,8 +1,18 @@
-# Dotfiles directory should be in environment or 
+# These are the name on $PATH, not the package name
+dependencies=(
+    tree
+    nvim
+    ag
+    node
+    cowsay
+    fortune
+)
+
+# Dotfiles directory should be in environment or ~/.dotfiles-dir
 if [ -f "$HOME/.dotfiles-dir" ]; then
     source "$HOME/.dotfiles-dir"
 fi
-echo "Dotfiles: $DOTFILES_DIR"
+# echo "Dotfiles: $DOTFILES_DIR"
 if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
     # Gruvbox colors
     # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
@@ -17,6 +27,14 @@ fi
 
 # Custom functions
 source "$HOME/.zsh_functions"
+missing_dependencies=()
+for dependency in "${dependencies[@]}"; do
+    if [ $(program_installed $dependency) -eq 0 ]; then
+        echo "Found missing dependency $dependency"
+        # missing_dependencies+="$dependency"
+    fi
+done
+# echo "Missing dependencies: $missing_dependencies"
 
 # Path to your oh-my-zsh installation.
 #export RUST_SRC_PATH=/usr/local/src/rust/src
@@ -99,7 +117,9 @@ if [ -f $HOME/.profile.local ]; then
     source $HOME/.profile.local
 fi
 
-source $ZSH/oh-my-zsh.sh
+if [ -d $ZSH ] && [ ! -z $ZSH ]; then
+    source $ZSH/oh-my-zsh.sh
+fi
 
 # Italic support
 if [ -f $HOME/.xterm-256color-italic.terminfo ]; then
@@ -176,22 +196,23 @@ fi
 # If $POWERLINE_ROOT not set or set incorrectly, try default locations
 python_roots=()
 if [ -d $HOME/.local/lib/ ]; then
-    for directory in $(echo $HOME/.local/lib/python*); do
+    for directory in $(echo $HOME/.local/lib/python*(N)); do
         python_roots+=$directory
     done
 fi
 if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
-    for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*); do
+    for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*(N)); do
         python_roots+=$directory
     done
 fi
 if [ -d /usr/lib/ ]; then
-    for directory in $(echo /usr/lib/python*); do
+    for directory in $(echo /usr/lib/python*(N)); do
         python_roots+=$directory
     done
 fi
 if [ -d /usr/local/lib/ ]; then
-    for directory in $(echo /usr/local/lib/python*); do
+    # TODO: Make this not print warnings when the directory doesn't exit
+    for directory in $(echo /usr/local/lib/python*(N)); do
         python_roots+=$directory
     done
 fi
@@ -227,6 +248,12 @@ elif [[ $dotfiles_version = 3 ]]; then
     echo "Dotfiles repository at $DOTFILES_DIR is ahead of origin"
 elif [[ $dotfiles_version = 4 ]]; then
     echo "Dotfiles repository at $DOTFILES_DIR has diverged from origin"
+elif [[ $dotfiles_version = 5 ]]; then
+    echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
+    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
+    echo "The following will not work until this is set:"
+    echo "  - oh-my-zsh will not be started"
+    echo "  - gruvbox color palette will not be loaded"
 fi
 
 # TMuxinator Completion

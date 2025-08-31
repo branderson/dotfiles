@@ -69,7 +69,10 @@ restart_needed=0
 interactive=0
 
 source "$dir"/functions.sh
+# TODO: Migrate this to an environment variable in .profile.local
+echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-dir"
 echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-dir"
+echo ""
 
 # Files and directories to link to home directory
 home_files="
