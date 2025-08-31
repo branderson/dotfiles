@@ -156,36 +156,53 @@ DEFAULT_USER=brad
 
 # Powerline plugin from distribution agnostic install directory
 # pip install --user powerline-status &>/dev/null
+sources=()
 if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
     # Prefer user-set powerline directory
     sources+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
-else
-    echo "Attempting to source Powerline bindings from default locations.\nPlease set \$POWERLINE_ROOT in .profile.local"
-    # If $POWERLINE_ROOT not set or set incorrectly, try default locations
-    sources+=$HOME/.local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=$HOME/.local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=$HOME/.local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=$HOME/.local/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=$HOME/.local/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python2.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python2.6/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh
-    sources+=/usr/local/lib/python3.6/dist-packages/powerline/bindings/zsh/powerline.zsh
 fi
-foreach file (`echo $sources`)
-    if [[ -a $file ]]; then
-        source $file
+# If $POWERLINE_ROOT not set or set incorrectly, try default locations
+python_roots=()
+if [ -d $HOME/.local/lib/ ]; then
+    for directory in $(echo $HOME/.local/lib/python*); do
+        python_roots+=$directory
+    done
+fi
+if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
+    for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*); do
+        python_roots+=$directory
+    done
+fi
+if [ -d /usr/lib/ ]; then
+    for directory in $(echo /usr/lib/python*); do
+        python_roots+=$directory
+    done
+fi
+if [ -d /usr/local/lib/ ]; then
+    for directory in $(echo /usr/local/lib/python*); do
+        python_roots+=$directory
+    done
+fi
+for directory in $python_roots; do
+    #for directory in $(echo $template); do
+    if [ -d "$directory" ]; then
+        sources+="$directory"/site-packages/powerline/bindings/zsh/powerline.zsh
+        sources+="$directory"/dist-packages/powerline/bindings/zsh/powerline.zsh
     fi
-end
+    # done
+done
+found=0
+for file in $sources; do
+    if [[ -a $file ]]; then
+        # echo "Sourcing Powerline binding: $file"
+        source $file
+        found=1
+        break
+    fi
+done
+if [ $found -eq 0 ]; then
+    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
+fi
 
 # Check dotfiles version
 check_dotfiles_version
