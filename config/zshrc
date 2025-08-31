@@ -1,4 +1,20 @@
+#PATHs
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$PATH:/$HOME/.local/bin"
+fi
+if [ -d /usr/games ]; then
+    export PATH="$PATH:/usr/games"
+fi
+#export PATH=$HOME/bin:/usr/local/bin:$PATH
+#export MANPATH="/usr/local/man:$MANPATH"
+#PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
+# Add user cowpath to COWPATH
+#COWPATH="$COWPATH:$DOTFILES_DIR/cowfiles"
+# Make a random (cow?) with a random face say something
+# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
+
 # These are the name on $PATH, not the package name
+#
 dependencies=(
     tree
     nvim
@@ -99,21 +115,6 @@ setopt cdablevars
 unsetopt correctall
 # alias make='nocorrect make'
 # alias git='nocorrect git'
-
-#PATHs
-if [ -d "$HOME/.local/bin" ]; then
-    export PATH="$PATH:/$HOME/.local/bin"
-fi
-if [ -d /usr/games ]; then
-    export PATH="$PATH:/usr/games"
-fi
-#export PATH=$HOME/bin:/usr/local/bin:$PATH
-#export MANPATH="/usr/local/man:$MANPATH"
-#PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
-# Add user cowpath to COWPATH
-#COWPATH="$COWPATH:$DOTFILES_DIR/cowfiles"
-# Make a random (cow?) with a random face say something
-# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
 # User profiles
 source $HOME/.profile
