@@ -244,7 +244,7 @@ if [ $found -eq 0 ]; then
 fi
 
 # Check dotfiles version
-if [ ! "$NO_GIT_CHECK" -eq 1 ]; then
+if [ -n "$NO_GIT_CHECK" ] && [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     # 5 second timeout to avoid delaying
     timeout -k 5 5s $(which zsh) -c 'source ~/.zsh_functions && check_dotfiles_version'
     dotfiles_version=$?
@@ -266,9 +266,8 @@ if [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     fi
 fi
 if [[ $(program_installed neofetch) == 1 ]]; then
-    if [ -n "$NO_NEOFETCH" ] && [ "$NO_NEOFETCH" -eq 1 ]; then 
+    if [ ! -n "$NO_NEOFETCH" ] || [ "$NO_NEOFETCH" -eq 1 ]; then 
     else
-        echo "Output system stats"
         neofetch
     fi
 fi

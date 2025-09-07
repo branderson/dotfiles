@@ -1,5 +1,11 @@
 #!/bin/bash
-source "$HOME/dotfiles/functions.sh"
+# TODO: Dotfiles may be in a different place
+if [ ! -f "$HOME/.dotfiles-dir" ]; then
+    echo "$HOME/.dotfiles-dir not found, please run dotfiles/install.sh to create it"
+    exit 1
+fi
+source "$HOME/.dotfiles-dir"
+source "$DOTFILES_DIR/functions.sh"
 
 # XAUTHORITY file may be in /tmp or it may be ~/.XAUTHORITY
 if [ -f "$HOME/.Xauthority" ]; then
