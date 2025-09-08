@@ -80,6 +80,8 @@ zshrc
 zsh_functions
 profile
 bash_aliases
+bash_profile
+bashrc
 tmux.conf
 tmux
 gtkrc-2.0.mine
