@@ -638,6 +638,13 @@ function setup_ssh() {
     fi
 }
 
+function setup_coder() {
+    echo "Installing coder"
+    curl -L https://coder.com/install.sh | sh
+    coder login https://coderbox.branderson.io
+    coder config-ssh
+}
+
 function push_dotfiles() {
     cd "$dir"
     echo "Pushing dotfiles"
@@ -681,6 +688,7 @@ function run_interactively() {
     echo "[desktop-environment] Choose a desktop environment"
     echo "[samba] Set up samba credentials only"
     echo "[ssh] Set up SSH or send public key to host"
+    echo "[coder] Set up coder and login to coderbox"
     echo "[install-local] Run local installer only ($dir/install_local.sh)"
     echo "[0] Quit"
     echo ""
@@ -728,6 +736,10 @@ function run_interactively() {
         run_interactively
     elif [[ $response = "ssh" ]]; then
         setup_ssh
+        echo ""
+        run_interactively
+    elif [[ $response = "coder" ]]; then
+        setup_coder
         echo ""
         run_interactively
     elif [[ $response == "install-local" ]]; then
