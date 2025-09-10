@@ -60,6 +60,17 @@
 
 # TODO: Support different install types (user, server, hardened, IoT, devbox)
 
+# TODO: If on mac, install brew
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# TODO: If on mac, install powerline-status
+# pipx install --index-url https://pypi.org/simple powerline-status
+
+# TODO: If on mac, install powerline-fonts
+# git clone https://github.com/powerline/fonts.git --depth=1 && cd fonts && ./install.sh && cd - && rm -rf ./fonts
+# Or just add powerline-fonts as a dependency submodule
+# Then go into iTerm2 settings and set Source Code Pro for Powerline as the font
+
 dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles repository directory
 config_dir="$dir"/config
 packages_dir="$dir"/packages
@@ -118,18 +129,15 @@ plasma-i3.desktop
 wayland_sessions="
 plasma-sway.desktop
 "
-arch="
-"
+arch=""
 apt=""
-aur="
-"
-flatpak="
-"
+brew=""
+aur=""
+flatpak=""
 gem="
 xdg
 "
-pipx="
-"
+pipx=""
 
 function load_package_lists() {
     if [[ -f "$packages_dir"/arch.global ]]; then
@@ -146,6 +154,9 @@ function load_package_lists() {
     fi
     if [[ -f "$packages_dir"/pipx.global ]]; then
         pipx="$(<"$packages_dir"/pipx.global)"
+    fi
+    if [[ -f "$packages_dir"/brew.global ]]; then
+        brew="$(<"$packages_dir"/brew.global)"
     fi
     if [[ -f "$packages_dir"/arch.local ]]; then
         arch_overrides="$(<"$packages_dir"/arch.local)"
@@ -166,6 +177,10 @@ function load_package_lists() {
     if [[ -f "$packages_dir"/pipx.local ]]; then
         pipx_overrides="$(<"$packages_dir"/pipx.local)"
         printf -v pipx "${pipx}\n${pipx_overrides}"
+    fi
+    if [[ -f "$packages_dir"/brew.local ]]; then
+        brew_overrides="$(<"$packages_dir"/brew.local)"
+        printf -v brew "${brew}\n${brew_overrides}"
     fi
 }
 
@@ -282,6 +297,17 @@ function install_programs() {
                 sudo apt-get install $program
             fi
         done < <(printf '%s' "$apt")
+    elif [ $(program_installed brew) == 1 ]; then
+        brew update
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
+            fi
+            if [ $(program_installed $program) == 0 ]; then
+                brew install $program
+            fi
+        done < <(printf '%s' "$brew")
     else
         echo "Cannot install programs, no compatible package manager."
     fi
@@ -318,7 +344,7 @@ function install_programs() {
             if [ $(program_installed $program) == 0 ]; then
                 pipx install $program
             fi
-        done < <(printf '%s' "$flatpak")
+        done < <(printf '%s' "$pipx")
     fi
 }
 
@@ -666,6 +692,8 @@ function run_interactively() {
         echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
     elif [[ $(program_installed apt) == 1 ]]; then
         echo "[complete] Complete install (dotfiles, apt, system-configs, samba, local-install)"
+    elif [[ $(program_installed brew) == 1 ]]; then
+        echo "[complete] Complete install (dotfiles, brew, system-configs, samba, local-install)"
     fi
     echo "[push] Push to github"
     echo "[pull] Pull from github"
@@ -674,6 +702,8 @@ function run_interactively() {
         echo "[programs] Install programs (pacman, aur) only"
     elif [[ $(program_installed apt) == 1 ]]; then
         echo "[programs] Install programs (apt) only"
+    elif [[ $(program_installed brew) == 1 ]]; then
+        echo "[programs] Install programs (brew) only"
     fi
     if [[ $(program_installed pacman) == 1 ]]; then
         echo "[programs-official] Install official repository programs (pacman) only"
