@@ -5,6 +5,15 @@ fi
 if [ -d /usr/games ]; then
     export PATH="$PATH:/usr/games"
 fi
+if [ -d /opt/homebrew/bin ]; then
+    export PATH="$PATH:/opt/homebrew/bin"
+fi
+if [ -d /opt/homebrew/opt/python@3.13/libexec/bin ]; then
+    export PATH="$PATH:/opt/homebrew/opt/python@3.13/libexec/bin"
+fi
+if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
+    export PATH="$PATH:/opt/homebrew/opt/coreutils/libexec/gnubin"
+fi
 #export PATH=$HOME/bin:/usr/local/bin:$PATH
 #export MANPATH="/usr/local/man:$MANPATH"
 #PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
@@ -208,6 +217,11 @@ if [ -d $HOME/.local/lib/ ]; then
 fi
 if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
     for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*(N)); do
+        python_roots+=$directory
+    done
+fi
+if [ -d $HOME/.local/pipx/venvs/powerline-status/lib/ ]; then
+    for directory in $(echo $HOME/.local/pipx/venvs/powerline-status/lib/python*(N)); do
         python_roots+=$directory
     done
 fi

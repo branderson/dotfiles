@@ -1,0 +1,36 @@
+#PATHs
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$PATH:/$HOME/.local/bin"
+fi
+
+if [ -f "$HOME/.dotfiles-dir" ]; then
+    source "$HOME/.dotfiles-dir"
+fi
+
+# User profiles
+source $HOME/.profile
+# Define $POWERLINE_ROOT
+if [ -f $HOME/.profile.local ]; then
+    source $HOME/.profile.local
+fi
+
+if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
+    # Gruvbox colors
+    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh"
+fi
+
+# Italic support
+if [ -f $HOME/.xterm-256color-italic.terminfo ]; then
+    tic $HOME/.xterm-256color-italic.terminfo
+fi
+if [ -f $HOME/.screen-256color-italic.terminfo ]; then
+    tic $HOME/.screen-256color-italic.terminfo
+fi
+
+# Use neovim where available
+if type nvim > /dev/null 2>&1; then
+    alias vim='nvim'
+fi
+
+# # Preferred editor for local and remote sessions
+export EDITOR='vim'
