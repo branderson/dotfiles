@@ -256,6 +256,7 @@ function link_dotfiles_local() {
         return
     fi
     if [ "$interactive" == 0 ]; then
+        cd "$dir/dependencies/dotfiles-local"
         # Check if on main branch
         current_branch=$(git rev-parse --abbrev-ref HEAD)
         if [ "$current_branch" == "main" ]; then
@@ -264,6 +265,7 @@ function link_dotfiles_local() {
             echo "> $dir/dotfiles-local.sh {machine-name}"
             return
         fi
+        cd -
     fi
     echo ""
     "$dir"/dotfiles-local.sh "$current_branch"

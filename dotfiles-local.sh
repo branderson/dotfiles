@@ -47,6 +47,8 @@ if [[ $(program_installed git) == 0 ]]; then
     exit 1
 fi
 
+# TODO: Make sure submodule is cloned
+
 # Ask machine name and set branch
 if [ -n "$1" ]; then
     branch_name="$1"
@@ -56,25 +58,33 @@ else
         echo "> ./dotfiles-local.sh {branch_name}"
         exit 1
     fi
-    echo -n "What machine name would you like to use for this branch? "
+    echo -n "What machine name would you like to use for this branch? [$(hostname)] "
     read response
     if [ -z "$response" ]; then
-        echo "Please enter a valid name for this machine's branch. Rerun with:"
-        echo "> ./dotfiles-local.sh {branch_name}"
-        exit 1
+        # echo "Please enter a valid name for this machine's branch. Rerun with:"
+        # echo "> ./dotfiles-local.sh {branch_name}"
+        # exit 1
+        branch_name="$(hostname)"
     else
         branch_name="$response"
     fi
 fi
 
-# Check if branch already exists
-git ls-remote --exit-code --heads origin "$branch_name" > /dev/null
-if [ $? == 0 ]; then
-    echo "$branch_name branch exists, checking out existing branch"
-    git checkout "$branch_name"
+# Check if already on branch
+if [ $(git rev-parse --abbrev-ref HEAD) == "$branch_name" ]; then
+    echo "Already on branch $branch_name"
 else
-    echo "$branch_name branch doesn't exist yet, creating and checking out new branch"
-    git checkout -b "$branch_name" origin/$branch_name
+    # Check if branch already exists
+    git ls-remote --exit-code --heads origin "$branch_name" > /dev/null
+    if [ $? == 0 ]; then
+        echo "$branch_name branch exists, checking out existing branch"
+        # TODO: This doesn't work if the local branch already exists
+        # Should just check if we're already on the branch
+        git checkout -b "$branch_name" "origin/$branch_name"
+    else
+        echo "$branch_name branch doesn't exist yet, creating and checking out new branch"
+        git checkout -b "$branch_name"
+    fi
 fi
 
 # Move any existing local installation script into repo and symlink out
