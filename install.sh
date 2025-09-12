@@ -204,6 +204,7 @@ function link_dotfiles {
     done
     for file in $configs; do
         if [[ -f $file || -d $file ]]; then
+            # TODO: Check if file is a symlink and only skip if it is, otherwise rename and replace
             if [[ -f ~/.config/$file || -d ~/.config/$file ]]; then
                 echo "Skipping: $file because ~/.config/$file already exists"
             else
@@ -245,6 +246,27 @@ function link_dotfiles {
         fi
     done
     cd - > /dev/null
+}
+
+function link_dotfiles_local() {
+    if [ ! -d "$dir/dependencies/dotfiles-local/" ]; then
+        echo "No local dotfiles found, could not sync. Please run:"
+        echo "> git submodule update --init"
+        echo "> $dir/dotfiles-local.sh {machine-name}"
+        return
+    fi
+    if [ "$interactive" == 0 ]; then
+        # Check if on main branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$current_branch" == "main" ]; then
+            echo "Local dotfiles repo on branch 'main' and tool running non-interactively."
+            echo "Please set branch by running:"
+            echo "> $dir/dotfiles-local.sh {machine-name}"
+            return
+        fi
+    fi
+    echo ""
+    "$dir"/dotfiles-local.sh "$current_branch"
 }
 
 function install_aur() {
@@ -705,6 +727,7 @@ function run_interactively() {
     echo "[push] Push to github"
     echo "[pull] Pull from github"
     echo "[dotfiles] Install dotfiles only"
+    echo "[dotfiles-local] Sync local dotfiles to git"
     if [[ $(program_installed pacman) == 1 ]]; then
         echo "[programs] Install programs (pacman, aur) only"
     elif [[ $(program_installed apt) == 1 ]]; then
@@ -739,6 +762,10 @@ function run_interactively() {
         update_dotfiles
     elif [[ $response == "dotfiles" ]]; then
         link_dotfiles
+        echo ""
+        run_interactively
+    elif [[ $response == "dotfiles-local" ]]; then
+        link_dotfiles_local
         echo ""
         run_interactively
     elif [[ $response == "programs" ]]; then
@@ -791,6 +818,7 @@ if [ -t 0 ]; then
 else
     # Non-interactive session (e.g. Coder workspace initialization)
     link_dotfiles
+    link_dotfiles_local
 fi
 
 

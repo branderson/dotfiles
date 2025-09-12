@@ -17,3 +17,6 @@ if [[ $(program_installed flatpak) == 1 ]]; then
     XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 fi
 
+if [[ $(uname -s) == Linux* ]]; then
+    ssh-add -k
+fi
