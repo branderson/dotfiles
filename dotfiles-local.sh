@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO P1: This is broken in that it bases each commit on the most recent new branch created rather than master, need to fix that!
 
 # Check if running interactively
 if [ -t 0 ]; then
@@ -83,6 +84,7 @@ else
         git checkout -b "$branch_name" "origin/$branch_name"
     else
         echo "$branch_name branch doesn't exist yet, creating and checking out new branch"
+        git checkout main
         git checkout -b "$branch_name"
     fi
 fi
