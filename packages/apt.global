@@ -1,6 +1,7 @@
 vim
 neovim
 silversearcher-ag
+fzf
 tree
 nodejs
 

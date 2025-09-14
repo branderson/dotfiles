@@ -36,6 +36,7 @@ dependencies=(
     tree
     nvim
     ag
+    fzf
     node
     cowsay
     fortune
@@ -188,52 +189,10 @@ DEFAULT_USER="$USER"
 #typeset -ga sources
 #sources+=$DOTFILES_DIR/shortcuts.txt
 
-# Powerline plugin from distribution agnostic install directory
 # pip install --user powerline-status &>/dev/null
-## Assemble list of possible sources
-sources=()
-if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
-    # Prefer user-set powerline directory
-    sources+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
-fi
-# If $POWERLINE_ROOT not set or set incorrectly, try default locations
-python_roots=()
-if [ -d $HOME/.local/lib/ ]; then
-    for directory in $(echo $HOME/.local/lib/python*(N)); do
-        python_roots+=$directory
-    done
-fi
-if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
-    for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*(N)); do
-        python_roots+=$directory
-    done
-fi
-if [ -d $HOME/.local/pipx/venvs/powerline-status/lib/ ]; then
-    for directory in $(echo $HOME/.local/pipx/venvs/powerline-status/lib/python*(N)); do
-        python_roots+=$directory
-    done
-fi
-if [ -d /usr/lib/ ]; then
-    for directory in $(echo /usr/lib/python*(N)); do
-        python_roots+=$directory
-    done
-fi
-if [ -d /usr/local/lib/ ]; then
-    # TODO: Make this not print warnings when the directory doesn't exit
-    for directory in $(echo /usr/local/lib/python*(N)); do
-        python_roots+=$directory
-    done
-fi
-for directory in $python_roots; do
-    #for directory in $(echo $template); do
-    if [ -d "$directory" ]; then
-        sources+="$directory"/site-packages/powerline/bindings/zsh/powerline.zsh
-        sources+="$directory"/dist-packages/powerline/bindings/zsh/powerline.zsh
-    fi
-    # done
-done
+set_powerline_zsh_sources
 found=0
-for file in $sources; do
+for file in $POWERLINE_ZSH_SOURCES; do
     if [[ -a $file ]]; then
         # echo "Sourcing Powerline binding: $file"
         source $file
@@ -296,8 +255,14 @@ bindkey -M viins ',,' vi-cmd-mode
 # Tool options
 export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 
+# Syntax highlighting
 if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
+fi
+
+# fzf fuzzy finder
+if [[ $(program_installed fzf) == 1 ]]; then
+    source <(fzf --zsh)
 fi
 
 # pyenv-virtualenv (for managing virtualenvs for different python versions)
@@ -310,10 +275,6 @@ fi
 # Local overrides
 if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
-fi
-
-if [ -f ~/.fzf.zsh ]; then
-    source ~/.fzf.zsh
 fi
 
 if [ -n "$NO_ZSHRC_COWSAY" ] && [ ! "$NO_ZSHRC_COWSAY" -eq 1 ]; then

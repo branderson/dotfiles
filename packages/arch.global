@@ -19,6 +19,7 @@ python-pip
 htop
 # ag - fuzzy search anywhere, `,mag` in nvim!
 the_silver_searcher
+fzf
 tree
 arandr
 nodejs
@@ -37,6 +38,7 @@ linux-firmware
 # media key support
 playerctl
 
+# TODO: These might not be universal
 # bluetooth support
 bluez
 bluez-utils

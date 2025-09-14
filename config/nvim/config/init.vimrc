@@ -116,7 +116,7 @@ Plug 'xolox/vim-reload'
 " Note taking and wiki managment
 Plug 'vimwiki/vimwiki'
 " TODO Why can't these go in Search?
-Plug 'junegunn/fzf'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'michal-h21/vim-zettel'
 " TODO Make this pull on buffer open / load

@@ -18,5 +18,6 @@ if [[ $(program_installed flatpak) == 1 ]]; then
 fi
 
 if [[ $(uname -s) == Linux* ]]; then
-    ssh-add -k
+    # Add SSH keys only if not already present
+    ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_ed25519.pub"  | awk '{print $2}'` || ssh-add -k
 fi

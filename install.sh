@@ -93,6 +93,7 @@ profile
 bash_aliases
 bash_profile
 bashrc
+bash_functions
 tmux.conf
 tmux
 gtkrc-2.0.mine

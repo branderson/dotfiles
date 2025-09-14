@@ -7,6 +7,10 @@ if [ -f "$HOME/.dotfiles-dir" ]; then
     source "$HOME/.dotfiles-dir"
 fi
 
+if [ -f "$HOME/.bash_functions" ]; then
+    source "$HOME/.bash_functions"
+fi
+
 # User profiles
 source $HOME/.profile
 # Define $POWERLINE_ROOT
@@ -28,9 +32,29 @@ if [ -f $HOME/.screen-256color-italic.terminfo ]; then
 fi
 
 # Use neovim where available
-if type nvim > /dev/null 2>&1; then
+if [[ $(program_installed neovim) == 1 ]]; then
     alias vim='nvim'
+fi
+
+# fzf fuzzy finder
+if [[ $(program_installed fzf) == 1 ]]; then
+    eval "$(fzf --bash)"
 fi
 
 # # Preferred editor for local and remote sessions
 export EDITOR='vim'
+
+# Powerline
+set_powerline_bash_sources
+found=0
+for file in $POWERLINE_BASH_SOURCES; do
+    if [[ -a $file ]]; then
+        # echo "Sourcing Powerline binding: $file"
+        source $file
+        found=1
+        break
+    fi
+done
+if [ $found -eq 0 ]; then
+    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
+fi

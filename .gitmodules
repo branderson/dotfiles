@@ -19,3 +19,9 @@
 [submodule "dependencies/dotfiles-local"]
 	path = dependencies/dotfiles-local
 	url = https://gitbox.branderson.io/branderson/dotfiles-local.git
+[submodule "config/tmux/plugins/tpm"]
+	path = config/tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm
+[submodule "dependencies/fzf"]
+	path = dependencies/fzf
+	url = https://github.com/junegunn/fzf.git
