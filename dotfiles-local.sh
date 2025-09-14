@@ -140,10 +140,11 @@ while IFS= read -r package_manager || [[ -n $package_manager ]]; do
     fi
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/packages/$package_manager.local" ]]; then
         ln -s "$locals_dir/packages/$package_manager.local" "$dotfiles_packages_root/$package_manager.local"
+        echo ""
     elif [[ skip == 0 ]]; then
         echo "No $package_manager.local found in $locals_dir/packages or $dotfiles_packages_root. Skipping"
+        echo ""
     fi
-    echo ""
 done < <(printf '%s' "$package_lists")
 
 # Move any existing local dotfiles into repo and symlink out
@@ -173,10 +174,11 @@ while IFS= read -r config || [[ -n $config ]]; do
     fi
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.$config"
+        echo ""
     elif [[ skip == 0 ]]; then
         echo "No $config file found in $locals_dir/config or $HOME . Skipping"
+        echo ""
     fi
-    echo ""
 done < <(printf '%s' "$home_files")
 
 # Move any existing files in .config into repo and symlink out
@@ -205,10 +207,11 @@ while IFS= read -r config || [[ -n $config ]]; do
     fi
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.config/$config"
+        echo ""
     elif [[ skip == 0 ]]; then
         echo "No $config file found in $locals_dir/config or $HOME/.config . Skipping"
+        echo ""
     fi
-    echo ""
 done < <(printf '%s' "$configs")
 
 # Check if git repo has changes
