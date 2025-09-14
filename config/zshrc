@@ -1,4 +1,7 @@
 #PATHs
+if [ -d "$HOME/bin" ]; then
+    export PATH="$PATH:/$HOME/bin"
+fi
 if [ -d "$HOME/.local/bin" ]; then
     export PATH="$PATH:/$HOME/.local/bin"
 fi
@@ -14,16 +17,21 @@ fi
 if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
     export PATH="$PATH:/opt/homebrew/opt/coreutils/libexec/gnubin"
 fi
-#export PATH=$HOME/bin:/usr/local/bin:$PATH
-#export MANPATH="/usr/local/man:$MANPATH"
-#PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
-# Add user cowpath to COWPATH
-#COWPATH="$COWPATH:$DOTFILES_DIR/cowfiles"
-# Make a random (cow?) with a random face say something
-# fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
 
+# ZSH-specific environment variables
+## oh-my-zsh
+# Automatically update oh-my-zsh without asking
+DISABLE_UPDATE_PROMPT=true
+# Disable oh-my-zsh auto-update checks
+DISABLE_AUTO_UPDATE=false
+# How often to check for oh-my-zsh updates
+UPDATE_ZSH_DAYS=30
+# Disable cowsay on login by default. Override in .profile.local
+# NO_ZSHRC_COWSAY=0
+NO_ZSHRC_COWSAY=1
+
+# Programs expected to be installed by tools
 # These are the name on $PATH, not the package name
-#
 dependencies=(
     tree
     nvim
@@ -33,21 +41,23 @@ dependencies=(
     fortune
 )
 
+# Load dotfiles directory into DOTFILES_DIR
 # Dotfiles directory should be in environment or ~/.dotfiles-dir
 if [ -f "$HOME/.dotfiles-dir" ]; then
     source "$HOME/.dotfiles-dir"
 fi
 # echo "Dotfiles: $DOTFILES_DIR"
 if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
-    # Gruvbox colors
-    # source "$HOME/.vim/bundle/gruvbox/gruvbox_256palette.sh"
+    # Load dependencies
+    ## oh-my-zsh
     if [ ! -f "$DOTFILES_DIR/dependencies/ohmyzsh/oh-my-zsh.sh" ]; then
         cd "$DOTFILES_DIR"
         git submodule update --init
         cd -
     fi
-    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh"
     export ZSH=$DOTFILES_DIR/dependencies/ohmyzsh
+    ## Gruvbox colors
+    [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh"
 fi
 
 # Custom functions
@@ -61,16 +71,13 @@ for dependency in "${dependencies[@]}"; do
 done
 # echo "Missing dependencies: $missing_dependencies"
 
-# Path to your oh-my-zsh installation.
-#export RUST_SRC_PATH=/usr/local/src/rust/src
-
 # Z
 # . $DOTFILES_DIR/z/z.sh
+
 # Set name of the theme to load.
 # # Look in ~/.oh-my-zsh/themes/
-# # Optionally, if you set this to "random", it'll load a random theme each
-# # time that oh-my-zsh is loaded.
 ZSH_THEME="agnoster"
+
 # Base16 Shell
 # BASE16_SHELL="$HOME/.config/base16-shell/base16-tomorrow.dark.sh"
 # [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
@@ -80,23 +87,17 @@ ZSH_THEME="agnoster"
 # # Uncomment the following line to use case-sensitive completion.
 # # CASE_SENSITIVE="true"
 #
-# # Uncomment the following line to disable bi-weekly auto-update checks.
-# # DISABLE_AUTO_UPDATE="true"
-#
-# # Uncomment the following line to change how often to auto-update (in days).
-# # export UPDATE_ZSH_DAYS=13
-#
 # # Uncomment the following line to disable colors in ls.
 # # DISABLE_LS_COLORS="true"
 #
 # # Uncomment the following line to disable auto-setting terminal title.
-# # DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 #
 # # Uncomment the following line to enable command auto-correction.
-# # ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 #
 # # Uncomment the following line to display red dots whilst waiting for completion.
-# # COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 #
 # # Uncomment the following line if you want to disable marking untracked files
 # # under VCS as dirty. This makes repository status check for large repositories
@@ -116,12 +117,12 @@ plugins=(archlinux colorize command-not-found cp git github bower grunt npm maco
 # tmux
 zmodload zsh/zpty
 
-# # User configuration
-
 # Enable environment variables as CD directories
 setopt cdablevars
 # Enable correction for mistyped commands
 unsetopt correctall
+setopt appendhistory autocd extendedglob
+unsetopt beep
 # alias make='nocorrect make'
 # alias git='nocorrect git'
 
@@ -154,16 +155,6 @@ fi
 export EDITOR='vim'
 # export TERM=xterm-256color
 
-# # else
-# #   export EDITOR='mvim'
-# # fi
-#
-# # Compilation flags
-# # export ARCHFLAGS="-arch x86_64"
-#
-# # ssh
-# # export SSH_KEY_PATH="~/.ssh/dsa_id"
-#
 # # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -177,17 +168,13 @@ alias -s .c=vim
 # Crontab
 #alias crontab-e='vim ~/.crontab && crontab ~/.crontab'
 
-# Lines configured by zsh-newuser-install
-setopt appendhistory autocd extendedglob
-unsetopt beep
 bindkey -v
-# End of lines configured by zsh-newuser-install
+
 # The following lines were added by compinstall
 zstyle :compinstall filename '~/.zshrc'
 
 autoload -Uz compinit
 compinit
-# End of lines added by compinstall
 
 DEFAULT_USER="$USER"
 
@@ -203,6 +190,7 @@ DEFAULT_USER="$USER"
 
 # Powerline plugin from distribution agnostic install directory
 # pip install --user powerline-status &>/dev/null
+## Assemble list of possible sources
 sources=()
 if [[ -a $POWERLINE_ROOT/bindings/zsh/powerline.zsh ]]; then
     # Prefer user-set powerline directory
@@ -308,15 +296,6 @@ bindkey -M viins ',,' vi-cmd-mode
 # Tool options
 export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 
-# Local overrides
-if [ -f $HOME/.zshrc_local ]; then
-    source $HOME/.zshrc_local
-fi
-
-if [ -f ~/.fzf.zsh ]; then
-    source ~/.fzf.zsh
-fi
-
 if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
 fi
@@ -328,6 +307,16 @@ if [[ $(program_installed pyenv) == 1 ]]; then
     # eval "$(pyenv virtualenv-init -)"
 fi
 
-# Created by `pipx` on 2025-06-16 02:20:13
-export PATH="$PATH:$HOME/.local/bin"
-export PATH="$PATH:$HOME/bin"
+# Local overrides
+if [ -f $HOME/.zshrc_local ]; then
+    source $HOME/.zshrc_local
+fi
+
+if [ -f ~/.fzf.zsh ]; then
+    source ~/.fzf.zsh
+fi
+
+if [ -n "$NO_ZSHRC_COWSAY" ] && [ ! "$NO_ZSHRC_COWSAY" -eq 1 ]; then
+    # Make a random (cow?) with a random face say something
+    fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n
+fi
