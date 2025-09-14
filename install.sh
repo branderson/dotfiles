@@ -249,11 +249,15 @@ function link_dotfiles {
 }
 
 function link_dotfiles_local() {
-    if [ ! -d "$dir/dependencies/dotfiles-local/" ]; then
-        echo "No local dotfiles found, could not sync. Please run:"
-        echo "> git submodule update --init"
-        echo "> $dir/dotfiles-local.sh {machine-name}"
-        return
+    if [ ! -d "$dir/dependencies/dotfiles-local/packages" ]; then
+        if [ "$interactive" == 0 ]; then
+            echo "No local dotfiles found, could not sync. Skipping"
+        else
+            echo "No local dotfiles found, could not sync. Please run:"
+            echo "> git submodule update --init"
+            echo "> $dir/dotfiles-local.sh {machine-name}"
+            return
+        fi
     fi
     cd "$dir/dependencies/dotfiles-local"
     # Check if on main branch
@@ -821,7 +825,7 @@ if [ -t 0 ]; then
     run_interactively
 else
     # Non-interactive session (e.g. Coder workspace initialization)
-    git submodule init --update
+    git submodule update --init
     link_dotfiles
     link_dotfiles_local
 fi
