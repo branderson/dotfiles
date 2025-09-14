@@ -255,18 +255,20 @@ function link_dotfiles_local() {
         echo "> $dir/dotfiles-local.sh {machine-name}"
         return
     fi
-    if [ "$interactive" == 0 ]; then
-        cd "$dir/dependencies/dotfiles-local"
-        # Check if on main branch
-        current_branch=$(git rev-parse --abbrev-ref HEAD)
-        if [ "$current_branch" == "main" ]; then
+    cd "$dir/dependencies/dotfiles-local"
+    # Check if on main branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$current_branch" == "main" ]; then
+        if [ "$interactive" == 0 ]; then
             echo "Local dotfiles repo on branch 'main' and tool running non-interactively."
-            echo "Please set branch by running:"
-            echo "> $dir/dotfiles-local.sh {machine-name}"
-            return
+            echo "Setting branch to $(hostname)"
+            current_branch=$(hostname)
+            # echo "Please set branch by running:"
+            # echo "> $dir/dotfiles-local.sh {machine-name}"
+            # return
         fi
-        cd -
     fi
+    cd -
     echo ""
     "$dir"/dotfiles-local.sh "$current_branch"
 }
@@ -819,6 +821,7 @@ if [ -t 0 ]; then
     run_interactively
 else
     # Non-interactive session (e.g. Coder workspace initialization)
+    git submodule init --update
     link_dotfiles
     link_dotfiles_local
 fi

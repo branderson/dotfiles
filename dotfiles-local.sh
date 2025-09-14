@@ -211,19 +211,26 @@ while IFS= read -r config || [[ -n $config ]]; do
     echo ""
 done < <(printf '%s' "$configs")
 
-# sync dotfiles to git
-if [ "$interactive" == 0 ]; then
-    echo "Syncing local dotfiles to git branch. [$branch_name]"
-else
-    echo -n "Would you like to push dotfiles-local to git? [$branch_name] (y/n) "
-    read response
-    if [[ $response != 'y' ]] && [[ $response != 'Y' ]]; then
-        exit 0
+# Check if git repo has changes
+if [[ `git status --porcelain` ]]; then
+  # Changes found
+    # sync dotfiles to git
+    if [ "$interactive" == 0 ]; then
+        echo "Syncing local dotfiles to git branch. [$branch_name]"
+    else
+        echo -n "Would you like to push dotfiles-local to git? [$branch_name] (y/n) "
+        read response
+        if [[ $response != 'y' ]] && [[ $response != 'Y' ]]; then
+            exit 0
+        fi
     fi
+    git add -A
+    git commit -m "Automated sync"
+    git push origin "$branch_name"
+    echo "dotfiles-local synced to git. [$branch_name]"
+else
+  # No changes found
+  echo "No changes found, not pushing branch to git remote"
 fi
-git add -A
-git commit -m "Automated sync"
-git push origin "$branch_name"
-echo "dotfiles-local synced to git. [$branch_name]"
 
 cd -
