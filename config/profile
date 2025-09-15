@@ -17,7 +17,13 @@ if [[ $(program_installed flatpak) == 1 ]]; then
     XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 fi
 
-if [[ $(uname -s) == Linux* ]]; then
-    # Add SSH keys only if not already present
-    ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_ed25519.pub"  | awk '{print $2}'` || ssh-add -k
+public_keys=($(find "$HOME/.ssh/" -maxdepth 1 -name "*.pub"))
+if [ ${#public_keys[@]} > 0 ]; then
+    if [[ $(uname -s) == Linux* ]]; then
+        # Add SSH keys only if not already present
+        ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_ed25519.pub"  | awk '{print $2}'` || ssh-add -k
+    elif [[ $(uname -s) == Darwin* ]]; then
+        # Add SSH keys only if not already present
+        ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_rsa.pub"  | awk '{print $2}'` || ssh-add --apple-use-keychain
+    fi
 fi
