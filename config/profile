@@ -49,12 +49,12 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 fi
 
 # Prefer alacritty terminal if installed
-if [[ $(program_installed alacritty) == 1 ]]; then
+if [[ $(program_installed alacritty) == 0 ]]; then
     export TERMINAL=alacritty
 fi
 
 # Prefer neovim, if installed
-if [[ $(program_installed nvim) == 1 ]]; then
+if [[ $(program_installed nvim) == 0 ]]; then
     export EDITOR=nvim
     alias vim=nvim
 fi
@@ -72,7 +72,7 @@ if [ -d "$XDG_RUNTIME_DIR" ]; then
 fi
 
 # Put flatpak apps in XDG
-if [[ $(program_installed flatpak) == 1 ]]; then
+if [[ $(program_installed flatpak) == 0 ]]; then
     export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 fi
 
@@ -88,9 +88,11 @@ if [ ${#public_keys[@]} -gt 0 ]; then
         if [[ $(uname -s) == Linux* ]]; then
             # Add SSH keys only if not already present
             ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
+            break
         elif [[ $(uname -s) == Darwin* ]]; then
             # Add SSH keys only if not already present
             ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
+            break
         fi
     done
 fi

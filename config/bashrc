@@ -32,12 +32,12 @@ if [ -f $HOME/.screen-256color-italic.terminfo ]; then
 fi
 
 # Use neovim where available
-if [[ $(program_installed neovim) == 1 ]]; then
+if [[ $(program_installed neovim) == 0 ]]; then
     alias vim='nvim'
 fi
 
 # fzf fuzzy finder
-if [[ $(program_installed fzf) == 1 ]]; then
+if [[ $(program_installed fzf) == 0 ]]; then
     # TODO: This is broken when fzf is old, should include a local copy
     eval "$(fzf --bash)"
 fi

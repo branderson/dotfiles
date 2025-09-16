@@ -194,33 +194,38 @@ function link_dotfiles {
     # files in the dotfiles directory specified in $files to the homedir
     for file in $home_files; do
         if [[ -f $file || -d $file ]]; then
+            if [[ -L $HOME/.$file ]]; then
+                echo "Skipping: $file because ~/.$file already linked"
             # Don't skip if not interactive as initial files often exist that should be replaced
-            if [[ (-L "~/.$file" || -f ~/.$file || -d ~/.$file) && "$interactive" -eq 1 ]]; then
+            elif [[ (-f $HOME/.$file || -d $HOME/.$file) && $interactive -eq 1 ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.$file)"
-                ln -s $config_dir/$file ~/.$file
+                ln -s $config_dir/$file $HOME/.$file
             fi
         fi
     done
     for file in $configs; do
         if [[ -f $file || -d $file ]]; then
-            # TODO: Check if file is a symlink and only skip if it is, otherwise rename and replace
-            if [[ -L ~/.config/$file || -f ~/.config/$file || -d ~/.config/$file ]]; then
+            if [[ -L "$HOME/.config/$file" ]]; then
+                echo "Skipping: $file because ~/.config/$file already linked"
+            elif [[ -f $HOME/.config/$file || -d $HOME/.config/$file ]]; then
                 echo "Skipping: $file because ~/.config/$file already exists"
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
-                ln -s $config_dir/$file ~/.config/$file
+                ln -s $config_dir/$file $HOME/.config/$file
             fi
         fi
     done
     for file in $local_home_templates; do
         if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
-            if [[ -L "~/.$file" || -f ~/.$file || -d ~/.$file ]]; then
+            if [[ -L "$HOME/.$file" ]]; then
+                echo "Skipping: $file because ~/.$file already linked"
+            elif [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
-                ln -s $config_dir/local-templates/$file ~/.$file
+                ln -s $config_dir/local-templates/$file $HOME/.$file
             fi
         fi
     done
@@ -236,11 +241,13 @@ function link_dotfiles {
     done
     for file in $systemd_services; do
         if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
-            if [[ -L "~/.config/systemd/user/$file" || -f ~/.config/systemd/user/$file || -d ~/.config/systemd/user/$file ]]; then
+            if [[ -L "$HOME/.config/systemd/user/$file" ]]; then
+                echo "Skipping: $file because ~/.config/systemd/user/$file already linked"
+            elif [[ -f $HOME/.config/systemd/user/$file || -d $HOME/.config/systemd/user/$file ]]; then
                 echo "Skipping: $file because ~/.config/systemd/user/$file already exists"
             else
                 echo "Linking: $file ($config_dir/systemd/user/$file -> ~/.config/systemd/user/$file)"
-                ln -s $config_dir/systemd/user/$file ~/.config/systemd/user/$file
+                ln -s $config_dir/systemd/user/$file $HOME/.config/systemd/user/$file
                 # TODO: Probably should also enable the service
                 #systemctl --user enable --now $file
             fi
@@ -250,16 +257,6 @@ function link_dotfiles {
 }
 
 function link_dotfiles_local() {
-    if [ ! -d "$dir/dependencies/dotfiles-local/packages" ]; then
-        if [ "$interactive" == 0 ]; then
-            echo "No local dotfiles found, could not sync. Skipping"
-        else
-            echo "No local dotfiles found, could not sync. Please run:"
-            echo "> git submodule update --init"
-            echo "> $dir/dotfiles-local.sh {machine-name}"
-            return
-        fi
-    fi
     cd "$dir/dependencies/dotfiles-local"
     # Check if on main branch
     current_branch=$(git rev-parse --abbrev-ref HEAD)
@@ -280,7 +277,7 @@ function link_dotfiles_local() {
 
 function install_aur() {
     # install AUR programs if on Arch
-    if [ $(program_installed yay) == 1 ]; then
+    if [ $(program_installed yay) == 0 ]; then
         echo -n "Do you want to upgrade/install from AUR? (y/n) "
         read response
         if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
@@ -295,7 +292,7 @@ function install_aur() {
                     if [[ "$program" == '#'* || -z "${program// }" ]]; then
                         continue
                     fi
-                    if [ $(program_installed $program) == 0 ]; then
+                    if [ $(program_installed $program) == 1 ]; then
                         yay -Sqa $pacman_args $program
                     fi
                 done < <(printf '%s' "$aur")
@@ -305,7 +302,7 @@ function install_aur() {
 }
 
 function install_programs() {
-    if [ $(program_installed pacman) == 1 ]; then
+    if [ $(program_installed pacman) == 0 ]; then
         sudo pacman -Syuq
         # https://superuser.com/a/284226
         while IFS= read -r program || [[ -n $program ]]; do
@@ -313,36 +310,36 @@ function install_programs() {
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            if [ $(program_installed $program) == 0 ]; then
+            if [ $(program_installed $program) == 1 ]; then
                 sudo pacman -Sq $pacman_args $program
             fi
         done < <(printf '%s' "$arch")
-    elif [ $(program_installed apt-get) == 1 ]; then
+    elif [ $(program_installed apt-get) == 0 ]; then
         sudo apt-get update
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            if [ $(program_installed $program) == 0 ]; then
+            if [ $(program_installed $program) == 1 ]; then
                 sudo apt-get install $program
             fi
         done < <(printf '%s' "$apt")
-    elif [ $(program_installed brew) == 1 ]; then
+    elif [ $(program_installed brew) == 0 ]; then
         brew update
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            if [ $(program_installed $program) == 0 ]; then
+            if [ $(program_installed $program) == 1 ]; then
                 brew install $program
             fi
         done < <(printf '%s' "$brew")
     else
         echo "Cannot install programs, no compatible package manager."
     fi
-    if [ $(program_installed flatpak) == 1 ]; then
+    if [ $(program_installed flatpak) == 0 ]; then
         flatpak update --noninteractive --assumeyes
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -355,7 +352,7 @@ function install_programs() {
             flatpak install --noninteractive --assumeyes $remote $app
         done < <(printf '%s' "$flatpak")
     fi
-    if [ $(program_installed gem) == 1 ]; then
+    if [ $(program_installed gem) == 0 ]; then
         gem update
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -365,14 +362,14 @@ function install_programs() {
             gem install $program
         done < <(printf '%s' "$gem")
     fi
-    if [ $(program_installed pipx) == 1 ]; then
+    if [ $(program_installed pipx) == 0 ]; then
         pipx upgrade-all
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            if [ $(program_installed $program) == 0 ]; then
+            if [ $(program_installed $program) == 1 ]; then
                 pipx install $program
             fi
         done < <(printf '%s' "$pipx")
@@ -381,7 +378,7 @@ function install_programs() {
 
 function setup_zsh() {
     # Only ask to setup if zsh installed and not the current shell
-    if [[ $(program_installed zsh) == 1 && "$SHELL" != "$(which zsh)" ]]; then
+    if [[ $(program_installed zsh) == 0 && "$SHELL" != "$(which zsh)" ]]; then
         echo
         echo -n "Would you like to set zsh as your default shell? (y/n) "
         read response
@@ -394,17 +391,17 @@ function setup_zsh() {
 
 function setup_system_configs() {
     setup_zsh
-    if [[ $(program_installed sshd) == 1 && $(service_enabled sshd.service) == 0 ]]; then
+    if [[ $(program_installed sshd) == 0 && $(service_enabled sshd.service) == 1 ]]; then
         echo
         echo "Enabling SSH server"
         sudo systemctl enable --now sshd.service
     fi
-    if [[ $(program_installed ssh-agent) == 1 && $(service_enabled ssh-agent.service) == 0 ]]; then
+    if [[ $(program_installed ssh-agent) == 0 && $(service_enabled ssh-agent.service) == 1 ]]; then
         echo
         echo "Enabling SSH agent"
         systemctl --user enable --now ssh-agent.service
     fi
-    if [ $(program_installed lightdm) == 1 ]; then
+    if [ $(program_installed lightdm) == 0 ]; then
         echo
         echo "Enabling numlock at startup"
         original=`cat /etc/lightdm/lightdm.conf` >> /dev/null
@@ -420,7 +417,7 @@ function setup_system_configs() {
     fi
 
     # Assume Steam is desired if xdg-desktop-portal is installed
-    if [[ -f /usr/share/xdg-desktop-portal/portals/gtk.portal && $(program_installed i3) == 1 ]]; then
+    if [[ -f /usr/share/xdg-desktop-portal/portals/gtk.portal && $(program_installed i3) == 0 ]]; then
         echo
         echo "Enabling xdg-desktop-portal-gtk in i3 (needed for Steam)"
         original=`cat /usr/share/xdg-desktop-portal/portals/gtk.portal` >> /dev/null
@@ -436,7 +433,7 @@ function setup_system_configs() {
     fi
 
     # If gnome-keyring is installed and i3, enable its XDG portal backend
-    if [[ -f /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal && $(program_installed i3) == 1 ]]; then
+    if [[ -f /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal && $(program_installed i3) == 0 ]]; then
         echo
         echo "Enabling xdg-desktop-portal-gnome-keyring in i3"
         original=`cat /usr/share/xdg-desktop-portal/portals/gnome-keyring.portal` >> /dev/null
@@ -451,20 +448,20 @@ function setup_system_configs() {
         fi
     fi
 
-    if [[ ! $(program_installed vim) == 1 && $(program_installed nvim) == 1 ]]; then
+    if [[ ! $(program_installed vim) == 0 && $(program_installed nvim) == 0 ]]; then
         echo
         echo "Preventing missing vim issues"
         sudo ln -s "$(which nvim)" /usr/bin/vim
     fi
 
     # TODO: Make sure bluetooth is installed
-    if [[ $(service_enabled bluetooth.service) == 0 ]]; then
+    if [[ $(service_enabled bluetooth.service) == 1 ]]; then
         echo
         echo "Enabling Bluetooth"
         sudo systemctl enable --now bluetooth.service
     fi
 
-    if [[ $(program_installed syncthing) == 1 ]]; then
+    if [[ $(program_installed syncthing) == 0 ]]; then
         echo
         echo "Enabling Syncthing"
         systemctl enable --user --now syncthing.service
@@ -574,7 +571,7 @@ function setup_bare_i3() {
 }
 
 function setup_plasma_i3() {
-    if [[ ! $(program_installed plasmashell) == 1 ]]; then
+    if [[ ! $(program_installed plasmashell) == 0 ]]; then
         echo "Plasma not installed, please install and rerun"
         # TODO: echo the command to install plasma
         return 1
@@ -610,10 +607,10 @@ function setup_plasma_i3() {
     fi
 
     echo "Disabling plasma systemd autostart"
-    if [[ $(program_installed kwriteconfig5) == 1 ]]; then
+    if [[ $(program_installed kwriteconfig5) == 0 ]]; then
         kwriteconfig5 --file startkderc --group General --key systemdBoot false
     fi
-    if [[ $(program_installed kwriteconfig6) == 1 ]]; then
+    if [[ $(program_installed kwriteconfig6) == 0 ]]; then
         kwriteconfig6 --file startkderc --group General --key systemdBoot false
     fi
 
@@ -621,7 +618,7 @@ function setup_plasma_i3() {
 }
 
 function setup_bare_plasma() {
-    if [[ ! $(program_installed plasmashell) == 1 ]]; then
+    if [[ ! $(program_installed plasmashell) == 0 ]]; then
         echo "Plasma not installed, please install and rerun"
         return 1
     fi
@@ -726,25 +723,25 @@ function install_local() {
 }
 
 function run_interactively() {
-    if [[ $(program_installed pacman) == 1 ]]; then
+    if [[ $(program_installed pacman) == 0 ]]; then
         echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
-    elif [[ $(program_installed apt) == 1 ]]; then
+    elif [[ $(program_installed apt) == 0 ]]; then
         echo "[complete] Complete install (dotfiles, apt, system-configs, samba, local-install)"
-    elif [[ $(program_installed brew) == 1 ]]; then
+    elif [[ $(program_installed brew) == 0 ]]; then
         echo "[complete] Complete install (dotfiles, brew, system-configs, samba, local-install)"
     fi
     echo "[push] Push to github"
     echo "[pull] Pull from github"
     echo "[dotfiles] Install dotfiles only"
     echo "[dotfiles-local] Sync local dotfiles to git"
-    if [[ $(program_installed pacman) == 1 ]]; then
+    if [[ $(program_installed pacman) == 0 ]]; then
         echo "[programs] Install programs (pacman, aur) only"
-    elif [[ $(program_installed apt) == 1 ]]; then
+    elif [[ $(program_installed apt) == 0 ]]; then
         echo "[programs] Install programs (apt) only"
-    elif [[ $(program_installed brew) == 1 ]]; then
+    elif [[ $(program_installed brew) == 0 ]]; then
         echo "[programs] Install programs (brew) only"
     fi
-    if [[ $(program_installed pacman) == 1 ]]; then
+    if [[ $(program_installed pacman) == 0 ]]; then
         echo "[programs-official] Install official repository programs (pacman) only"
         echo "[aur-only] Install AUR programs only"
     fi

@@ -57,7 +57,7 @@ if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
 fi
 missing_dependencies=()
 for dependency in "${dependencies[@]}"; do
-    if [ $(program_installed $dependency) -eq 0 ]; then
+    if [ $(program_installed $dependency) -eq 1 ]; then
         echo "Found missing dependency $dependency"
         # missing_dependencies+="$dependency"
     fi
@@ -181,12 +181,12 @@ if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
 fi
 
 # fzf fuzzy finder
-if [[ $(program_installed fzf) == 1 ]]; then
+if [[ $(program_installed fzf) == 0 ]]; then
     source <(fzf --zsh)
 fi
 
 # pyenv-virtualenv (for managing virtualenvs for different python versions)
-if [[ $(program_installed pyenv) == 1 ]]; then
+if [[ $(program_installed pyenv) == 0 ]]; then
     export PYENV_VIRTUALENV_DISABLE_PROMPT=1
     eval "$(pyenv init --path)"
     # eval "$(pyenv virtualenv-init -)"
@@ -201,7 +201,7 @@ if [ -f $HOME/.zshrc_local ]; then
 fi
 
 # Fun stupid opt-in stuff on new shell. Enable these in .profile.local
-if [[ $(program_installed neofetch) == 1 ]]; then
+if [[ $(program_installed neofetch) == 0 ]]; then
     if [ ! -n "$NO_NEOFETCH" ] || [ "$NO_NEOFETCH" -eq 1 ]; then 
     else
         neofetch

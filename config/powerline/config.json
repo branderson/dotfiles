@@ -13,7 +13,7 @@
 			}
 		},
 		"pdb": {
-			"colorscheme": "default",
+			"colorscheme": "gruvbox",
 			"theme": "default"
 		},
 		"shell": {

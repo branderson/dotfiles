@@ -56,7 +56,7 @@ fi
 
 cd "$locals_dir"
 
-if [[ $(program_installed git) == 0 ]]; then
+if [[ $(program_installed git) == 1 ]]; then
     echo "git not installed, please install and rerun"
     exit 1
 fi
