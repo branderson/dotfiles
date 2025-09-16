@@ -40,14 +40,19 @@ i3/config.local
 "
 
 source "$DOTFILES_DIR/functions.sh"
+
+# Clone dotfiles_local if not present
+if [ ! -d "$locals_dir" ]; then
+    echo "Cloning local dotfiles repository: $DOTFILES_LOCAL_REPOSITORY to $locals_dir"
+    git clone "$DOTFILES_LOCAL_REPOSITORY" "$locals_dir"
+fi
+
 cd "$locals_dir"
 
 if [[ $(program_installed git) == 0 ]]; then
     echo "git not installed, please install and rerun"
     exit 1
 fi
-
-# TODO: Make sure submodule is cloned
 
 # Ask machine name and set branch
 if [ -n "$1" ]; then
