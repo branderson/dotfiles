@@ -16,9 +16,6 @@
 [submodule "dependencies/gruvbox"]
 	path = dependencies/gruvbox
 	url = https://github.com/morhetz/gruvbox
-[submodule "dependencies/dotfiles-local"]
-	path = dependencies/dotfiles-local
-	url = https://gitbox.branderson.io/branderson/dotfiles-local.git
 [submodule "config/tmux/plugins/tpm"]
 	path = config/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
