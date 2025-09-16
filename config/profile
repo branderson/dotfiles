@@ -18,7 +18,7 @@ if [[ $(program_installed flatpak) == 1 ]]; then
 fi
 
 public_keys=($(find "$HOME/.ssh/" -maxdepth 1 -name "*.pub"))
-if [ ${#public_keys[@]} > 0 ]; then
+if [ ${#public_keys[@]} -gt 0 ]; then
     if [[ $(uname -s) == Linux* ]]; then
         # Add SSH keys only if not already present
         ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_ed25519.pub"  | awk '{print $2}'` || ssh-add -k

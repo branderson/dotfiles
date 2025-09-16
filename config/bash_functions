@@ -91,31 +91,31 @@ function check_dotfiles_version {
 }
 
 function set_python_roots {
-    PYTHON_ROOTS=()
+    declare -ag PYTHON_ROOTS=()
     if [ -d $HOME/.local/lib/ ]; then
-        for directory in $(echo $HOME/.local/lib/python*(N)); do
-            PYTHON_ROOTS+=$directory
+        for directory in $(echo $HOME/.local/lib/python*); do
+            PYTHON_ROOTS+=($directory)
         done
     fi
     if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
-        for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*(N)); do
-            PYTHON_ROOTS+=$directory
+        for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*); do
+            PYTHON_ROOTS+=($directory)
         done
     fi
     if [ -d $HOME/.local/pipx/venvs/powerline-status/lib/ ]; then
-        for directory in $(echo $HOME/.local/pipx/venvs/powerline-status/lib/python*(N)); do
-            PYTHON_ROOTS+=$directory
+        for directory in $(echo $HOME/.local/pipx/venvs/powerline-status/lib/python*); do
+            PYTHON_ROOTS+=($directory)
         done
     fi
     if [ -d /usr/lib/ ]; then
-        for directory in $(echo /usr/lib/python*(N)); do
-            PYTHON_ROOTS+=$directory
+        for directory in $(echo /usr/lib/python*); do
+            PYTHON_ROOTS+=($directory)
         done
     fi
     if [ -d /usr/local/lib/ ]; then
         # TODO: Make this not print warnings when the directory doesn't exit
-        for directory in $(echo /usr/local/lib/python*(N)); do
-            PYTHON_ROOTS+=$directory
+        for directory in $(echo /usr/local/lib/python*); do
+            PYTHON_ROOTS+=($directory)
         done
     fi
 }
@@ -130,12 +130,11 @@ function set_powerline_bash_sources {
         POWERLINE_BASH_SOURCES+=$POWERLINE_ROOT/bindings/bash/powerline.sh
     fi
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
-    for directory in $PYTHON_ROOTS; do
-        #for directory in $(echo $template); do
+    for index in ${!PYTHON_ROOTS[@]}; do
+        directory="${PYTHON_ROOTS[index]}"
         if [ -d "$directory" ]; then
-            POWERLINE_BASH_SOURCES+="$directory"/site-packages/powerline/bindings/bash/powerline.sh
-            POWERLINE_BASH_SOURCES+="$directory"/dist-packages/powerline/bindings/bash/powerline.sh
+            POWERLINE_BASH_SOURCES+=("$directory"/site-packages/powerline/bindings/bash/powerline.sh)
+            POWERLINE_BASH_SOURCES+=("$directory"/dist-packages/powerline/bindings/bash/powerline.sh)
         fi
-        # done
     done
 }

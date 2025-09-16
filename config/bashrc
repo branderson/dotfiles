@@ -1,6 +1,6 @@
 #PATHs
 if [ -d "$HOME/.local/bin" ]; then
-    export PATH="$PATH:/$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
 fi
 
 if [ -f "$HOME/.dotfiles-dir" ]; then
@@ -38,6 +38,7 @@ fi
 
 # fzf fuzzy finder
 if [[ $(program_installed fzf) == 1 ]]; then
+    # TODO: This is broken when fzf is old, should include a local copy
     eval "$(fzf --bash)"
 fi
 
@@ -47,14 +48,17 @@ export EDITOR='vim'
 # Powerline
 set_powerline_bash_sources
 found=0
-for file in $POWERLINE_BASH_SOURCES; do
+for index in ${!POWERLINE_BASH_SOURCES[@]}; do
+    file="${POWERLINE_BASH_SOURCES[index]}"
     if [[ -a $file ]]; then
         # echo "Sourcing Powerline binding: $file"
+        # TODO: This is broken when powerline not in chosen python path
         source $file
         found=1
         break
     fi
 done
 if [ $found -eq 0 ]; then
-    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
+    echo "Powerline binding not found."
+    echo "Please set \$POWERLINE_ROOT in .profile.local"
 fi
