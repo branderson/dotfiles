@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Source .profile.local in case it's been recently updated with repo
+source "$HOME/.profile"
+if [ -f "$HOME/.profile.local" ]; then
+    source "$HOME/.profile.local"
+fi
+source "$DOTFILES_DIR/functions.sh"
+
 # Check if running interactively
 if [ -t 0 ]; then
     # Interactive session
@@ -38,8 +45,6 @@ profile.local
 configs="
 i3/config.local
 "
-
-source "$DOTFILES_DIR/functions.sh"
 
 # Clone dotfiles_local if not present
 if [ ! -d "$locals_dir" ]; then
@@ -176,6 +181,8 @@ while IFS= read -r config || [[ -n $config ]]; do
             fi
             mv "$HOME/.$config" "$config_dir/$config"
         fi
+    elif [ -f "$locals_dir/config/$config" ]; then
+        echo "No local dotfile in ~/.$config but present in dotfiles-local. Symlinking"
     fi
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.$config"
@@ -209,6 +216,8 @@ while IFS= read -r config || [[ -n $config ]]; do
             fi
             mv "$HOME/.config/$config" "$config_dir/$config"
         fi
+    elif [ -f "$locals_dir/config/$config" ]; then
+        echo "No local dotfile in ~/.config/$config but present in dotfiles-local. Symlinking"
     fi
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.config/$config"
@@ -223,6 +232,7 @@ done < <(printf '%s' "$configs")
 if [[ `git status --porcelain` ]]; then
   # Changes found
     # sync dotfiles to git
+    echo ""
     if [ "$interactive" == 0 ]; then
         echo "Syncing local dotfiles to git branch. [$branch_name]"
     else

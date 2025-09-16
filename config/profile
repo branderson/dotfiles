@@ -1,5 +1,3 @@
-source "$HOME/.zsh_functions"
-
 # Override in .profile.local for custom repo
 DOTFILES_LOCAL_REPOSITORY="https://gitbox.branderson.io/branderson/dotfiles-local"
 
@@ -40,6 +38,8 @@ fi
 if [ -f "$HOME/.dotfiles-dir" ]; then
     source "$HOME/.dotfiles-dir"
 fi
+
+source "$HOME/.bash_functions"
 
 # Set up brew if on macOS
 if [[ $OSTYPE == 'darwin'* ]]; then
@@ -84,7 +84,7 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 ## Find existing keys, supporting one layer of folder organization
 public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
 if [ ${#public_keys[@]} -gt 0 ]; then
-    for public_key in ${public_keys[@]}; do
+    for public_key in "${public_keys[@]}"; do
         if [[ $(uname -s) == Linux* ]]; then
             # Add SSH keys only if not already present
             ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
