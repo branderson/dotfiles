@@ -1,24 +1,6 @@
-#PATHs
-if [ -d "$HOME/bin" ]; then
-    export PATH="$PATH:/$HOME/bin"
-fi
-if [ -d "$HOME/.local/bin" ]; then
-    export PATH="$PATH:/$HOME/.local/bin"
-fi
-if [ -d /usr/games ]; then
-    export PATH="$PATH:/usr/games"
-fi
-if [ -d /opt/homebrew/bin ]; then
-    export PATH="$PATH:/opt/homebrew/bin"
-fi
-if [ -d /opt/homebrew/opt/python@3.13/libexec/bin ]; then
-    export PATH="$PATH:/opt/homebrew/opt/python@3.13/libexec/bin"
-fi
-if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
-    export PATH="$PATH:/opt/homebrew/opt/coreutils/libexec/gnubin"
-fi
-
 # ZSH-specific environment variables
+# Override in .profile.local
+
 ## oh-my-zsh
 # Automatically update oh-my-zsh without asking
 DISABLE_UPDATE_PROMPT=true
@@ -26,28 +8,41 @@ DISABLE_UPDATE_PROMPT=true
 DISABLE_AUTO_UPDATE=false
 # How often to check for oh-my-zsh updates
 UPDATE_ZSH_DAYS=30
-# Disable cowsay on login by default. Override in .profile.local
-# NO_ZSHRC_COWSAY=0
+# Disable cowsay on login by default.
 NO_ZSHRC_COWSAY=1
+# Theme to load [~/.oh-my-zsh/themes/]
+ZSH_THEME="agnoster"
+# Automatic window title setting
+DISABLE_AUTO_TITLE="true"
+# Command correction support
+ENABLE_CORRECTION="true"
+# Case-sensitive completion
+CASE_SENSITIVE="false"
+# ls colors
+DISABLE_LS_COLORS="false"
+# Red ... on completion waiting
+COMPLETION_WAITING_DOTS="true"
 
-# Programs expected to be installed by tools
-# These are the name on $PATH, not the package name
-dependencies=(
-    tree
-    nvim
-    ag
-    fzf
-    node
-    cowsay
-    fortune
-)
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+#
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# HIST_STAMPS="mm/dd/yyyy"
 
-# Load dotfiles directory into DOTFILES_DIR
-# Dotfiles directory should be in environment or ~/.dotfiles-dir
-if [ -f "$HOME/.dotfiles-dir" ]; then
-    source "$HOME/.dotfiles-dir"
+# User profiles
+source $HOME/.profile
+# Define $POWERLINE_ROOT
+if [ -f $HOME/.profile.local ]; then
+    source $HOME/.profile.local
 fi
-# echo "Dotfiles: $DOTFILES_DIR"
+
+# Custom functions
+source "$HOME/.zsh_functions"
+
 if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
     # Load dependencies
     ## oh-my-zsh
@@ -60,9 +55,6 @@ if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then
     ## Gruvbox colors
     [[ -f "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh" ]] && source "$DOTFILES_DIR/dependencies/gruvbox/gruvbox_256palette.sh"
 fi
-
-# Custom functions
-source "$HOME/.zsh_functions"
 missing_dependencies=()
 for dependency in "${dependencies[@]}"; do
     if [ $(program_installed $dependency) -eq 0 ]; then
@@ -72,49 +64,9 @@ for dependency in "${dependencies[@]}"; do
 done
 # echo "Missing dependencies: $missing_dependencies"
 
-# Z
-# . $DOTFILES_DIR/z/z.sh
+# Dircolors
+# eval $(dircolors ~/.dircolors)
 
-# Set name of the theme to load.
-# # Look in ~/.oh-my-zsh/themes/
-ZSH_THEME="agnoster"
-
-# Base16 Shell
-# BASE16_SHELL="$HOME/.config/base16-shell/base16-tomorrow.dark.sh"
-# [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
-# BASE16_SHELL="$HOME/.config/base16-shell/base16-ocean.dark.sh"
-# [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
-#
-# # Uncomment the following line to use case-sensitive completion.
-# # CASE_SENSITIVE="true"
-#
-# # Uncomment the following line to disable colors in ls.
-# # DISABLE_LS_COLORS="true"
-#
-# # Uncomment the following line to disable auto-setting terminal title.
-DISABLE_AUTO_TITLE="true"
-#
-# # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
-#
-# # Uncomment the following line to display red dots whilst waiting for completion.
-COMPLETION_WAITING_DOTS="true"
-#
-# # Uncomment the following line if you want to disable marking untracked files
-# # under VCS as dirty. This makes repository status check for large repositories
-# # much, much faster.
-# # DISABLE_UNTRACKED_FILES_DIRTY="true"
-#
-# # Uncomment the following line if you want to change the command execution time
-# # stamp shown in the history command output.
-# # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# # HIST_STAMPS="mm/dd/yyyy"
-#
-# # Would you like to use another custom folder than $ZSH/custom?
-# # ZSH_CUSTOM=/path/to/new-custom-folder
-
-# # zsh-syntax-highlighting must come last
-plugins=(archlinux colorize command-not-found cp git github bower grunt npm macos)
 # tmux
 zmodload zsh/zpty
 
@@ -124,15 +76,9 @@ setopt cdablevars
 unsetopt correctall
 setopt appendhistory autocd extendedglob
 unsetopt beep
-# alias make='nocorrect make'
-# alias git='nocorrect git'
 
-# User profiles
-source $HOME/.profile
-# Define $POWERLINE_ROOT
-if [ -f $HOME/.profile.local ]; then
-    source $HOME/.profile.local
-fi
+alias -s txt=vim
+alias -s .c=vim
 
 if [ -d $ZSH ] && [ ! -z $ZSH ]; then
     source $ZSH/oh-my-zsh.sh
@@ -146,34 +92,34 @@ if [ -f $HOME/.screen-256color-italic.terminfo ]; then
     tic $HOME/.screen-256color-italic.terminfo
 fi
 
+# TODO: Remove this
 # Use neovim where available
-if type nvim > /dev/null 2>&1; then
-    alias vim='nvim'
-fi
+# if type nvim > /dev/null 2>&1; then
+#     alias vim='nvim'
+# fi
 
 # # Preferred editor for local and remote sessions
 # # if [[ -n $SSH_CONNECTION ]]; then
-export EDITOR='vim'
+# export EDITOR='vim'
 # export TERM=xterm-256color
-
-# # Set personal aliases, overriding those provided by oh-my-zsh libs,
-# # plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# # users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# # For a full list of active aliases, run `alias`.
-# #
-# # Example aliases
-# # alias zshconfig="mate ~/.zshrc"
-# # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias -s txt=vim
-alias -s .c=vim
-# Crontab
-#alias crontab-e='vim ~/.crontab && crontab ~/.crontab'
+# TODO ====
 
 bindkey -v
 
-# The following lines were added by compinstall
-zstyle :compinstall filename '~/.zshrc'
+# Keybindings
+bindkey -M vicmd 'K' run-help
+bindkey -M viins ',,' vi-cmd-mode
+# bindkey -M viins 'K' run-help
 
+# This binds Ctrl-O to ranger-cd:
+#zle -N ranger-cd
+#bindkey '^o' ranger-cd
+#zle -N terminal-clock
+#bindkey '^t' terminal-clock
+# TMuxinator Completion
+# source ~/bin/tmuxinator.zsh
+
+zstyle :compinstall filename '~/.zshrc'
 autoload -Uz compinit
 compinit
 
@@ -188,21 +134,6 @@ DEFAULT_USER="$USER"
 # Source files
 #typeset -ga sources
 #sources+=$DOTFILES_DIR/shortcuts.txt
-
-# pip install --user powerline-status &>/dev/null
-set_powerline_zsh_sources
-found=0
-for file in $POWERLINE_ZSH_SOURCES; do
-    if [[ -a $file ]]; then
-        # echo "Sourcing Powerline binding: $file"
-        source $file
-        found=1
-        break
-    fi
-done
-if [ $found -eq 0 ]; then
-    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
-fi
 
 # Check dotfiles version
 if [ -n "$NO_GIT_CHECK" ] && [ ! "$NO_GIT_CHECK" -eq 1 ]; then
@@ -226,31 +157,20 @@ if [ -n "$NO_GIT_CHECK" ] && [ ! "$NO_GIT_CHECK" -eq 1 ]; then
         echo ""
     fi
 fi
-if [[ $(program_installed neofetch) == 1 ]]; then
-    if [ ! -n "$NO_NEOFETCH" ] || [ "$NO_NEOFETCH" -eq 1 ]; then 
-    else
-        neofetch
+
+set_powerline_zsh_sources
+found=0
+for file in $POWERLINE_ZSH_SOURCES; do
+    if [[ -a $file ]]; then
+        # echo "Sourcing Powerline binding: $file"
+        source $file
+        found=1
+        break
     fi
+done
+if [ $found -eq 0 ]; then
+    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
 fi
-
-# TMuxinator Completion
-# source ~/bin/tmuxinator.zsh
-
-# Dircolors
-# eval $(dircolors ~/.dircolors)
-
-# Keybindings
-bindkey -M vicmd 'K' run-help
-bindkey -M viins ',,' vi-cmd-mode
-# bindkey -M viins 'K' run-help
-
-# This binds Ctrl-O to ranger-cd:
-#zle -N ranger-cd
-#bindkey '^o' ranger-cd
-#zle -N terminal-clock
-#bindkey '^t' terminal-clock
-
-#alias sl="sl -laF"
 
 # Tool options
 export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
@@ -268,15 +188,25 @@ fi
 # pyenv-virtualenv (for managing virtualenvs for different python versions)
 if [[ $(program_installed pyenv) == 1 ]]; then
     export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-    eval "$(pyenv init -)"
+    eval "$(pyenv init --path)"
     # eval "$(pyenv virtualenv-init -)"
 fi
+
+# oh-my-zsh plugins (must come after all initialization above)
+plugins=(archlinux colored-man-pages colorize command-not-found cp docker docker-compose fzf git history history-substring-search nmap npm pip poetry pyenv macos rsync snap ssh ssh-agent sudo systemd terraform thefuck tmux tmuxinator vi-mode virtualenv yarn zsh-interactive-cd zsh-navigation-tools)
 
 # Local overrides
 if [ -f $HOME/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
 
+# Fun stupid opt-in stuff on new shell. Enable these in .profile.local
+if [[ $(program_installed neofetch) == 1 ]]; then
+    if [ ! -n "$NO_NEOFETCH" ] || [ "$NO_NEOFETCH" -eq 1 ]; then 
+    else
+        neofetch
+    fi
+fi
 if [ -n "$NO_ZSHRC_COWSAY" ] && [ ! "$NO_ZSHRC_COWSAY" -eq 1 ]; then
     # Make a random (cow?) with a random face say something
     fortune -a | fmt -80 -s | cowthink -$(shuf -n 1 -e b d g p s t w y)  -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n

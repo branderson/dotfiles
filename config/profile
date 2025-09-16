@@ -1,29 +1,96 @@
-source "$HOME/.zsh_functions"
-if [[ $OSTYPE == 'darwin'* ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+# Override in .profile.local for custom repo
+DOTFILES_LOCAL_REPOSITORY="https://gitbox.branderson.io/branderson/dotfiles-local"
+
+# Programs expected to be installed by tools
+# These are the name on $PATH, not the package name
+dependencies=(
+    tree
+    nvim
+    ag
+    fzf
+    node
+    cowsay
+    fortune
+)
+
+#PATHs
+if [ -d "$HOME/bin" ]; then
+    export PATH="$PATH:/$HOME/bin"
 fi
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$PATH:/$HOME/.local/bin"
+fi
+if [ -d /usr/games ]; then
+    export PATH="$PATH:/usr/games"
+fi
+if [ -d /opt/homebrew/bin ]; then
+    export PATH="$PATH:/opt/homebrew/bin"
+fi
+if [ -d /opt/homebrew/opt/python@3.13/libexec/bin ]; then
+    export PATH="$PATH:/opt/homebrew/opt/python@3.13/libexec/bin"
+fi
+if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
+    export PATH="$PATH:/opt/homebrew/opt/coreutils/libexec/gnubin"
+fi
+
+# Load dotfiles directory into DOTFILES_DIR
+# Dotfiles directory should be in environment or ~/.dotfiles-dir
+if [ -f "$HOME/.dotfiles-dir" ]; then
+    source "$HOME/.dotfiles-dir"
+fi
+
+source "$HOME/.bash_functions"
+
+# Set up brew if on macOS
+if [[ $OSTYPE == 'darwin'* ]]; then
+    if [ -f /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+fi
+
+# Prefer alacritty terminal if installed
 if [[ $(program_installed alacritty) == 1 ]]; then
     export TERMINAL=alacritty
 fi
+
+# Prefer neovim, if installed
 if [[ $(program_installed nvim) == 1 ]]; then
     export EDITOR=nvim
     alias vim=nvim
 fi
+
+# alias make='nocorrect make'
+# alias git='nocorrect git'
+# Crontab
+#alias crontab-e='vim ~/.crontab && crontab ~/.crontab'
+
+#alias sl="sl -laF"
+
+# Set up ssh-agent socket under XDG
 if [ -d "$XDG_RUNTIME_DIR" ]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
 
+# Put flatpak apps in XDG
 if [[ $(program_installed flatpak) == 1 ]]; then
-    XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
+    export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 fi
 
-public_keys=($(find "$HOME/.ssh/" -maxdepth 1 -name "*.pub"))
-if [ ${#public_keys[@]} > 0 ]; then
-    if [[ $(uname -s) == Linux* ]]; then
-        # Add SSH keys only if not already present
-        ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_ed25519.pub"  | awk '{print $2}'` || ssh-add -k
-    elif [[ $(uname -s) == Darwin* ]]; then
-        # Add SSH keys only if not already present
-        ssh-add -l | grep -q `ssh-keygen -lf "$HOME/.ssh/id_rsa.pub"  | awk '{print $2}'` || ssh-add --apple-use-keychain
-    fi
+# pyenv paths
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+# Add SSH keys to agent if not already added
+## Find existing keys, supporting one layer of folder organization
+public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
+if [ ${#public_keys[@]} -gt 0 ]; then
+    for public_key in "${public_keys[@]}"; do
+        if [[ $(uname -s) == Linux* ]]; then
+            # Add SSH keys only if not already present
+            ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
+        elif [[ $(uname -s) == Darwin* ]]; then
+            # Add SSH keys only if not already present
+            ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
+        fi
+    done
 fi

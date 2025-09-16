@@ -195,7 +195,7 @@ function link_dotfiles {
     for file in $home_files; do
         if [[ -f $file || -d $file ]]; then
             # Don't skip if not interactive as initial files often exist that should be replaced
-            if [[ (-f ~/.$file || -d ~/.$file) && "$interactive" -eq 1 ]]; then
+            if [[ (-L "~/.$file" || -f ~/.$file || -d ~/.$file) && "$interactive" -eq 1 ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.$file)"
@@ -206,7 +206,7 @@ function link_dotfiles {
     for file in $configs; do
         if [[ -f $file || -d $file ]]; then
             # TODO: Check if file is a symlink and only skip if it is, otherwise rename and replace
-            if [[ -f ~/.config/$file || -d ~/.config/$file ]]; then
+            if [[ -L ~/.config/$file || -f ~/.config/$file || -d ~/.config/$file ]]; then
                 echo "Skipping: $file because ~/.config/$file already exists"
             else
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
@@ -216,7 +216,7 @@ function link_dotfiles {
     done
     for file in $local_home_templates; do
         if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
-            if [[ -f ~/.$file || -d ~/.$file ]]; then
+            if [[ -L "~/.$file" || -f ~/.$file || -d ~/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
@@ -236,7 +236,7 @@ function link_dotfiles {
     done
     for file in $systemd_services; do
         if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
-            if [[ -f ~/.config/systemd/user/$file || -d ~/.config/systemd/user/$file ]]; then
+            if [[ -L "~/.config/systemd/user/$file" || -f ~/.config/systemd/user/$file || -d ~/.config/systemd/user/$file ]]; then
                 echo "Skipping: $file because ~/.config/systemd/user/$file already exists"
             else
                 echo "Linking: $file ($config_dir/systemd/user/$file -> ~/.config/systemd/user/$file)"
