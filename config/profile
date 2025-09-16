@@ -49,12 +49,12 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 fi
 
 # Prefer alacritty terminal if installed
-if [[ $(program_installed alacritty) == 0 ]]; then
+if program_installed alacritty; then
     export TERMINAL=alacritty
 fi
 
 # Prefer neovim, if installed
-if [[ $(program_installed nvim) == 0 ]]; then
+if program_installed nvim; then
     export EDITOR=nvim
     alias vim=nvim
 fi
@@ -72,7 +72,7 @@ if [ -d "$XDG_RUNTIME_DIR" ] && [ -z "$SSH_AUTH_SOCK" ]; then
 fi
 
 # Put flatpak apps in XDG
-if [[ $(program_installed flatpak) == 0 ]]; then
+if program_installed flatpak; then
     export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 fi
 

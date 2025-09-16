@@ -4,7 +4,7 @@ function program_installed {
 
     type $1 >/dev/null 2>&1 || { local return_=1; }
 
-    echo "$return_"
+    return "$return_"
 }
 
 function list_processes() {

@@ -32,14 +32,19 @@ if [ -f $HOME/.screen-256color-italic.terminfo ]; then
 fi
 
 # Use neovim where available
-if [[ $(program_installed neovim) == 0 ]]; then
+if program_installed neovim; then
     alias vim='nvim'
 fi
 
 # fzf fuzzy finder
-if [[ $(program_installed fzf) == 0 ]]; then
+if program_installed fzf; then
     # TODO: This is broken when fzf is old, should include a local copy
     eval "$(fzf --bash)"
+fi
+
+# aactivator
+if program_installed aactivator; then
+    eval "$(aactivator init)"
 fi
 
 # # Preferred editor for local and remote sessions
@@ -61,4 +66,9 @@ done
 if [ $found -eq 0 ]; then
     echo "Powerline binding not found."
     echo "Please set \$POWERLINE_ROOT in .profile.local"
+fi
+
+# Local overrides
+if [ -f $HOME/.bashrc_local ]; then
+    source $HOME/.bashrc_local
 fi

@@ -28,7 +28,7 @@ if [ ! -d "$wallpapers_path" ]; then
     exit 1
 fi
 
-if [ $(program_installed xrandr) == 0 ]; then
+if program_installed xrandr; then
     display_count="$(xrandr | grep ' connected ' | wc -l)"
     # Get the selected resolution for each display
     display_resolutions="$(xrandr | grep '*' | awk '{ print $1}')"

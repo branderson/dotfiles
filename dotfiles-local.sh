@@ -38,6 +38,7 @@ snap
 "
 
 home_files="
+bashrc_local
 zshrc_local
 profile.local
 tmux_local.conf
@@ -56,7 +57,7 @@ fi
 
 cd "$locals_dir"
 
-if [[ $(program_installed git) == 1 ]]; then
+if ! program_installed git; then
     echo "git not installed, please install and rerun"
     exit 1
 fi

@@ -4,7 +4,7 @@ function program_installed {
 
     type $1 >/dev/null 2>&1 || { local return_=1; }
 
-    echo "$return_"
+    return "$return_"
 }
 
 # Returns 0 if service is enabled and 1 otherwise
@@ -13,7 +13,7 @@ function service_enabled {
 
     systemctl is-enabled --quiet $1 || { local return_=1; }
 
-    echo "$return_"
+    return "$return_"
 }
 
 # Returns 1 if user service is enabled and 0 otherwise
@@ -22,5 +22,5 @@ function user_service_enabled {
 
     systemctl --user is-enabled --quiet $1 || { local return_=1; }
 
-    echo "$return_"
+    return "$return_"
 }
