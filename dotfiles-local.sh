@@ -100,6 +100,7 @@ else
         git checkout -b "$branch_name"
     fi
 fi
+echo ""
 
 # Move any existing local installation script into repo and symlink out
 skip=0
@@ -122,10 +123,13 @@ if [ -f "$DOTFILES_DIR/install_local.sh" ]; then
 fi
 if [[ $skip == 0 ]] && [[ -f "$locals_dir/install_local.sh" ]]; then
     ln -s "$locals_dir/install_local.sh" "$DOTFILES_DIR/install_local.sh"
+    echo ""
 elif [[ skip == 0 ]]; then
-    echo "No install_local.sh script found in $locals_dir or $DOTFILES_DIR. Skipping"
+    echo "No install_local.sh script found in dotfiles-local or dotfiles. Skipping"
+    echo ""
+elif [[ $skip == 1 ]]; then
+    echo ""
 fi
-echo ""
 
 # Move any existing local packages into repo and symlink out
 while IFS= read -r package_manager || [[ -n $package_manager ]]; do
@@ -154,8 +158,10 @@ while IFS= read -r package_manager || [[ -n $package_manager ]]; do
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/packages/$package_manager.local" ]]; then
         ln -s "$locals_dir/packages/$package_manager.local" "$dotfiles_packages_root/$package_manager.local"
         echo ""
-    elif [[ skip == 0 ]]; then
-        echo "No $package_manager.local found in $locals_dir/packages or $dotfiles_packages_root. Skipping"
+    elif [[ $skip == 0 ]]; then
+        echo "No $package_manager.local found in dotfiles-local/packages or dotfiles/packages. Skipping"
+        echo ""
+    elif [[ $skip == 1 ]]; then
         echo ""
     fi
 done < <(printf '%s' "$package_lists")
@@ -190,8 +196,10 @@ while IFS= read -r config || [[ -n $config ]]; do
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.$config"
         echo ""
-    elif [[ skip == 0 ]]; then
-        echo "No $config file found in $locals_dir/config or $HOME . Skipping"
+    elif [[ $skip == 0 ]]; then
+        echo "No $config file found in dotfiles-local/config or ~/. Skipping"
+        echo ""
+    elif [[ $skip == 1 ]]; then
         echo ""
     fi
 done < <(printf '%s' "$home_files")
@@ -225,17 +233,18 @@ while IFS= read -r config || [[ -n $config ]]; do
     if [[ $skip == 0 ]] && [[ -f "$locals_dir/config/$config" ]]; then
         ln -s "$locals_dir/config/$config" "$HOME/.config/$config"
         echo ""
-    elif [[ skip == 0 ]]; then
-        echo "No $config file found in $locals_dir/config or $HOME/.config . Skipping"
+    elif [[ $skip == 0 ]]; then
+        echo "No $config file found in dotfiles-local/config or ~/.config . Skipping"
+        echo ""
+    elif [[ $skip == 1 ]]; then
         echo ""
     fi
 done < <(printf '%s' "$configs")
 
 # Check if git repo has changes
 if [[ `git status --porcelain` ]]; then
-  # Changes found
+    # Changes found
     # sync dotfiles to git
-    echo ""
     if [ "$interactive" == 0 ]; then
         echo "Syncing local dotfiles to git branch. [$branch_name]"
     else
@@ -250,8 +259,8 @@ if [[ `git status --porcelain` ]]; then
     git push origin "$branch_name"
     echo "dotfiles-local synced to git. [$branch_name]"
 else
-  # No changes found
-  echo "No changes found, not pushing branch to git remote"
+    # No changes found
+    echo "No changes found, not pushing branch to git remote"
 fi
 
 cd -
