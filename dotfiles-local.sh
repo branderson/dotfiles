@@ -33,6 +33,8 @@ snap
 home_files="
 zshrc_local
 profile.local
+tmux_local.conf
+nvim_local.vimrc
 "
 
 configs="
