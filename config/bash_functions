@@ -90,51 +90,49 @@ function check_dotfiles_version {
     fi
 }
 
-function set_python_roots {
-    declare -ag PYTHON_ROOTS=()
+function python_roots {
     if [ -d $HOME/.local/lib/ ]; then
         for directory in $(echo $HOME/.local/lib/python*); do
-            PYTHON_ROOTS+=($directory)
+            echo "$directory"
         done
     fi
     if [ -d $HOME/.local/share/pipx/venvs/powerline-status/lib/ ]; then
         for directory in $(echo $HOME/.local/share/pipx/venvs/powerline-status/lib/python*); do
-            PYTHON_ROOTS+=($directory)
+            echo "$directory"
         done
     fi
     if [ -d $HOME/.local/pipx/venvs/powerline-status/lib/ ]; then
         for directory in $(echo $HOME/.local/pipx/venvs/powerline-status/lib/python*); do
-            PYTHON_ROOTS+=($directory)
+            echo "$directory"
         done
     fi
     if [ -d /usr/lib/ ]; then
         for directory in $(echo /usr/lib/python*); do
-            PYTHON_ROOTS+=($directory)
+            echo "$directory"
         done
     fi
     if [ -d /usr/local/lib/ ]; then
         # TODO: Make this not print warnings when the directory doesn't exit
         for directory in $(echo /usr/local/lib/python*); do
-            PYTHON_ROOTS+=($directory)
+            echo "$directory"
         done
     fi
 }
 
-function set_powerline_bash_sources {
-    set_python_roots
+function powerline_bash_sources {
+    # To support bash 3.2 on macOS, can't use declare -ag so workaround with capturing output
+    PYTHON_ROOTS=( $(python_roots) )
     # Powerline plugin from distribution agnostic install directory
     ## Assemble list of possible sources
-    declare -ag POWERLINE_BASH_SOURCES=()
     if [[ -a $POWERLINE_ROOT/bindings/bash/powerline.sh ]]; then
         # Prefer user-set powerline directory
-        POWERLINE_BASH_SOURCES+=$POWERLINE_ROOT/bindings/bash/powerline.sh
+        echo "$POWERLINE_ROOT/bindings/bash/powerline.sh"
     fi
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
-    for index in ${!PYTHON_ROOTS[@]}; do
-        directory="${PYTHON_ROOTS[index]}"
+    for directory in "${PYTHON_ROOTS[@]}"; do
         if [ -d "$directory" ]; then
-            POWERLINE_BASH_SOURCES+=("$directory"/site-packages/powerline/bindings/bash/powerline.sh)
-            POWERLINE_BASH_SOURCES+=("$directory"/dist-packages/powerline/bindings/bash/powerline.sh)
+            echo "$directory"/site-packages/powerline/bindings/bash/powerline.sh
+            echo "$directory"/dist-packages/powerline/bindings/bash/powerline.sh
         fi
     done
 }

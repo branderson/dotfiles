@@ -52,10 +52,9 @@ export EDITOR='vim'
 
 # Powerline
 if program_installed powerline; then
-    set_powerline_bash_sources
+    POWERLINE_BASH_SOURCES=( $(powerline_bash_sources) )
     found=0
-    for index in ${!POWERLINE_BASH_SOURCES[@]}; do
-        file="${POWERLINE_BASH_SOURCES[index]}"
+    for file in "${POWERLINE_BASH_SOURCES[@]}"; do
         if [[ -a $file ]]; then
             source $file
             found=1
