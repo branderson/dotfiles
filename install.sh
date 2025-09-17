@@ -302,15 +302,17 @@ function install_aur() {
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 echo "Installing AUR programs from package lists."
+                to_install=""
                 while IFS= read -r program || [[ -n $program ]]; do
                     # Check for comment or whitespace
                     if [[ "$program" == '#'* || -z "${program// }" ]]; then
                         continue
                     fi
                     if ! program_installed $program; then
-                        yay -Sqa $pacman_args $program
+                        to_install+="$program"
                     fi
                 done < <(printf '%s' "$aur")
+                yay -Sqa $pacman_args "$to_install"
             fi
         fi
     fi
@@ -319,6 +321,7 @@ function install_aur() {
 function install_programs() {
     if program_installed pacman; then
         sudo pacman -Syuq
+        to_install=""
         # https://superuser.com/a/284226
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -326,31 +329,36 @@ function install_programs() {
                 continue
             fi
             if ! program_installed $program; then
-                sudo pacman -Sq $pacman_args $program
+                to_install+="$program "
             fi
         done < <(printf '%s' "$arch")
+        sudo pacman -Sq $pacman_args "$to_install"
     elif program_installed apt-get; then
         sudo apt-get update
+        to_install=""
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                sudo apt-get install $program
+                to_install+="$program "
             fi
         done < <(printf '%s' "$apt")
+        sudo apt-get install -y $to_install
     elif program_installed brew; then
         brew update
+        to_install=""
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                brew install $program
+                to_install+="$program "
             fi
         done < <(printf '%s' "$brew")
+        brew install $to_install
     else
         echo "Cannot install programs, no compatible package manager."
     fi
@@ -369,25 +377,29 @@ function install_programs() {
     fi
     if program_installed gem; then
         gem update
+        to_install=""
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            gem install $program
+            to_install+="$program "
         done < <(printf '%s' "$gem")
+        gem install $to_install
     fi
     if program_installed pipx; then
         pipx upgrade-all
+        to_install=""
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                pipx install $program
+                to_install+="$program "
             fi
         done < <(printf '%s' "$pipx")
+        pipx install $to_install
     fi
 }
 
