@@ -5,6 +5,17 @@ source "$HOME/.profile"
 if [ -f "$HOME/.profile.local" ]; then
     source "$HOME/.profile.local"
 fi
+if [ -f "$HOME/.dotfiles-dir" ]; then
+    source "$HOME/.dotfiles-dir"
+else
+    echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
+    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
+    exit 1
+fi
+if [ -z "$DOTFILES_LOCAL_REPOSITORY" ]; then
+    echo "Local dotfiles repository not set. Please set this in .profile"
+    exit 1
+fi
 source "$DOTFILES_DIR/functions.sh"
 
 # Check if running interactively
@@ -14,12 +25,6 @@ if [ -t 0 ]; then
 else
     # Non-interactive session (e.g. Coder workspace initialization)
     interactive=0
-fi
-if [ -f "$HOME/.dotfiles-dir" ]; then
-    source "$HOME/.dotfiles-dir"
-else
-    echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
-    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
 fi
 
 dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles-local repository directory
@@ -51,7 +56,8 @@ i3/config.local
 
 # Clone dotfiles_local if not present
 if [ ! -d "$locals_dir" ]; then
-    echo "Cloning local dotfiles repository: $DOTFILES_LOCAL_REPOSITORY to $locals_dir"
+    echo "Cloning local dotfiles repository:"
+    echo "$DOTFILES_LOCAL_REPOSITORY"
     git clone "$DOTFILES_LOCAL_REPOSITORY" "$locals_dir"
 fi
 

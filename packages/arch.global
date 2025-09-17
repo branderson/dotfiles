@@ -20,6 +20,7 @@ htop
 # ag - fuzzy search anywhere, `,mag` in nvim!
 the_silver_searcher
 fzf
+thefuck
 tree
 arandr
 nodejs

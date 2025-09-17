@@ -257,20 +257,35 @@ function link_dotfiles {
 }
 
 function link_dotfiles_local() {
-    cd "$dir/dependencies/dotfiles-local"
-    # Check if on main branch
-    current_branch=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$current_branch" == "main" ]; then
+    if [ -d "$dir/dependencies/dotfiles-local" ]; then
+        cd "$dir/dependencies/dotfiles-local"
+        # Check if on main branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$current_branch" == "main" ]; then
+            if [ "$interactive" == 0 ]; then
+                echo "Local dotfiles repo on branch $current_branch and tool running non-interactively."
+                echo "Setting branch to $(hostname)"
+                current_branch=$(hostname)
+                # echo "Please set branch by running:"
+                # echo "> $dir/dotfiles-local.sh {machine-name}"
+                # return
+            fi
+        fi
+        cd -
+    else
+        echo "Local dotfiles repo not found. Cloning into dependencies"
         if [ "$interactive" == 0 ]; then
-            echo "Local dotfiles repo on branch 'main' and tool running non-interactively."
-            echo "Setting branch to $(hostname)"
-            current_branch=$(hostname)
-            # echo "Please set branch by running:"
-            # echo "> $dir/dotfiles-local.sh {machine-name}"
-            # return
+            echo "Tool running non-interactively. Setting branch to $(hostname)"
+        else
+            echo -n "What machine name would you like to use for this branch? [$(hostname)] "
+            read response
+            if [ -z "$response" ]; then
+                current_branch=$(hostname)
+            else
+                current_branch="$response"
+            fi
         fi
     fi
-    cd -
     echo ""
     "$dir"/dotfiles-local.sh "$current_branch"
 }

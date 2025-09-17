@@ -3,6 +3,7 @@ coreutils
 tree
 ag
 fzf
+thefuck
 node
 cowsay
 fortune
