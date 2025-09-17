@@ -42,6 +42,11 @@ if program_installed fzf; then
     eval "$(fzf --bash)"
 fi
 
+# thefuck command correction
+if program_installed fuck; then
+    eval "$(thefuck --alias)"
+fi
+
 # aactivator
 if program_installed aactivator; then
     eval "$(aactivator init)"

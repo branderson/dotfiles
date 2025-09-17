@@ -186,6 +186,11 @@ if program_installed fzf; then
     source <(fzf --zsh)
 fi
 
+# thefuck command correction
+if program_installed fuck; then
+    eval "$(thefuck --alias)"
+fi
+
 # pyenv-virtualenv (for managing virtualenvs for different python versions)
 if program_installed pyenv; then
     export PYENV_VIRTUALENV_DISABLE_PROMPT=1
