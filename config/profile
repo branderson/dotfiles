@@ -59,6 +59,11 @@ if program_installed nvim; then
     alias vim=nvim
 fi
 
+if program_installed powerline; then
+    # Make powerline support Python virtualenvs
+    export POWERLINE_COMMAND="$HOME/dotfiles/bin/powerline-wrapper.sh"
+fi
+
 # alias make='nocorrect make'
 # alias git='nocorrect git'
 # Crontab

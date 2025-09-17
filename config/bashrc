@@ -47,25 +47,25 @@ if program_installed aactivator; then
     eval "$(aactivator init)"
 fi
 
-# # Preferred editor for local and remote sessions
+# Preferred editor for local and remote sessions
 export EDITOR='vim'
 
 # Powerline
-set_powerline_bash_sources
-found=0
-for index in ${!POWERLINE_BASH_SOURCES[@]}; do
-    file="${POWERLINE_BASH_SOURCES[index]}"
-    if [[ -a $file ]]; then
-        # echo "Sourcing Powerline binding: $file"
-        # TODO: This is broken when powerline not in chosen python path
-        source $file
-        found=1
-        break
+if program_installed powerline; then
+    set_powerline_bash_sources
+    found=0
+    for index in ${!POWERLINE_BASH_SOURCES[@]}; do
+        file="${POWERLINE_BASH_SOURCES[index]}"
+        if [[ -a $file ]]; then
+            source $file
+            found=1
+            break
+        fi
+    done
+    if [ $found -eq 0 ]; then
+        echo "Powerline binding not found."
+        echo "Please set \$POWERLINE_ROOT in .profile.local"
     fi
-done
-if [ $found -eq 0 ]; then
-    echo "Powerline binding not found."
-    echo "Please set \$POWERLINE_ROOT in .profile.local"
 fi
 
 # Local overrides
