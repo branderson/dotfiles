@@ -130,6 +130,10 @@ function set_powerline_zsh_sources {
         # Prefer user-set powerline directory
         POWERLINE_ZSH_SOURCES+=$POWERLINE_ROOT/bindings/zsh/powerline.zsh
     fi
+    if [ -d /usr/share/powerline ]; then
+        # Apt installs here
+        echo "/usr/share/powerline/bindings/bash/powerline.sh"
+    fi
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
     for directory in $PYTHON_ROOTS; do
         #for directory in $(echo $template); do

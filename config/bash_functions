@@ -128,6 +128,10 @@ function powerline_bash_sources {
         # Prefer user-set powerline directory
         echo "$POWERLINE_ROOT/bindings/bash/powerline.sh"
     fi
+    if [ -d /usr/share/powerline ]; then
+        # Apt installs here
+        echo "/usr/share/powerline/bindings/bash/powerline.sh"
+    fi
     # If $POWERLINE_ROOT not set or set incorrectly, try default locations
     for directory in "${PYTHON_ROOTS[@]}"; do
         if [ -d "$directory" ]; then
