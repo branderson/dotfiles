@@ -182,6 +182,7 @@ fi
 
 # fzf fuzzy finder
 if program_installed fzf; then
+    # TODO: This is broken on debian fzf (no --zsh)
     source <(fzf --zsh)
 fi
 
