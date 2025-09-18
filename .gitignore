@@ -1,6 +1,7 @@
 existing
 minimal
 install_local.sh
+bin/dotfiles-install
 config/i3/config.de
 config/i3/config.local
 config/gtk-3.0/bookmarks

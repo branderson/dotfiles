@@ -17,8 +17,6 @@
 #
 # =================================================================================================
 
-# TODO: Put installer script in path
-#
 # TODO: sed -i -e s/AddKeysToAgent.*$/AddKeysToAgent yes/g' .ssh/config
 # Create the file if doesn't exist
 # Add the line if it's not present
@@ -72,18 +70,35 @@
 # Then go into iTerm2 settings and set Source Code Pro for Powerline as the font
 
 dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles repository directory
-config_dir="$dir"/config
-packages_dir="$dir"/packages
+# TODO: Migrate this to an environment variable in .profile.local
+if [ ! -f "$HOME/.dotfiles-dir" ]; then
+    if [ ! -f "$dir/install.sh" ] || [ ! -f "$dir/dotfiles-local.sh" ]; then
+        echo "Please run this script initially from within the dotfiles directory"
+        exit 1
+    fi
+    echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-dir"
+    echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-dir"
+    echo ""
+else
+    echo "Loading existing $HOME/.dotfiles-dir"
+    echo ""
+fi
+source "$HOME/.dotfiles-dir"
+unset dir
+config_dir="$DOTFILES_DIR"/config
+packages_dir="$DOTFILES_DIR"/packages
 platform=$(uname)
 pacman_args="--noconfirm --needed"
+
 restart_needed=0
 interactive=0
 
-source "$dir"/functions.sh
-# TODO: Migrate this to an environment variable in .profile.local
-echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-dir"
-echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-dir"
-echo ""
+source "$DOTFILES_DIR"/functions.sh
+if [ ! -L $DOTFILES_DIR/bin/dotfiles-install ]; then
+    echo "Adding this script to PATH. 'dotfiles-install' to run in the future"
+    ln -s "$DOTFILES_DIR/install.sh" "$DOTFILES_DIR/bin/dotfiles-install"
+    echo ""
+fi
 
 # Files and directories to link to home directory
 home_files="
@@ -244,8 +259,8 @@ function link_dotfiles {
 }
 
 function link_dotfiles_local() {
-    if [ -d "$dir/dependencies/dotfiles-local" ]; then
-        cd "$dir/dependencies/dotfiles-local"
+    if [ -d "$DOTFILES_DIR/dependencies/dotfiles-local" ]; then
+        cd "$DOTFILES_DIR/dependencies/dotfiles-local"
         # Check if on main branch
         current_branch=$(git rev-parse --abbrev-ref HEAD)
         if [ "$current_branch" == "main" ]; then
@@ -254,7 +269,7 @@ function link_dotfiles_local() {
                 echo "Setting branch to $(hostname)"
                 current_branch=$(hostname)
                 # echo "Please set branch by running:"
-                # echo "> $dir/dotfiles-local.sh {machine-name}"
+                # echo "> $DOTFILES_DIR/dotfiles-local.sh {machine-name}"
                 # return
             fi
         fi
@@ -274,7 +289,7 @@ function link_dotfiles_local() {
         fi
     fi
     echo ""
-    "$dir"/dotfiles-local.sh "$current_branch"
+    "$DOTFILES_DIR"/dotfiles-local.sh "$current_branch"
 }
 
 function install_aur() {
@@ -475,7 +490,7 @@ function setup_system_configs() {
         sudo systemctl enable --now bluetooth.service
     fi
 
-    if program_installed syncthing && ! service_enabled bluetooth.service; then
+    if program_installed syncthing && ! service_enabled syncthing.service; then
         echo
         echo "Enabling Syncthing"
         systemctl enable --user --now syncthing.service
@@ -590,6 +605,9 @@ function setup_plasma_i3() {
         # TODO: echo the command to install plasma
         return 1
     fi
+
+    echo "Copying: startplasma-sway-wayland ($config_dir/bin/startplasma-sway-wayland -> /usr/local/bin/)"
+    sudo cp $config_dir/bin/startplasma-sway-wayland /usr/local/bin/
 
     echo "Configuring i3"
     if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
@@ -716,7 +734,7 @@ function setup_coder() {
 }
 
 function push_dotfiles() {
-    cd "$dir"
+    cd "$DOTFILES_DIR"
     echo "Pushing dotfiles"
     git add -A
     git commit
@@ -724,13 +742,13 @@ function push_dotfiles() {
 }
 
 function update_dotfiles() {
-    cd "$dir"
+    cd "$DOTFILES_DIR"
     git pull origin master
 }
 
 function install_local() {
-    if [ -f "$dir/install_local.sh" ]; then
-        "$dir"/install_local.sh
+    if [ -f "$DOTFILES_DIR/install_local.sh" ]; then
+        "$DOTFILES_DIR"/install_local.sh
     else
         echo "No file at install_local.sh, skipping local installation script."
     fi
@@ -764,7 +782,7 @@ function run_interactively() {
     echo "[samba] Set up samba credentials only"
     echo "[ssh] Set up SSH or send public key to host"
     echo "[coder] Set up coder and login to coderbox"
-    echo "[install-local] Run local installer only ($dir/install_local.sh)"
+    echo "[install-local] Run local installer only ($DOTFILES_DIR/install_local.sh)"
     echo "[0] Quit"
     echo ""
     echo "What would you like to do?"
