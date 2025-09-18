@@ -70,7 +70,6 @@
 # Then go into iTerm2 settings and set Source Code Pro for Powerline as the font
 
 dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles repository directory
-source "$DOTFILES_DIR"/functions.sh
 if [ -f "$HOME/.dotfiles-dir" ]; then
     # Migrate legacy config
     echo "Migrating .dotfiles-dir to .dotfiles-config"
@@ -82,8 +81,7 @@ if [ ! -f "$HOME/.dotfiles-config" ]; then
         exit 1
     fi
     echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-config"
-    update_dotfiles_config "DOTFILES_DIR" "$dir"
-    # echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-config"
+    echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-config"
     echo ""
 else
     echo "Loading existing $HOME/.dotfiles-config"
@@ -91,6 +89,7 @@ else
 fi
 source "$HOME/.dotfiles-config"
 unset dir
+source "$DOTFILES_DIR"/functions.sh
 config_dir="$DOTFILES_DIR"/config
 packages_dir="$DOTFILES_DIR"/packages
 platform=$(uname)
