@@ -758,9 +758,9 @@ function run_interactively() {
     if program_installed pacman; then
         echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
     elif program_installed apt; then
-        echo "[complete] Complete install (dotfiles, apt, system-configs, samba, local-install)"
+        echo "[complete] Complete install (dotfiles, apt, system-configs, samba, install-local)"
     elif program_installed brew; then
-        echo "[complete] Complete install (dotfiles, brew, system-configs, samba, local-install)"
+        echo "[complete] Complete install (dotfiles, brew, system-configs, samba,install-local)"
     fi
     echo "[push] Push to github"
     echo "[pull] Pull from github"
@@ -848,6 +848,9 @@ function run_interactively() {
 
 load_package_lists
 
+cd "$DOTFILES_DIR"
+git submodule update --init
+
 # Check if running interactively
 if [ -t 0 ]; then
     # Interactive session
@@ -855,9 +858,9 @@ if [ -t 0 ]; then
     run_interactively
 else
     # Non-interactive session (e.g. Coder workspace initialization)
-    git submodule update --init
     link_dotfiles
     link_dotfiles_local
+    cd -
 fi
 
 
