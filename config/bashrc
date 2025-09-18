@@ -3,10 +3,6 @@ if [ -d "$HOME/.local/bin" ]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
-if [ -f "$HOME/.dotfiles-dir" ]; then
-    source "$HOME/.dotfiles-dir"
-fi
-
 if [ -f "$HOME/.bash_functions" ]; then
     source "$HOME/.bash_functions"
 fi
@@ -57,18 +53,26 @@ export EDITOR='vim'
 
 # Powerline
 if program_installed powerline; then
-    POWERLINE_BASH_SOURCES=( $(powerline_bash_sources) )
-    found=0
-    for file in "${POWERLINE_BASH_SOURCES[@]}"; do
-        if [[ -a $file ]]; then
-            source $file
-            found=1
-            break
+    if [ -n "$POWERLINE_ROOT" ] && \
+        [ -f "$POWERLINE_ROOT" ] && \
+        [ -f "$POWERLINE_ROOT/bindings/bash/powerline.sh" ]; then
+        # Skip lookup if location is known
+        source "$POWERLINE_ROOT/bindings/bash/powerline.sh"
+    else
+        POWERLINE_BASH_SOURCES=( $(powerline_bash_sources) )
+        found=0
+        for file in "${POWERLINE_BASH_SOURCES[@]}"; do
+            if [[ -a $file ]]; then
+                # TODO: Store the POWERLINE_ROOT in .profile.local if found
+                source $file
+                found=1
+                break
+            fi
+        done
+        if [ $found -eq 0 ]; then
+            echo "Powerline binding not found."
+            echo "Please set \$POWERLINE_ROOT in .profile.local"
         fi
-    done
-    if [ $found -eq 0 ]; then
-        echo "Powerline binding not found."
-        echo "Please set \$POWERLINE_ROOT in .profile.local"
     fi
 fi
 

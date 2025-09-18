@@ -13,30 +13,45 @@ dependencies=(
     fortune
 )
 
-#PATHs
-if [ -d "$HOME/bin" ]; then
-    export PATH="$PATH:/$HOME/bin"
-fi
-if [ -d "$HOME/.local/bin" ]; then
-    export PATH="$PATH:/$HOME/.local/bin"
-fi
-if [ -d /usr/games ]; then
-    export PATH="$PATH:/usr/games"
-fi
-if [ -d /opt/homebrew/bin ]; then
-    export PATH="$PATH:/opt/homebrew/bin"
-fi
-if [ -d /opt/homebrew/opt/python@3.13/libexec/bin ]; then
-    export PATH="$PATH:/opt/homebrew/opt/python@3.13/libexec/bin"
-fi
-if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
-    export PATH="$PATH:/opt/homebrew/opt/coreutils/libexec/gnubin"
-fi
-
 # Load dotfiles directory into DOTFILES_DIR
 # Dotfiles directory should be in environment or ~/.dotfiles-dir
 if [ -f "$HOME/.dotfiles-dir" ]; then
     source "$HOME/.dotfiles-dir"
+fi
+
+# PATHs
+## Earlier paths in PATH checked first
+if [ -d /usr/games ]; then
+    export PATH="/usr/games:$PATH"
+fi
+if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]; then
+    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+fi
+if [ -d /opt/homebrew/opt/python@3.13/libexec/bin ]; then
+    export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+fi
+if [ -d /opt/homebrew/bin ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+fi
+## Keep user bin directories first in PATH so they're preferred
+if [ -d "$DOTFILES_DIR/bin" ]; then
+    export PATH="$DOTFILES_DIR/bin:$PATH"
+fi
+## OS-specific binaries
+if [[ $OSTYPE == 'darwin'* ]]; then
+    if [[ -d "$DOTFILES_DIR/macbin" ]]; then
+        export PATH="$DOTFILES_DIR/macbin:$PATH"
+    fi
+elif [[ $OSTYPE == 'linux'* ]]; then
+    if [[ -d "$DOTFILES_DIR/linbin" ]]; then
+        export PATH="$DOTFILES_DIR/linbin:$PATH"
+    fi
+fi
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+if [ -d "$HOME/bin" ]; then
+    export PATH="$HOME/bin:$PATH"
 fi
 
 source "$HOME/.bash_functions"

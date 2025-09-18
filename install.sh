@@ -119,9 +119,6 @@ local_home_templates="
 zshrc_local
 profile.local
 "
-bin="
-startplasma-sway-wayland
-"
 systemd_services="
 "
 xsessions="
@@ -226,16 +223,6 @@ function link_dotfiles {
             else
                 echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
                 ln -s $config_dir/local-templates/$file $HOME/.$file
-            fi
-        fi
-    done
-    for file in $bin; do
-        if [[ -f bin/$file && -x $file ]]; then
-            if [[ -f /usr/local/bin/$file ]]; then
-                echo "Skipping: $file because /usr/local/bin/$file already exists"
-            else
-                echo "Copying: $file ($config_dir/bin/$file -> /usr/local/bin/$file)"
-                sudo cp $config_dir/bin/$file /usr/local/bin/$file
             fi
         fi
     done

@@ -158,18 +158,28 @@ if [ -n "$NO_GIT_CHECK" ] && [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     fi
 fi
 
-set_powerline_zsh_sources
-found=0
-for file in $POWERLINE_ZSH_SOURCES; do
-    if [[ -a $file ]]; then
-        # echo "Sourcing Powerline binding: $file"
-        source $file
-        found=1
-        break
+# Powerline
+if program_installed powerline; then
+    if [ -n "$POWERLINE_ROOT" ] && \
+        [ -f "$POWERLINE_ROOT" ] && \
+        [ -f "$POWERLINE_ROOT/bindings/zsh/powerline.zsh" ]; then
+        # Skip lookup if location is known
+        source "$POWERLINE_ROOT/bindings/zsh/powerline.zsh"
+    else
+        found=0
+        set_powerline_zsh_sources
+        for file in $POWERLINE_ZSH_SOURCES; do
+            if [[ -a $file ]]; then
+                # TODO: Store the POWERLINE_ROOT in .profile.local if found
+                source $file
+                found=1
+                break
+            fi
+        done
+        if [ $found -eq 0 ]; then
+            echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
+        fi
     fi
-done
-if [ $found -eq 0 ]; then
-    echo "Powerline binding not found.\nPlease set \$POWERLINE_ROOT in .profile.local"
 fi
 
 # Tool options
