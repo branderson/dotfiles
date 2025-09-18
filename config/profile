@@ -14,9 +14,9 @@ dependencies=(
 )
 
 # Load dotfiles directory into DOTFILES_DIR
-# Dotfiles directory should be in environment or ~/.dotfiles-dir
-if [ -f "$HOME/.dotfiles-dir" ]; then
-    source "$HOME/.dotfiles-dir"
+# Dotfiles directory should be in environment or ~/.dotfiles-config
+if [ -f "$HOME/.dotfiles-config" ]; then
+    source "$HOME/.dotfiles-config"
 fi
 
 # PATHs

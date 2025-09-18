@@ -70,20 +70,26 @@
 # Then go into iTerm2 settings and set Source Code Pro for Powerline as the font
 
 dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # dotfiles repository directory
-# TODO: Migrate this to an environment variable in .profile.local
-if [ ! -f "$HOME/.dotfiles-dir" ]; then
+source "$DOTFILES_DIR"/functions.sh
+if [ -f "$HOME/.dotfiles-dir" ]; then
+    # Migrate legacy config
+    echo "Migrating .dotfiles-dir to .dotfiles-config"
+    mv "$HOME/.dotfiles-dir" "$HOME/.dotfiles-config"
+fi
+if [ ! -f "$HOME/.dotfiles-config" ]; then
     if [ ! -f "$dir/install.sh" ] || [ ! -f "$dir/dotfiles-local.sh" ]; then
         echo "Please run this script initially from within the dotfiles directory"
         exit 1
     fi
-    echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-dir"
-    echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-dir"
+    echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-config"
+    update_dotfiles_config "DOTFILES_DIR" "$dir"
+    # echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-config"
     echo ""
 else
-    echo "Loading existing $HOME/.dotfiles-dir"
+    echo "Loading existing $HOME/.dotfiles-config"
     echo ""
 fi
-source "$HOME/.dotfiles-dir"
+source "$HOME/.dotfiles-config"
 unset dir
 config_dir="$DOTFILES_DIR"/config
 packages_dir="$DOTFILES_DIR"/packages
@@ -93,7 +99,6 @@ pacman_args="--noconfirm --needed"
 restart_needed=0
 interactive=0
 
-source "$DOTFILES_DIR"/functions.sh
 if [ ! -L $DOTFILES_DIR/bin/dotfiles-install ]; then
     echo "Adding this script to PATH. 'dotfiles-install' to run in the future"
     ln -s "$DOTFILES_DIR/install.sh" "$DOTFILES_DIR/bin/dotfiles-install"

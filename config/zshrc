@@ -149,8 +149,8 @@ if [ -n "$NO_GIT_CHECK" ] && [ ! "$NO_GIT_CHECK" -eq 1 ]; then
     elif [[ $dotfiles_version = 4 ]]; then
         echo "Dotfiles repository at $DOTFILES_DIR has diverged from origin"
     elif [[ $dotfiles_version = 5 ]]; then
-        echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
-        echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
+        echo "Dotfiles repository not set in $HOME/.dotfiles-config"
+        echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-config"
         echo "The following will not work until this is set:"
         echo "  - oh-my-zsh will not be started"
         echo "  - gruvbox color palette will not be loaded"

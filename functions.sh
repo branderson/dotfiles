@@ -24,3 +24,21 @@ function user_service_enabled {
 
     return "$return_"
 }
+
+function update_dotfiles_config {
+    if [ "$#" != 2 ]; then
+        echo "Usage: update_dotfiles_config ENV_VARIABLE VALUE"
+        exit 1
+    fi
+    local var="$1"
+    local val="$2"
+
+    if [ ! -f "$HOME/.dotfiles-config" ]; then
+        touch "$HOME/.dotfiles-config"
+    fi
+    if [ $(cat "$HOME/.dotfiles-config" | grep -Eq "^export $1=.*$") ]; then
+        sed -i "s/$1=.*$/$1=$2/" "$HOME/.dotfiles-config"
+    else
+        echo "export $1=$2" >> "$HOME/.dotfiles-config"
+    fi
+}

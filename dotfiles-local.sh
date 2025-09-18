@@ -5,11 +5,11 @@ source "$HOME/.profile"
 if [ -f "$HOME/.profile.local" ]; then
     source "$HOME/.profile.local"
 fi
-if [ -f "$HOME/.dotfiles-dir" ]; then
-    source "$HOME/.dotfiles-dir"
+if [ -f "$HOME/.dotfiles-config" ]; then
+    source "$HOME/.dotfiles-config"
 else
-    echo "Dotfiles repository not set in $HOME/.dotfiles-dir"
-    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-dir"
+    echo "Dotfiles repository not set in $HOME/.dotfiles-config"
+    echo "Please run ./install.sh in dotfiles repository and exit to create ~/.dotfiles-config"
     exit 1
 fi
 if [ -z "$DOTFILES_LOCAL_REPOSITORY" ]; then
