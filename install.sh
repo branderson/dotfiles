@@ -82,10 +82,8 @@ if [ ! -f "$HOME/.dotfiles-config" ]; then
     fi
     echo "Writing 'export DOTFILES_DIR=$dir' to $HOME/.dotfiles-config"
     echo "export DOTFILES_DIR=$dir" > "$HOME/.dotfiles-config"
-    echo ""
 else
     echo "Loading existing $HOME/.dotfiles-config"
-    echo ""
 fi
 source "$HOME/.dotfiles-config"
 unset dir
@@ -101,7 +99,6 @@ interactive=0
 if [ ! -L $DOTFILES_DIR/bin/dotfiles-install ]; then
     echo "Adding this script to PATH. 'dotfiles-install' to run in the future"
     ln -s "$DOTFILES_DIR/install.sh" "$DOTFILES_DIR/bin/dotfiles-install"
-    echo ""
 fi
 
 # Files and directories to link to home directory
@@ -151,9 +148,7 @@ apt=""
 brew=""
 aur=""
 flatpak=""
-gem="
-xdg
-"
+gem=""
 pipx=""
 
 function load_package_lists() {
@@ -168,6 +163,9 @@ function load_package_lists() {
     fi
     if [[ -f "$packages_dir"/flatpak.global ]]; then
         flatpak="$(<"$packages_dir"/flatpak.global)"
+    fi
+    if [[ -f "$packages_dir"/gem.global ]]; then
+        gem="$(<"$packages_dir"/gem.global)"
     fi
     if [[ -f "$packages_dir"/pipx.global ]]; then
         pipx="$(<"$packages_dir"/pipx.global)"
@@ -190,6 +188,10 @@ function load_package_lists() {
     if [[ -f "$packages_dir"/flatpak.local ]]; then
         flatpak_overrides="$(<"$packages_dir"/flatpak.local)"
         printf -v flatpak "${flatpak}\n${flatpak_overrides}"
+    fi
+    if [[ -f "$packages_dir"/gem.local ]]; then
+        gem_overrides="$(<"$packages_dir"/gem.local)"
+        printf -v gem "${gem}\n${gem_overrides}"
     fi
     if [[ -f "$packages_dir"/pipx.local ]]; then
         pipx_overrides="$(<"$packages_dir"/pipx.local)"
@@ -299,76 +301,84 @@ function link_dotfiles_local() {
 function install_aur() {
     # install AUR programs if on Arch
     if program_installed yay; then
-        echo -n "Do you want to upgrade/install from AUR? (y/n) "
-        read response
-        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            echo "Updating AUR programs."
-            yay -Syua $pacman_args
-            echo -n "Would you like to install all AUR programs from package lists? (y/n) "
-            read response
-            if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-                echo "Installing AUR programs from package lists."
-                to_install=""
-                while IFS= read -r program || [[ -n $program ]]; do
-                    # Check for comment or whitespace
-                    if [[ "$program" == '#'* || -z "${program// }" ]]; then
-                        continue
-                    fi
-                    if ! program_installed $program; then
-                        to_install+="$program"
-                    fi
-                done < <(printf '%s' "$aur")
-                yay -Sqa $pacman_args "$to_install"
+        echo ""
+        echo "Installing and updating AUR packages"
+        yay -Syua $pacman_args
+        to_install=()
+        while IFS= read -r program || [[ -n $program ]]; do
+            # Check for comment or whitespace
+            if [[ "$program" == '#'* || -z "${program// }" ]]; then
+                continue
             fi
+            if ! program_installed $program; then
+                to_install+=("$program")
+            fi
+        done < <(printf '%s' "$aur")
+        if [ "${#to_install[@]}" -gt 0]; then
+            yay -Sqa $pacman_args "${to_install[@]}"
         fi
     fi
 }
 
-function install_programs() {
+function install_main() {
     if program_installed pacman; then
-        sudo pacman -Syuq
-        to_install=""
-        # https://superuser.com/a/284226
+        echo ""
+        echo "Installing and updating pacman packages"
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                to_install+="$program "
+                to_install+=("$program")
             fi
         done < <(printf '%s' "$arch")
-        sudo pacman -Sq $pacman_args "$to_install"
+        if [ "${#to_install[@]}" -gt 0 ]; then
+            sudo pacman -Sq $pacman_args "${to_install[@]}"
+        fi
     elif program_installed apt-get; then
+        echo ""
+        echo "Installing and updating apt packages"
         sudo apt-get update
-        to_install=""
+        to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                to_install+="$program "
+                to_install+=("$program")
             fi
         done < <(printf '%s' "$apt")
-        sudo apt-get install -y $to_install
+        if [ "${#to_install[@]}" -gt 0 ]; then
+            sudo apt-get install -y "${to_install[@]}"
+        fi
     elif program_installed brew; then
+        echo ""
+        echo "Installing and updating brew packages"
         brew update
-        to_install=""
+        to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                to_install+="$program "
+                to_install+=("$program")
             fi
         done < <(printf '%s' "$brew")
-        brew install $to_install
+        if [ "${#to_install[@]}" -gt 0 ]; then
+            brew install "${to_install[@]}"
+        fi
     else
         echo "Cannot install programs, no compatible package manager."
     fi
+}
+
+function install_flatpak() {
     if program_installed flatpak; then
+        echo ""
+        echo "Installing and updating flatpak packages"
         flatpak update --noninteractive --assumeyes
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -381,31 +391,45 @@ function install_programs() {
             flatpak install --noninteractive --assumeyes $remote $app
         done < <(printf '%s' "$flatpak")
     fi
+}
+
+function install_gem() {
     if program_installed gem; then
+        echo ""
+        echo "Installing and updating gem packages"
         gem update
-        to_install=""
+        to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
-            to_install+="$program "
+            to_install+=("$program")
         done < <(printf '%s' "$gem")
-        gem install $to_install
+        if [ "${#to_install[@]}" -gt 0 ]; then
+            gem install "${to_install[@]}"
+        fi
     fi
+}
+
+function install_pipx() {
     if program_installed pipx; then
+        echo ""
+        echo "Installing and updating pipx packages"
         pipx upgrade-all
-        to_install=""
+        to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
                 continue
             fi
             if ! program_installed $program; then
-                to_install+="$program "
+                to_install+=("$program")
             fi
         done < <(printf '%s' "$pipx")
-        pipx install $to_install
+        if [ "${#to_install[@]}" -gt 0 ]; then
+            pipx install "${to_install[@]}"
+        fi
     fi
 }
 
@@ -758,28 +782,32 @@ function install_local() {
     fi
 }
 
-function run_interactively() {
+function list_options() {
     if program_installed pacman; then
-        echo "[complete] Complete install (dotfiles, pacman, aur, system-configs, samba, local-install)"
+        echo "[complete] Complete install (dotfiles, pacman, aur, flatpak, gem, pipx, system-configs, samba, local-install)"
     elif program_installed apt; then
-        echo "[complete] Complete install (dotfiles, apt, system-configs, samba, install-local)"
+        echo "[complete] Complete install (dotfiles, apt, flatpak, gem, pipx, system-configs, samba, install-local)"
     elif program_installed brew; then
-        echo "[complete] Complete install (dotfiles, brew, system-configs, samba,install-local)"
+        echo "[complete] Complete install (dotfiles, brew, flatpak, gem, pipx, system-configs, samba,install-local)"
     fi
-    echo "[push] Push to github"
-    echo "[pull] Pull from github"
     echo "[dotfiles] Install dotfiles only"
     echo "[dotfiles-local] Sync local dotfiles to git"
     if program_installed pacman; then
-        echo "[programs] Install programs (pacman, aur) only"
+        echo "[programs] Install programs from all package managers (pacman, aur, flatpak, gem)"
     elif program_installed apt; then
-        echo "[programs] Install programs (apt) only"
+        echo "[programs] Install programs from all package managers (apt, flatpak, gem)"
+        echo "[programs] Install programs from (apt) only"
     elif program_installed brew; then
+        echo "[programs] Install programs from all package managers (brew, flatpak, gem)"
         echo "[programs] Install programs (brew) only"
     fi
     if program_installed pacman; then
-        echo "[programs-official] Install official repository programs (pacman) only"
-        echo "[aur-only] Install AUR programs only"
+        echo "[programs-main] Install main package manager (pacman) only"
+        echo "[programs-aur] Install AUR programs only"
+    elif program_installed apt; then
+        echo "[programs-main] Install main package manager (apt) only"
+    elif program_installed brew; then
+        echo "[programs-main] Install main package manager (brew) only"
     fi
     echo "[system-configs] Set up system configs only"
     echo "[desktop-environment] Choose a desktop environment"
@@ -787,84 +815,161 @@ function run_interactively() {
     echo "[ssh] Set up SSH or send public key to host"
     echo "[coder] Set up coder and login to coderbox"
     echo "[install-local] Run local installer only ($DOTFILES_DIR/install_local.sh)"
-    echo "[0] Quit"
-    echo ""
-    echo "What would you like to do?"
-    read response
+    echo "[push] Push to gitbox"
+    echo "[pull] Pull from gitbox"
+    echo "[quit] Quit"
+}
+
+function run_interactively() {
+    if [ -n "$1" ]; then
+        # Use the first CLI argument if provided
+        response="$1"
+    fi
+    if [ ! -n "$response" ]; then
+        list_options
+        echo ""
+        echo "What would you like to do?"
+        read response
+    fi
     if [[ $response == "complete" ]]; then
         link_dotfiles
-        install_programs
-        install_aur
+        install_main
+        install_flatpak
+        install_gem
+        install_pipx
+        echo ""
+        echo -n "Do you want to upgrade/install from AUR? (y/n) "
+        read response
+        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+            install_aur
+        fi
         setup_system_configs
         setup_samba
         install_local
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "push" ]]; then
         push_dotfiles
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "pull" ]]; then
         update_dotfiles
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "dotfiles" ]]; then
         link_dotfiles
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "dotfiles-local" ]]; then
         link_dotfiles_local
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "programs" ]]; then
-        install_programs
-        install_aur
+        install_main
+        install_flatpak
+        install_gem
+        install_pipx
         echo ""
-        run_interactively
-    elif [[ $response == "programs-official" ]]; then
-        install_programs
-        echo ""
-        run_interactively
+        echo -n "Do you want to upgrade/install from AUR? (y/n) "
+        read response
+        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+            install_aur
+        fi
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
+    elif [[ $response == "programs-main" ]]; then
+        install_main
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "aur-only" ]]; then
         install_aur
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "system-configs" ]]; then
         setup_system_configs
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "desktop-environment" ]]; then
         choose_desktop_environment
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "samba" ]]; then
         setup_samba
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response = "ssh" ]]; then
         setup_ssh
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response = "coder" ]]; then
         setup_coder
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
     elif [[ $response == "install-local" ]]; then
         install_local
-        echo ""
-        run_interactively
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
+    elif [[ $response == "quit" ]]; then
+        exit 0
+    else
+        if [ "$#" -eq 0 ]; then
+            echo "Error: Please enter one of the supported options"
+            echo ""
+            run_interactively
+        else
+            echo ""
+            echo "Usage: dotfiles-install [option]"
+            echo "Options:"
+            list_options
+            exit 1
+        fi
     fi
 }
 
 load_package_lists
 
 cd "$DOTFILES_DIR"
+
+echo "Updating submodules"
 git submodule update --init
 
 # Check if running interactively
 if [ -t 0 ]; then
     # Interactive session
     interactive=1
-    run_interactively
+    run_interactively "$@"
 else
     # Non-interactive session (e.g. Coder workspace initialization)
     link_dotfiles
     link_dotfiles_local
     cd -
 fi
-
 
