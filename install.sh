@@ -821,6 +821,7 @@ function list_options() {
 }
 
 function run_interactively() {
+    unset response
     if [ -n "$1" ]; then
         # Use the first CLI argument if provided
         response="$1"
