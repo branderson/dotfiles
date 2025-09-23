@@ -58,11 +58,12 @@ fi
 missing_dependencies=()
 for dependency in "${dependencies[@]}"; do
     if ! program_installed $dependency; then
-        echo "Found missing dependency $dependency"
-        # missing_dependencies+="$dependency"
+        missing_dependencies+="$dependency"
     fi
 done
-# echo "Missing dependencies: $missing_dependencies"
+if [ "${#missing_dependencies[@]}" -gt 0 ]; then
+    echo "Missing dependencies: ${missing_dependencies[@]}"
+fi
 
 # Dircolors
 # eval $(dircolors ~/.dircolors)
