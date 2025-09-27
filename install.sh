@@ -324,6 +324,7 @@ function install_main() {
     if program_installed pacman; then
         echo ""
         echo "Installing and updating pacman packages"
+        sudo pacman -Syu
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
             if [[ "$program" == '#'* || -z "${program// }" ]]; then
@@ -340,6 +341,7 @@ function install_main() {
         echo ""
         echo "Installing and updating apt packages"
         sudo apt-get update
+        sudo apt-get upgrade
         to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -357,6 +359,7 @@ function install_main() {
         echo ""
         echo "Installing and updating brew packages"
         brew update
+        brew upgrade
         to_install=()
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
@@ -784,7 +787,11 @@ function install_local() {
 
 function list_options() {
     if program_installed pacman; then
-        echo "[complete] Complete install (dotfiles, pacman, aur, flatpak, gem, pipx, system-configs, samba, local-install)"
+        if program_installed yay; then
+            echo "[complete] Complete install (dotfiles, pacman, aur, flatpak, gem, pipx, system-configs, samba, local-install)"
+        else
+            echo "[complete] Complete install (dotfiles, pacman, flatpak, gem, pipx, system-configs, samba, local-install)"
+        fi
     elif program_installed apt; then
         echo "[complete] Complete install (dotfiles, apt, flatpak, gem, pipx, system-configs, samba, install-local)"
     elif program_installed brew; then
@@ -803,7 +810,9 @@ function list_options() {
     fi
     if program_installed pacman; then
         echo "[programs-main] Install main package manager (pacman) only"
-        echo "[programs-aur] Install AUR programs only"
+        if program_installed yay; then
+            echo "[programs-aur] Install AUR programs only"
+        fi
     elif program_installed apt; then
         echo "[programs-main] Install main package manager (apt) only"
     elif program_installed brew; then
@@ -880,11 +889,13 @@ function run_interactively() {
         install_flatpak
         install_gem
         install_pipx
-        echo ""
-        echo -n "Do you want to upgrade/install from AUR? (y/n) "
-        read response
-        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            install_aur
+        if program_installed yay; then
+            echo ""
+            echo -n "Do you want to upgrade/install from AUR? (y/n) "
+            read response
+            if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+                install_aur
+            fi
         fi
         if [ "$#" -eq 0 ]; then
             echo ""

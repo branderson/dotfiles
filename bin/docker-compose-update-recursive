@@ -1,0 +1,13 @@
+#!/bin/bash
+
+find . -type f -name "docker-compose.y*ml" -exec dirname {} \; | while read dir
+do
+  if [[ "$dir" != *"DEPRECATED"* ]] && [[ "$dir" != *"MIGRATED"* ]] ; then
+      pushd "$dir"
+      docker compose down
+      docker compose pull
+      docker compose up -d
+      popd
+  fi
+done
+
