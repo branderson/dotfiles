@@ -436,6 +436,52 @@ function install_pipx() {
     fi
 }
 
+function install_gpu_monitoring() {
+    if program_installed nvidia-smi; then
+        if ! id "nvidia_gpu_exporter" >/dev/null 2>&1; then
+            echo 'Creating nvidia_gpu_exporter user'
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin nvidia_gpu_exporter
+        fi
+        if program_installed dpkg; then
+            echo "Installing nvidia-gpu-exporter using dpkg"
+            sudo dpkg -i nvidia-gpu-exporter_1.3.1_linux_amd64.deb
+        else
+            VERSION=1.3.1
+            echo "Installing nvidia-gpu-exporter from release binary [version $VERSION]"
+            wget -o /dev/null https://github.com/utkuozdemir/nvidia_gpu_exporter/releases/download/v${VERSION}/nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz
+            mkdir -p ./nvidia_gpu_exporter
+            tar -xvzf nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz -C ./nvidia_gpu_exporter >/dev/null
+            rm nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz
+            sudo mv nvidia_gpu_exporter/nvidia_gpu_exporter /usr/bin
+            rm -r ./nvidia_gpu_exporter
+            unset VERSION
+        fi
+        if program_installed systemctl; then
+            echo "Installing systemd service for nvidia-gpu-exporter and enabling"
+            sudo wget -o /dev/null -O /etc/systemd/system/nvidia_gpu_exporter.service https://raw.githubusercontent.com/utkuozdemir/nvidia_gpu_exporter/refs/heads/master/systemd/nvidia_gpu_exporter.service >/dev/null
+            sudo systemctl daemon-reload
+            sudo systemctl enable --now nvidia_gpu_exporter
+        fi
+        if program_installed firewall-cmd; then
+            # Open firewall port in firewalld
+            PORT=9835
+            # Check if the rule already exists
+            if sudo firewall-cmd --state | grep -q '^running'; then
+                # firewalld is running
+                if ! sudo firewall-cmd --permanent --add-port=$PORT/tcp 2>&1 | grep -q 'ALREADY_ENABLED'; then
+                    echo "Opened firewalld port $PORT/tcp for nvidia-gpu-exporter."
+                    # Reload firewall to apply changes
+                    echo "Reloading firewalld"
+                    sudo firewall-cmd --permanent --quiet --reload
+                else
+                    echo "Port $PORT/tcp is already open."
+                fi
+            fi
+            unset PORT
+        fi
+    fi
+}
+
 function setup_zsh() {
     # Only ask to setup if zsh installed and not the current shell
     if program_installed zsh && "$SHELL" != "$(which zsh)"; then
@@ -818,6 +864,9 @@ function list_options() {
     elif program_installed brew; then
         echo "[programs-main] Install main package manager (brew) only"
     fi
+    if program_installed nvidia-smi; then
+        echo "[gpu-monitoring] Install nvidia-gpu-exporter"
+    fi
     echo "[system-configs] Set up system configs only"
     echo "[desktop-environment] Choose a desktop environment"
     echo "[samba] Set up samba credentials only"
@@ -909,6 +958,12 @@ function run_interactively() {
         fi
     elif [[ $response == "aur-only" ]]; then
         install_aur
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
+    elif [[ $response == "gpu-monitoring" ]]; then
+        install_gpu_monitoring
         if [ "$#" -eq 0 ]; then
             echo ""
             run_interactively
