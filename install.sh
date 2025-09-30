@@ -472,7 +472,7 @@ function install_gpu_monitoring() {
                     echo "Opened firewalld port $PORT/tcp for nvidia-gpu-exporter."
                     # Reload firewall to apply changes
                     echo "Reloading firewalld"
-                    sudo firewall-cmd --permanent --quiet --reload
+                    sudo firewall-cmd --quiet --reload
                 else
                     echo "Port $PORT/tcp is already open."
                 fi
