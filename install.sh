@@ -684,7 +684,7 @@ function setup_plasma_i3() {
     fi
 
     echo "Copying: startplasma-sway-wayland ($config_dir/bin/startplasma-sway-wayland -> /usr/local/bin/)"
-    sudo cp $config_dir/bin/startplasma-sway-wayland /usr/local/bin/
+    sudo cp $config_dir/scripts/startplasma-sway-wayland /usr/local/bin/
 
     echo "Configuring i3"
     if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
