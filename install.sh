@@ -484,7 +484,7 @@ function install_gpu_monitoring() {
 
 function setup_zsh() {
     # Only ask to setup if zsh installed and not the current shell
-    if program_installed zsh && "$SHELL" != "$(which zsh)"; then
+    if program_installed zsh && [ "$SHELL" != "$(which zsh)" ]; then
         echo
         echo -n "Would you like to set zsh as your default shell? (y/n) "
         read response
