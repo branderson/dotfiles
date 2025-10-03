@@ -2,7 +2,7 @@ vim
 neovim
 silversearcher-ag
 fzf
-python3-powerline
+powerline
 thefuck
 tree
 nodejs
