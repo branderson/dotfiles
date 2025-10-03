@@ -554,7 +554,7 @@ function setup_system_configs() {
         fi
     fi
 
-    if program_installed vim && program_installed nvim; then
+    if program_installed vim && program_installed nvim && [ ! -f /usr/bin/vim]; then
         echo
         echo "Preventing missing vim issues"
         sudo ln -s "$(which nvim)" /usr/bin/vim
@@ -897,10 +897,12 @@ function run_interactively() {
         install_gem
         install_pipx
         echo ""
-        echo -n "Do you want to upgrade/install from AUR? (y/n) "
-        read response
-        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            install_aur
+        if program_installed yay; then
+            echo -n "Do you want to upgrade/install from AUR? (y/n) "
+            read response
+            if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+                install_aur
+            fi
         fi
         setup_system_configs
         setup_samba
