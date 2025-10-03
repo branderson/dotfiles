@@ -486,7 +486,7 @@ function setup_zsh() {
     # Only ask to setup if zsh installed and not the current shell
     if program_installed zsh && [ "$SHELL" != "$(which zsh)" ]; then
         echo
-        echo -n "Would you like to set zsh as your default shell? (y/n) "
+        echo -n "Would you like to set zsh as your default shell? (y/N) "
         read response
         if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
             echo "Setting zsh as default shell"
@@ -575,7 +575,7 @@ function setup_system_configs() {
 function setup_sessions() {
     # Install plasma + i3 sessions
     echo
-    echo -n "Would you like to install X11 / Wayland sessions? (y/n) "
+    echo -n "Would you like to install X11 / Wayland sessions? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
         # Check if xsessions directory exists
@@ -814,18 +814,18 @@ function setup_samba() {
 
 function setup_ssh() {
     echo
-    echo -n "Would you like to configure an SSH host? (y/n) "
+    echo -n "Would you like to configure an SSH host? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
         if [[ ! -f ~/.ssh/id_ed25519.pub ]]; then
             echo "No SSH key found"
-            echo -n "Would you like to set up a new public/private key pair? (y/n) "
+            echo -n "Would you like to set up a new public/private key pair? (y/N) "
             read response
             if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
                 ssh-keygen -t ed25519
                 echo
 
-                echo -n "Would you like to add this key to ssh-agent? (y/n) "
+                echo -n "Would you like to add this key to ssh-agent? (y/N) "
                 read response
                 if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
                     ssh-add ~/.ssh/id_ed25519
@@ -938,7 +938,7 @@ function run_interactively() {
         install_pipx
         echo ""
         if program_installed yay; then
-            echo -n "Do you want to upgrade/install from AUR? (y/n) "
+            echo -n "Do you want to upgrade/install from AUR? (y/N) "
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 install_aur
@@ -982,7 +982,7 @@ function run_interactively() {
         install_pipx
         if program_installed yay; then
             echo ""
-            echo -n "Do you want to upgrade/install from AUR? (y/n) "
+            echo -n "Do you want to upgrade/install from AUR? (y/N) "
             read response
             if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
                 install_aur
