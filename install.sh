@@ -790,6 +790,10 @@ function setup_samba() {
                     echo -n "Would you like to write this line to /etc/fstab? (y/N) "
                     read response
                     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                        if [ ! -d /mnt/"$mnt_dir" ]; then
+                            echo "Creating mount directory /mnt/$mnt_dir"
+                            sudo mkdir "/mnt/$mnt_dir"
+                        fi
                         echo "Writing volume mount to /etc/fstab"
                         echo "$fstab_line" | sudo tee -a /etc/fstab
                     fi
