@@ -502,11 +502,6 @@ function setup_system_configs() {
         echo "Enabling SSH server"
         sudo systemctl enable --now sshd.service
     fi
-    if program_installed ssh-agent && ! service_enabled ssh-agent.service; then
-        echo
-        echo "Enabling SSH agent"
-        systemctl --user enable --now ssh-agent.service
-    fi
     if program_installed lightdm; then
         echo
         echo "Enabling numlock at startup"
@@ -554,7 +549,7 @@ function setup_system_configs() {
         fi
     fi
 
-    if program_installed vim && program_installed nvim && [ ! -f /usr/bin/vim]; then
+    if program_installed vim && program_installed nvim && [ ! -f /usr/bin/vim ]; then
         echo
         echo "Preventing missing vim issues"
         sudo ln -s "$(which nvim)" /usr/bin/vim
@@ -635,6 +630,10 @@ function choose_desktop_environment() {
 
 function setup_bare_i3() {
     echo "Configuring i3"
+    if ! program_installed i3; then
+        echo "i3 not installed, please install and rerun"
+        return 1
+    fi
     # TODO: Set display manager to lightdm?
     if [[ ! -d ~/.config/i3/config.de ]]; then
         mkdir ~/.config/i3/config.de
@@ -677,6 +676,14 @@ function setup_bare_i3() {
 }
 
 function setup_plasma_i3() {
+    if ! program_installed i3 && ! program_installed plasmashell; then
+        echo "Neither i3 nor plasma installed, please install and rerun"
+        return 1
+    fi
+    if ! program_installed i3; then
+        echo "i3 not installed, please install and rerun"
+        return 1
+    fi
     if ! program_installed plasmashell; then
         echo "Plasma not installed, please install and rerun"
         # TODO: echo the command to install plasma
@@ -735,17 +742,21 @@ function setup_bare_plasma() {
     echo "Configuring plasma"
     # TODO: Copy over plasma configs (or just do this by default with other configs)
     # Mostly we just want to not do the things we do in the other DE functions here
+    # TODO: Undo the things the other window manager setups do
 }
 
 function setup_samba() {
     echo
-    echo -n "Would you like to configure samba? (y/n) "
+    echo -n "Would you like to configure an SMB host? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
-        echo -n "What samba host would you like to configure? "
+        echo -n "What is the friendly name of the SMB host? "
         read samba_host
-        if [[ "$samba_host" != '' ]]; then
-            echo -n "Would you like to configure samba credentials? (y/n) "
+        echo -n "What is the IP address of the SMB host? "
+        read samba_ip
+        if [[ "$samba_host" != '' ]] && [[ "$samba_ip" != '' ]]; then
+            echo
+            echo -n "Would you like to configure SMB credentials for this host? (y/N) "
             read response
             if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
                 [[ ! -d "/etc/samba" ]] && sudo mkdir /etc/samba
@@ -763,10 +774,35 @@ function setup_samba() {
                     unset password
                 fi
             fi
-            echo
-            echo "Add lines to /etc/fstab for each share to mount:"
-            echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
+            while true; do
+                echo
+                echo -n "Would you like to configure an SMB volume mount for this host? (y/N) "
+                read response
+                if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                    echo
+                    echo -n "What is the SMB volume mount name? "
+                    read samba_share
+                    echo -n "What directory would you like to mount the volume to in /mnt? "
+                    read mnt_dir
+                    fstab_line="//$samba_ip/$samba_share    /mnt/$mnt_dir   cifs    _netdev,nofail,uid=$(id -u),gid=$(id -g),credentials=/etc/samba/credentials/$samba_host     0   0" 
+                    echo
+                    echo "$fstab_line"
+                    echo -n "Would you like to write this line to /etc/fstab? (y/N) "
+                    read response
+                    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                        echo "Writing volume mount to /etc/fstab"
+                        echo "$fstab_line" | sudo tee -a /etc/fstab
+                    fi
+                    unset response
+                else
+                    echo "Add lines to /etc/fstab for each share to mount:"
+                    echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
+                    break
+                fi
+            done
         fi
+        # Recurse in case another host needs setup
+        setup_samba
     fi
     echo
     unset samba_host
