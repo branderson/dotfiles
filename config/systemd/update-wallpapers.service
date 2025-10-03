@@ -7,7 +7,7 @@ User=brad
 Environment=DISPLAY=:0
 ExecStartPre=/bin/sleep 3
 # TODO: The file might not be here if ~/.dotfiles-config set to somewhere else
-ExecStart=/home/brad/dotfiles/bin/start-wallpaper.sh
+ExecStart=/home/brad/dotfiles/bin/update-wallpaper
 
 [Install]
 WantedBy=multi-user.target

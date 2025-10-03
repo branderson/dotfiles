@@ -76,7 +76,7 @@ fi
 
 if program_installed powerline; then
     # Make powerline support Python virtualenvs
-    export POWERLINE_COMMAND="$DOTFILES_DIR/bin/powerline-wrapper.sh"
+    export POWERLINE_COMMAND="$DOTFILES_DIR/scripts/powerline-wrapper.sh"
 fi
 
 # alias make='nocorrect make'

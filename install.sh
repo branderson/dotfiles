@@ -436,6 +436,52 @@ function install_pipx() {
     fi
 }
 
+function install_gpu_monitoring() {
+    if program_installed nvidia-smi; then
+        if ! id "nvidia_gpu_exporter" >/dev/null 2>&1; then
+            echo 'Creating nvidia_gpu_exporter user'
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin nvidia_gpu_exporter
+        fi
+        if program_installed dpkg; then
+            echo "Installing nvidia-gpu-exporter using dpkg"
+            sudo dpkg -i nvidia-gpu-exporter_1.3.1_linux_amd64.deb
+        else
+            VERSION=1.3.1
+            echo "Installing nvidia-gpu-exporter from release binary [version $VERSION]"
+            wget -o /dev/null https://github.com/utkuozdemir/nvidia_gpu_exporter/releases/download/v${VERSION}/nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz
+            mkdir -p ./nvidia_gpu_exporter
+            tar -xvzf nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz -C ./nvidia_gpu_exporter >/dev/null
+            rm nvidia_gpu_exporter_${VERSION}_linux_x86_64.tar.gz
+            sudo mv nvidia_gpu_exporter/nvidia_gpu_exporter /usr/bin
+            rm -r ./nvidia_gpu_exporter
+            unset VERSION
+        fi
+        if program_installed systemctl; then
+            echo "Installing systemd service for nvidia-gpu-exporter and enabling"
+            sudo wget -o /dev/null -O /etc/systemd/system/nvidia_gpu_exporter.service https://raw.githubusercontent.com/utkuozdemir/nvidia_gpu_exporter/refs/heads/master/systemd/nvidia_gpu_exporter.service >/dev/null
+            sudo systemctl daemon-reload
+            sudo systemctl enable --now nvidia_gpu_exporter
+        fi
+        if program_installed firewall-cmd; then
+            # Open firewall port in firewalld
+            PORT=9835
+            # Check if the rule already exists
+            if sudo firewall-cmd --state | grep -q '^running'; then
+                # firewalld is running
+                if ! sudo firewall-cmd --permanent --add-port=$PORT/tcp 2>&1 | grep -q 'ALREADY_ENABLED'; then
+                    echo "Opened firewalld port $PORT/tcp for nvidia-gpu-exporter."
+                    # Reload firewall to apply changes
+                    echo "Reloading firewalld"
+                    sudo firewall-cmd --quiet --reload
+                else
+                    echo "Port $PORT/tcp is already open."
+                fi
+            fi
+            unset PORT
+        fi
+    fi
+}
+
 function setup_zsh() {
     # Only ask to setup if zsh installed and not the current shell
     if program_installed zsh && "$SHELL" != "$(which zsh)"; then
@@ -455,11 +501,6 @@ function setup_system_configs() {
         echo
         echo "Enabling SSH server"
         sudo systemctl enable --now sshd.service
-    fi
-    if program_installed ssh-agent && ! service_enabled ssh-agent.service; then
-        echo
-        echo "Enabling SSH agent"
-        systemctl --user enable --now ssh-agent.service
     fi
     if program_installed lightdm; then
         echo
@@ -508,7 +549,7 @@ function setup_system_configs() {
         fi
     fi
 
-    if program_installed vim && program_installed nvim; then
+    if program_installed vim && program_installed nvim && [ ! -f /usr/bin/vim ]; then
         echo
         echo "Preventing missing vim issues"
         sudo ln -s "$(which nvim)" /usr/bin/vim
@@ -589,6 +630,10 @@ function choose_desktop_environment() {
 
 function setup_bare_i3() {
     echo "Configuring i3"
+    if ! program_installed i3; then
+        echo "i3 not installed, please install and rerun"
+        return 1
+    fi
     # TODO: Set display manager to lightdm?
     if [[ ! -d ~/.config/i3/config.de ]]; then
         mkdir ~/.config/i3/config.de
@@ -631,6 +676,14 @@ function setup_bare_i3() {
 }
 
 function setup_plasma_i3() {
+    if ! program_installed i3 && ! program_installed plasmashell; then
+        echo "Neither i3 nor plasma installed, please install and rerun"
+        return 1
+    fi
+    if ! program_installed i3; then
+        echo "i3 not installed, please install and rerun"
+        return 1
+    fi
     if ! program_installed plasmashell; then
         echo "Plasma not installed, please install and rerun"
         # TODO: echo the command to install plasma
@@ -638,7 +691,7 @@ function setup_plasma_i3() {
     fi
 
     echo "Copying: startplasma-sway-wayland ($config_dir/bin/startplasma-sway-wayland -> /usr/local/bin/)"
-    sudo cp $config_dir/bin/startplasma-sway-wayland /usr/local/bin/
+    sudo cp $config_dir/scripts/startplasma-sway-wayland /usr/local/bin/
 
     echo "Configuring i3"
     if [[ -f ~/.config/i3/config.de/i3-keybindings.conf ]]; then
@@ -689,17 +742,21 @@ function setup_bare_plasma() {
     echo "Configuring plasma"
     # TODO: Copy over plasma configs (or just do this by default with other configs)
     # Mostly we just want to not do the things we do in the other DE functions here
+    # TODO: Undo the things the other window manager setups do
 }
 
 function setup_samba() {
     echo
-    echo -n "Would you like to configure samba? (y/n) "
+    echo -n "Would you like to configure an SMB host? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
-        echo -n "What samba host would you like to configure? "
+        echo -n "What is the friendly name of the SMB host? "
         read samba_host
-        if [[ "$samba_host" != '' ]]; then
-            echo -n "Would you like to configure samba credentials? (y/n) "
+        echo -n "What is the IP address of the SMB host? "
+        read samba_ip
+        if [[ "$samba_host" != '' ]] && [[ "$samba_ip" != '' ]]; then
+            echo
+            echo -n "Would you like to configure SMB credentials for this host? (y/N) "
             read response
             if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
                 [[ ! -d "/etc/samba" ]] && sudo mkdir /etc/samba
@@ -717,10 +774,35 @@ function setup_samba() {
                     unset password
                 fi
             fi
-            echo
-            echo "Add lines to /etc/fstab for each share to mount:"
-            echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
+            while true; do
+                echo
+                echo -n "Would you like to configure an SMB volume mount for this host? (y/N) "
+                read response
+                if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                    echo
+                    echo -n "What is the SMB volume mount name? "
+                    read samba_share
+                    echo -n "What directory would you like to mount the volume to in /mnt? "
+                    read mnt_dir
+                    fstab_line="//$samba_ip/$samba_share    /mnt/$mnt_dir   cifs    _netdev,nofail,uid=$(id -u),gid=$(id -g),credentials=/etc/samba/credentials/$samba_host     0   0" 
+                    echo
+                    echo "$fstab_line"
+                    echo -n "Would you like to write this line to /etc/fstab? (y/N) "
+                    read response
+                    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                        echo "Writing volume mount to /etc/fstab"
+                        echo "$fstab_line" | sudo tee -a /etc/fstab
+                    fi
+                    unset response
+                else
+                    echo "Add lines to /etc/fstab for each share to mount:"
+                    echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
+                    break
+                fi
+            done
         fi
+        # Recurse in case another host needs setup
+        setup_samba
     fi
     echo
     unset samba_host
@@ -818,6 +900,9 @@ function list_options() {
     elif program_installed brew; then
         echo "[programs-main] Install main package manager (brew) only"
     fi
+    if program_installed nvidia-smi; then
+        echo "[gpu-monitoring] Install nvidia-gpu-exporter"
+    fi
     echo "[system-configs] Set up system configs only"
     echo "[desktop-environment] Choose a desktop environment"
     echo "[samba] Set up samba credentials only"
@@ -848,10 +933,12 @@ function run_interactively() {
         install_gem
         install_pipx
         echo ""
-        echo -n "Do you want to upgrade/install from AUR? (y/n) "
-        read response
-        if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
-            install_aur
+        if program_installed yay; then
+            echo -n "Do you want to upgrade/install from AUR? (y/n) "
+            read response
+            if [[ $response == 'y' ]] || [[ $response == 'Y' ]]; then
+                install_aur
+            fi
         fi
         setup_system_configs
         setup_samba
@@ -909,6 +996,12 @@ function run_interactively() {
         fi
     elif [[ $response == "aur-only" ]]; then
         install_aur
+        if [ "$#" -eq 0 ]; then
+            echo ""
+            run_interactively
+        fi
+    elif [[ $response == "gpu-monitoring" ]]; then
+        install_gpu_monitoring
         if [ "$#" -eq 0 ]; then
             echo ""
             run_interactively
