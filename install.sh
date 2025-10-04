@@ -817,7 +817,10 @@ function setup_ssh() {
     echo -n "Would you like to configure an SSH host? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
-        if [[ ! -f ~/.ssh/id_ed25519.pub ]]; then
+        if [ ! -d "$HOME/.ssh" ]; then
+            mkdir "$HOME/.ssh"
+        fi
+        if [[ ! -f $HOME/.ssh/id_ed25519.pub ]]; then
             echo "No SSH key found"
             echo -n "Would you like to set up a new public/private key pair? (y/N) "
             read response
