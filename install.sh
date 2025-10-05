@@ -314,7 +314,7 @@ function install_aur() {
                 to_install+=("$program")
             fi
         done < <(printf '%s' "$aur")
-        if [ "${#to_install[@]}" -gt 0]; then
+        if [ "${#to_install[@]}" -gt 0 ]; then
             yay -Sqa $pacman_args "${to_install[@]}"
         fi
     fi
