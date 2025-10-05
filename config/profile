@@ -102,7 +102,7 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 
 # Add SSH keys to agent if not already added
 ## Find existing keys, supporting one layer of folder organization
-if program_installed ssh-add; then
+if program_installed ssh-add && program_installed ssh-agent && [ -n "$SSH_AUTH_SOCK" ]; then
     public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
     if [ ${#public_keys[@]} -gt 0 ]; then
         for public_key in "${public_keys[@]}"; do
