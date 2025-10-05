@@ -102,17 +102,19 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 
 # Add SSH keys to agent if not already added
 ## Find existing keys, supporting one layer of folder organization
-public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
-if [ ${#public_keys[@]} -gt 0 ]; then
-    for public_key in "${public_keys[@]}"; do
-        if [[ $(uname -s) == Linux* ]]; then
-            # Add SSH keys only if not already present
-            ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
-            break
-        elif [[ $(uname -s) == Darwin* ]]; then
-            # Add SSH keys only if not already present
-            ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
-            break
-        fi
-    done
+if program_installed ssh-add; then
+    public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
+    if [ ${#public_keys[@]} -gt 0 ]; then
+        for public_key in "${public_keys[@]}"; do
+            if [[ $(uname -s) == Linux* ]]; then
+                # Add SSH keys only if not already present
+                ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
+                break
+            elif [[ $(uname -s) == Darwin* ]]; then
+                # Add SSH keys only if not already present
+                ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
+                break
+            fi
+        done
+    fi
 fi
