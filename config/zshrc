@@ -15,7 +15,7 @@ ZSH_THEME="agnoster"
 # Automatic window title setting
 DISABLE_AUTO_TITLE="true"
 # Command correction support
-ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="false"
 # Case-sensitive completion
 CASE_SENSITIVE="false"
 # ls colors
