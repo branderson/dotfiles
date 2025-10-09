@@ -784,7 +784,7 @@ function setup_samba() {
                     read samba_share
                     echo -n "What directory would you like to mount the volume to in /mnt? "
                     read mnt_dir
-                    fstab_line="//$samba_ip/$samba_share    /mnt/$mnt_dir   cifs    _netdev,nofail,uid=$(id -u),gid=$(id -g),credentials=/etc/samba/credentials/$samba_host     0   0" 
+                    fstab_line="//$samba_ip/$samba_share    /mnt/$mnt_dir   cifs    _netdev,nofail,x-systemd.automount,uid=$(id -u),gid=$(id -g),credentials=/etc/samba/credentials/$samba_host     0   0" 
                     echo
                     echo "$fstab_line"
                     echo -n "Would you like to write this line to /etc/fstab? (y/N) "
@@ -800,7 +800,7 @@ function setup_samba() {
                     unset response
                 else
                     echo "Add lines to /etc/fstab for each share to mount:"
-                    echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
+                    echo "//{SAMBA_HOST_IP}/{SAMBA_SHARE}  /mnt/{MOUNT_DIR}    cifs    _netdev,nofail,x-systemd.automount,uid=`id -u`,gid=`id -g`,credentials=/etc/samba/credentials/$samba_host    0   0"
                     break
                 fi
             done
