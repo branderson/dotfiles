@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=USDB Syncer
+Comment=Download karaoke songs
+Exec=usdb_syncer
+Terminal=false
+Type=Application
+Categories=Software;

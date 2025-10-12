@@ -114,3 +114,8 @@ if program_installed ssh-add && [ ! -z "$SSH_AUTH_SOCK" ] && [ -d "$SSH_AUTH_SOC
         done
     fi
 fi
+
+if program_installed i3; then
+    # Set QT environment variables
+    export QT_QPA_PLATFORMTHEME="qt5ct"
+fi

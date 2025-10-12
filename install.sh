@@ -125,6 +125,7 @@ dunst
 conky
 rofi
 gtk-3.0
+qt5ct
 powerline
 xfce4
 picom.conf
@@ -672,6 +673,17 @@ function setup_bare_i3() {
         echo "Linking: 85-drm-hotplug.rules ($config_dir/udev/85-drm-hotplug.rules -> /etc/udev/rules.d/85-drm-hotplug.rules)"
         sudo ln -s $config_dir/udev/85-drm-hotplug.rules /etc/udev/rules.d/85-drm-hotplug.rules
     fi
+    # Setup GTK themes
+    # TODO: It might be necessary to rerun `dotfiles-install dotfiles` after this
+    if [ ! -d "$config_dir/themes" ]; then
+        mkdir "$config_dir/themes"
+    fi
+    if [ ! -d "$config_dir/icons" ]; then
+        mkdir "$config_dir/icons"
+    fi
+    # TODO: Can I symlink these instead?
+    cp -r "$DOTFILES_DIR"/dependencies/Gruvbox-GTK-Theme/themes/* "$config_dir/themes"
+    cp -r "$DOTFILES_DIR"/dependencies/Gruvbox-GTK-Theme/icons/* "$config_dir/icons"
     # TODO: Actually launch into i3 rather than plasma, need to set up DM configs
 }
 
