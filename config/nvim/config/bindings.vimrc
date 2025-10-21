@@ -178,7 +178,8 @@ function! MapPlugins()
     map <localleader>rr :RustRun<CR>
 
     " - Markdown -
-    map <localleader>v :LivedownToggle<CR>
+    " map <localleader>v :LivedownToggle<CR>
+    nmap <localleader>v <Plug>MarkdownPreviewToggle
 endfunction
 
 augroup Plugin_Mappings

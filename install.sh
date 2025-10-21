@@ -238,13 +238,11 @@ function link_dotfiles {
     done
     for file in $local_home_templates; do
         if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
-            if [[ -L "$HOME/.$file" ]]; then
-                echo "Skipping: $file because ~/.$file already linked"
-            elif [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
+            if [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already exists"
             else
                 echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
-                ln -s $config_dir/local-templates/$file $HOME/.$file
+                cp $config_dir/local-templates/$file $HOME/.$file
             fi
         fi
     done

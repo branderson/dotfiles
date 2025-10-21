@@ -173,6 +173,8 @@ Plug 'sophacles/vim-processing'
 
 " - Markdown -
 " Plug 'shime/vim-livedown'
+" Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
 
 " --- Icons ---
