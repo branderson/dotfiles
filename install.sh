@@ -215,10 +215,14 @@ function link_dotfiles {
         if [[ -f $file || -d $file ]]; then
             if [[ -L $HOME/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already linked"
-            # Don't skip if not interactive as initial files often exist that should be replaced
-            elif [[ (-f $HOME/.$file || -d $HOME/.$file) && $interactive -eq 1 ]]; then
-                echo "Skipping: $file because ~/.$file already exists"
             else
+                if [[ -f "$HOME/.$file" || -d "$HOME/.$file" ]]; then
+                    echo "Moving: existing ~/.$file to ~/.dotfiles-backup/$file"
+                    if [ ! -d $HOME/.dotfiles-backup ]; then
+                        mkdir -p $HOME/.dotfiles-backup
+                    fi
+                    mv "$HOME/.$file" "$HOME/.dotfiles-backup/$file"
+                fi
                 echo "Linking: $file ($config_dir/$file -> ~/.$file)"
                 ln -s $config_dir/$file $HOME/.$file
             fi
@@ -228,24 +232,31 @@ function link_dotfiles {
         if [[ -f $file || -d $file ]]; then
             if [[ -L "$HOME/.config/$file" ]]; then
                 echo "Skipping: $file because ~/.config/$file already linked"
-            elif [[ -f $HOME/.config/$file || -d $HOME/.config/$file ]]; then
-                echo "Skipping: $file because ~/.config/$file already exists"
             else
+                if [[ -f "$HOME/.config/$file" || -d "$HOME/.config/$file" ]]; then
+                    echo "Moving: existing ~/.config/$file to ~/.dotfiles-backup/config/$file"
+                    if [ ! -d $HOME/.dotfiles-backup/config ]; then
+                        mkdir -p $HOME/.dotfiles-backup/config
+                    fi
+                    mv "$HOME/.config/$file" "$HOME/.dotfiles-backup/config/$file"
+                fi
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
                 ln -s $config_dir/$file $HOME/.config/$file
             fi
         fi
     done
-    for file in $local_home_templates; do
-        if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
-            if [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
-                echo "Skipping: $file because ~/.$file already exists"
-            else
-                echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
-                cp $config_dir/local-templates/$file $HOME/.$file
-            fi
-        fi
-    done
+    # TODO: These are getting in the way of dotfiles-local install so disabling
+    # Refactor this
+    # for file in $local_home_templates; do
+    #     if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
+    #         if [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
+    #             echo "Skipping: $file because ~/.$file already exists"
+    #         else
+    #             echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
+    #             cp $config_dir/local-templates/$file $HOME/.$file
+    #         fi
+    #     fi
+    # done
     for file in $systemd_services; do
         if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
             if [[ -L "$HOME/.config/systemd/user/$file" ]]; then
