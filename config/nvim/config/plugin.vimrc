@@ -322,4 +322,6 @@ let g:rust_fold = 2
 let g:processing_fold = 1
 
 " - Markdown -
+" Livedown
 let g:livedown_open = 1
+" Markdown Preview
