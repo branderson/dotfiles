@@ -96,22 +96,24 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
 # Make sure ssh-agent is available 
-if program_installed ssh-add && [ ! -z "$SSH_AUTH_SOCK" ] && [ -d "$SSH_AUTH_SOCK" ] > /dev/null 2&>1 ; then
-    # Add SSH keys to agent if not already added
-    ## Find existing keys, supporting one layer of folder organization
-    public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
-    if [ ${#public_keys[@]} -gt 0 ]; then
-        for public_key in "${public_keys[@]}"; do
-            if [[ $(uname -s) == Linux* ]]; then
-                # Add SSH keys only if not already present
-                ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
-                break
-            elif [[ $(uname -s) == Darwin* ]]; then
-                # Add SSH keys only if not already present
-                ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
-                break
-            fi
-        done
+if [ -n "$LOAD_SSH_KEYS" ] && [ "$LOAD_SSH_KEYS" -eq 1 ]; then
+    if program_installed ssh-add && [ ! -z "$SSH_AUTH_SOCK" ] && [ -d "$SSH_AUTH_SOCK" ] > /dev/null 2&>1 ; then
+        # Add SSH keys to agent if not already added
+        ## Find existing keys, supporting one layer of folder organization
+        public_keys=($(find "$HOME/.ssh/" -maxdepth 2 -name "*.pub"))
+        if [ ${#public_keys[@]} -gt 0 ]; then
+            for public_key in "${public_keys[@]}"; do
+                if [[ $(uname -s) == Linux* ]]; then
+                    # Add SSH keys only if not already present
+                    ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add -k
+                    break
+                elif [[ $(uname -s) == Darwin* ]]; then
+                    # Add SSH keys only if not already present
+                    ssh-add -l | grep -q `ssh-keygen -lf "$public_key"  | awk '{print $2}'` || ssh-add --apple-use-keychain
+                    break
+                fi
+            done
+        fi
     fi
 fi
 

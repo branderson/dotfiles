@@ -212,7 +212,7 @@ if program_installed pyenv; then
 fi
 
 # oh-my-zsh plugins (must come after all initialization above)
-plugins=(archlinux colored-man-pages colorize command-not-found cp docker docker-compose fzf git history history-substring-search nmap npm pip poetry pyenv macos rsync snap ssh ssh-agent sudo systemd terraform thefuck tmux tmuxinator vi-mode virtualenv yarn zsh-interactive-cd zsh-navigation-tools)
+plugins=(archlinux colored-man-pages colorize command-not-found cp docker docker-compose fzf git history history-substring-search nmap npm pip poetry pyenv macos rsync snap ssh sudo systemd terraform thefuck tmux tmuxinator vi-mode virtualenv yarn zsh-interactive-cd zsh-navigation-tools)
 
 # Local overrides
 if [ -f $HOME/.zshrc_local ]; then
