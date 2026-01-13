@@ -115,6 +115,7 @@ tmux
 gtkrc-2.0.mine
 themes
 icons
+ideavimrc
 "
 # Files and directories under ~/.config
 configs="
