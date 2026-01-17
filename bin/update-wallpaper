@@ -30,16 +30,18 @@ fi
 
 if program_installed xrandr; then
     display_count="$(xrandr | grep ' connected ' | wc -l)"
-    # Get the selected resolution for each display
-    display_resolutions="$(xrandr | grep '*' | awk '{ print $1}')"
-    # Get the rotation for each display, need verbose to return rotation if normal
-    # and remove 'primary' for consistent column placement
-    display_rotations="$(xrandr --query --verbose | grep ' connected ' | sed 's/primary //' | awk '{print $5}')"
+    display_order="$(xrandr --listmonitors | tail -n +2 | sed 's/[\+\*]//g' | awk '{ print $2}')"
     # Build feh command
     feh_args=("--bg-fill")
     for i in $(seq 1 "$display_count"); do
-        resolution="$(echo "$display_resolutions" | sed "${i}q;d")"
-        rotation="$(echo "$display_rotations" | sed "${i}q;d")"
+        display_name="$(echo "$display_order" | sed "${i}q;d")"
+        # Get information about the current display, need verbose to always return rotation
+        # and remove 'primary' for consistent column placement
+        display_info="$(xrandr --query --verbose | grep "$display_name" | sed 's/primary //')"
+        # Get the selected resolution for the display
+        resolution="$(echo "$display_info" | awk '{ print $3 }' | sed 's/\+.*//')"
+        # Get the rotation for each display
+        rotation="$(echo "$display_info" | awk '{ print $5 }')"
         path="$wallpapers_path"
         resolution_segment=""
         if [ "$rotation" != "normal" ] && [ "$rotation" != "inverted" ]; then
