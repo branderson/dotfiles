@@ -128,6 +128,7 @@ rofi
 gtk-3.0
 qt5ct
 powerline
+VSCodium
 xfce4
 picom.conf
 picom-extended.conf
