@@ -1,0 +1,63 @@
+" .ideavimrc is a configuration file for IdeaVim plugin. It uses
+"   the same commands as the original .vimrc configuration.
+" You can find a list of commands here: https://jb.gg/h38q75
+" Find more examples here: https://jb.gg/share-ideavimrc
+
+
+"" -- Suggested options --
+" Show a few lines of context around the cursor. Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=5
+
+" Do incremental searching.
+set incsearch
+
+" Don't use Ex mode, use Q for formatting.
+map Q gq
+
+" --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
+
+" Highlight copied text
+Plug 'machakann/vim-highlightedyank'
+" Commentary plugin
+Plug 'tpope/vim-commentary'
+
+
+"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+"" Map \r to the Reformat Code action
+"map \r <Action>(ReformatCode)
+
+"" Map <leader>d to start debug
+"map <leader>d <Action>(Debug)
+
+"" Map \b to toggle the breakpoint on the current line
+"map \b <Action>(ToggleLineBreakpoint)
+
+inoremap ,, <ESC>
+cnoremap ,, <ESC><ESC>
+nmap j gj
+nmap k gk
+" Only set on first run or it overwrites YCM behavior
+" if has('vim_starting')
+"     imap <tab> <C-X><C-O>
+" endif
+let mapleader=","
+let maplocalleader="\\"
+
+" Close buffer
+map <leader><leader>c :Bclose<CR>
+" Prev/next buffer
+map <leader>q :bp<CR>
+map <leader>w :bn<CR>
+
+" System clipboard cut copy paste
+map <leader>y "+y
+map <leader>Y "+Y
+map <leader>p "+p
+map <leader>P "+P
+map <leader>x "+x
+map <leader>dd "+dd
+
+" Update ideavimrc
+nnoremap <leader>v :e ~/.ideavimrc<CR>;
+nnoremap <leader>rr :action IdeaVim.ReloadVimRc.reload<CR>;

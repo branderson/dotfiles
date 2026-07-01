@@ -1,0 +1,57 @@
+{
+	"workbench.colorTheme": "Gruvbox Dark Medium",
+	"vim.camelCaseMotion.enable": true,
+	"vim.easymotion": true,
+	"vim.enableNeovim": true,
+	"vim.handleKeys": {
+		"<C-a>": false,
+		"<C-d>": true,
+		"<C-f>": false,
+		"<C-s>": false,
+		"<C-z>": false
+	},
+	"vim.insertModeKeyBindingsNonRecursive": [
+		{
+			"before": [",", ","],
+			"after": ["<Esc>"]
+		}
+	],
+	"vim.normalModeKeyBindingsNonRecursive": [
+		{
+			"before": ["<leader>", "d"],
+			"after": ["d", "d"]
+		},
+		{
+			"before": ["<leader>", "d"],
+			"after": ["d", "d"]
+		},
+		{
+			"before": [",", ",", "<Esc>"],
+			"commands": [":nohl"]
+		},
+		{
+			"before": ["<leader>", "q"],
+			"commands": [":bp"]
+		},
+		{
+			"before": ["<leader>", "w"],
+			"commands": [":bn"]
+		},
+		{
+			"before": ["<leader>", "r", "r"],
+			"commands": [":action "]
+		},
+		{
+			"before": ["<leader>", "<leader>", "c"],
+			"commands": [":Blose"],
+			"silent": true
+		}
+	],
+	"vim.leader": ",",
+	// To improve performance
+	"extensions.experimental.affinity": {
+		"vscodevim.vim": 1
+	},
+	"vim.neovimUseConfigFile": true,
+	"editor.fontFamily": "'Source Code Pro', regular"
+}

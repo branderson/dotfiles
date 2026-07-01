@@ -115,6 +115,7 @@ tmux
 gtkrc-2.0.mine
 themes
 icons
+ideavimrc
 "
 # Files and directories under ~/.config
 configs="
@@ -127,6 +128,7 @@ rofi
 gtk-3.0
 qt5ct
 powerline
+VSCodium
 xfce4
 picom.conf
 picom-extended.conf
@@ -136,7 +138,11 @@ local_home_templates="
 zshrc_local
 profile.local
 "
-systemd_services="
+user_systemd_services="
+"
+system_systemd_services="
+archlinux-keyring-wkd-sync.service
+archlinux-keyring-wkd-sync.timer
 "
 xsessions="
 plasma-i3.desktop
@@ -215,10 +221,14 @@ function link_dotfiles {
         if [[ -f $file || -d $file ]]; then
             if [[ -L $HOME/.$file ]]; then
                 echo "Skipping: $file because ~/.$file already linked"
-            # Don't skip if not interactive as initial files often exist that should be replaced
-            elif [[ (-f $HOME/.$file || -d $HOME/.$file) && $interactive -eq 1 ]]; then
-                echo "Skipping: $file because ~/.$file already exists"
             else
+                if [[ -f "$HOME/.$file" || -d "$HOME/.$file" ]]; then
+                    echo "Moving: existing ~/.$file to ~/.dotfiles-backup/$file"
+                    if [ ! -d $HOME/.dotfiles-backup ]; then
+                        mkdir -p $HOME/.dotfiles-backup
+                    fi
+                    mv "$HOME/.$file" "$HOME/.dotfiles-backup/$file"
+                fi
                 echo "Linking: $file ($config_dir/$file -> ~/.$file)"
                 ln -s $config_dir/$file $HOME/.$file
             fi
@@ -228,25 +238,32 @@ function link_dotfiles {
         if [[ -f $file || -d $file ]]; then
             if [[ -L "$HOME/.config/$file" ]]; then
                 echo "Skipping: $file because ~/.config/$file already linked"
-            elif [[ -f $HOME/.config/$file || -d $HOME/.config/$file ]]; then
-                echo "Skipping: $file because ~/.config/$file already exists"
             else
+                if [[ -f "$HOME/.config/$file" || -d "$HOME/.config/$file" ]]; then
+                    echo "Moving: existing ~/.config/$file to ~/.dotfiles-backup/config/$file"
+                    if [ ! -d $HOME/.dotfiles-backup/config ]; then
+                        mkdir -p $HOME/.dotfiles-backup/config
+                    fi
+                    mv "$HOME/.config/$file" "$HOME/.dotfiles-backup/config/$file"
+                fi
                 echo "Linking: $file ($config_dir/$file -> ~/.config/$file)"
                 ln -s $config_dir/$file $HOME/.config/$file
             fi
         fi
     done
-    for file in $local_home_templates; do
-        if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
-            if [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
-                echo "Skipping: $file because ~/.$file already exists"
-            else
-                echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
-                cp $config_dir/local-templates/$file $HOME/.$file
-            fi
-        fi
-    done
-    for file in $systemd_services; do
+    # TODO: These are getting in the way of dotfiles-local install so disabling
+    # Refactor this
+    # for file in $local_home_templates; do
+    #     if [[ -f ./local-templates/$file || -d ./local-templates/$file ]]; then
+    #         if [[ -f $HOME/.$file || -d $HOME/.$file ]]; then
+    #             echo "Skipping: $file because ~/.$file already exists"
+    #         else
+    #             echo "Copying: $file ($config_dir/local-templates/$file -> ~/.$file)"
+    #             cp $config_dir/local-templates/$file $HOME/.$file
+    #         fi
+    #     fi
+    # done
+    for file in $user_systemd_services; do
         if [[ -f systemd/user/$file || -d systemd/user/$file ]]; then
             if [[ -L "$HOME/.config/systemd/user/$file" ]]; then
                 echo "Skipping: $file because ~/.config/systemd/user/$file already linked"
@@ -255,11 +272,39 @@ function link_dotfiles {
             else
                 echo "Linking: $file ($config_dir/systemd/user/$file -> ~/.config/systemd/user/$file)"
                 ln -s $config_dir/systemd/user/$file $HOME/.config/systemd/user/$file
-                # TODO: Probably should also enable the service
-                #systemctl --user enable --now $file
+
+                echo -n "Would you like to enable $file user service? (y/N) "
+                read response
+                if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                    systemctl --user enable --now $file
+                fi
             fi
         fi
     done
+    if [ "$interactive" == 1 ]; then
+        echo -n "Would you like to install systemd system services? (y/N) "
+        read response
+        if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+            for file in $system_systemd_services; do
+                if [[ -f systemd/$file || -d systemd/system/$file ]]; then
+                    if [[ -L "/etc/systemd/system/$file" ]]; then
+                        echo "Skipping: $file because /etc/systemd/system/$file already linked"
+                    elif [[ -f /etc/systemd/system/$file || -d /etc/systemd/system/$file ]]; then
+                        echo "Skipping: $file because /etc/systemd/system/$file already exists"
+                    else
+                        echo "Linking: $file ($config_dir/systemd/$file -> /etc/systemd/system/$file)"
+                        sudo ln -s $config_dir/systemd/$file /etc/systemd/system/$file
+
+                        echo -n "Would you like to enable $file systemd service? (y/N) "
+                        read response
+                        if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+                            sudo systemctl enable --now $file
+                        fi
+                    fi
+                fi
+            done
+        fi
+    fi
     cd - > /dev/null
 }
 
@@ -323,6 +368,7 @@ function install_main() {
     if program_installed pacman; then
         echo ""
         echo "Installing and updating pacman packages"
+        sudo pacman -Sy --needed archlinux-keyring
         sudo pacman -Syu
         while IFS= read -r program || [[ -n $program ]]; do
             # Check for comment or whitespace
