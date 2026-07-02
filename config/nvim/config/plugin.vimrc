@@ -325,3 +325,19 @@ let g:processing_fold = 1
 " Livedown
 let g:livedown_open = 1
 " Markdown Preview
+
+" --- AI ---
+" Claude Code
+" plugin/claudecode.lua auto-calls require('claudecode').setup(g:claudecode_auto_setup)
+" once the plugin loads (during plug#end() below), so this must be a plain
+" vimscript dict rather than a lua block -- see the guarded keymaps in
+" bindings.vimrc for the commands this enables.
+" Full option list: https://github.com/coder/claudecode.nvim#configuration-options
+let g:claudecode_auto_setup = {
+    \ 'terminal': {
+    \     'provider': 'snacks',
+    \     'split_side': 'right',
+    \     'split_width_percentage': 0.30,
+    \ },
+    \ }
+

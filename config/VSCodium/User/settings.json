@@ -53,5 +53,7 @@
 		"vscodevim.vim": 1
 	},
 	"vim.neovimUseConfigFile": true,
-	"editor.fontFamily": "'Source Code Pro', regular"
+	"editor.fontFamily": "'Source Code Pro', regular",
+	"vim.normalModeKeyBindings": [],
+	"python.venvPath": "~/.pyenv"
 }

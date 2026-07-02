@@ -176,6 +176,12 @@ Plug 'sophacles/vim-processing'
 " Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
+" --- AI ---
+" Floating/split terminal windows used by claudecode.nvim
+Plug 'folke/snacks.nvim'
+" Claude Code integration
+Plug 'coder/claudecode.nvim'
+
 
 " --- Icons ---
 " For some reason this needs to be loaded last

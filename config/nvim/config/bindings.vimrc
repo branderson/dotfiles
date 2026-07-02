@@ -161,6 +161,16 @@ function! MapPlugins()
         nnoremap <leader>u :GundoToggle<CR>
     endif
 
+    if exists('g:loaded_claudecode')
+        " Claude Code
+        nnoremap <leader>ac :ClaudeCode<CR>
+        nnoremap <leader>af :ClaudeCodeFocus<CR>
+        nnoremap <leader>ab :ClaudeCodeAdd %<CR>
+        vnoremap <leader>as :ClaudeCodeSend<CR>
+        nnoremap <leader>aa :ClaudeCodeDiffAccept<CR>
+        nnoremap <leader>ad :ClaudeCodeDiffDeny<CR>
+    endif
+
     " --- Language Specific ---
     " - General
     " COC
