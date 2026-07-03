@@ -30,7 +30,7 @@ zsh
 zsh-syntax-highlighting
 
 # credential management and git
-github-cli
+#github-cli
 gnome-keyring
 
 # needed for certain hardware support

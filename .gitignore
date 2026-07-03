@@ -9,5 +9,6 @@ config/xfce4/xfconf/xfce-perchannel-xml
 config/xfce4/terminal
 config/themes
 config/icons
+config/VSCodium
 dependencies/dotfiles-local
 packages/*.local
