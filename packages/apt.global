@@ -9,6 +9,7 @@ nodejs
 zsh
 npm
 tree-sitter-cli
+ripgrep
 
 # Useless stuff
 fortune-mod
