@@ -10,6 +10,7 @@ zsh
 npm
 tree-sitter-cli
 ripgrep
+shellcheck
 
 # Useless stuff
 fortune-mod

@@ -37,8 +37,13 @@ return {
         javascriptreact = { "eslint_d" },
         typescriptreact = { "eslint_d" },
         svelte = { "eslint_d" },
-        sh = { "shellcheck" },
       }
+
+      if vim.fn.executable("shellcheck") == 1 then
+        require("lint").linters_by_ft.sh = { "shellcheck" }
+      else
+        vim.notify("shellcheck not found: skipping shell linting", vim.log.levels.WARN)
+      end
 
       vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
         callback = function()
