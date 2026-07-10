@@ -47,3 +47,9 @@ map("n", "<leader><leader>LL", ":set background=light<CR>")
 -- Ranger / trailing whitespace utilities
 map("n", "<leader>ra", function() require("util").ranger() end)
 map("n", "<leader>rw", function() require("util").delete_trailing_ws() end)
+
+-- Terminal-mode Ctrl-Z otherwise goes straight to the embedded process (e.g.
+-- suspending the claude CLI inside claudecode.nvim's terminal with no way to
+-- fg it back) instead of suspending Neovim itself, like Ctrl-Z does by
+-- default in Normal mode.
+map("t", "<C-z>", "<C-\\><C-n><C-z>")
