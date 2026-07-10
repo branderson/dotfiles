@@ -1,4 +1,14 @@
-local servers = { "ts_ls", "svelte", "html", "cssls", "basedpyright", "ruff", "bashls" }
+local servers = { "basedpyright", "ruff" }
+
+local npm_servers = { "ts_ls", "svelte", "html", "cssls", "bashls" }
+if vim.fn.executable("npm") == 1 then
+  vim.list_extend(servers, npm_servers)
+else
+  vim.notify(
+    "npm not found: skipping LSP servers " .. table.concat(npm_servers, ", "),
+    vim.log.levels.WARN
+  )
+end
 
 return {
   {

@@ -59,3 +59,22 @@ opt.splitright = true
 
 opt.updatetime = 300
 opt.shortmess:append("c")
+
+-- Clipboard: OSC 52 copy-only. This sends the "+ / "* register content to
+-- the real terminal via escape sequence, so <leader>y works whether nvim is
+-- local or several ssh/tmux hops deep -- no xclip/wl-copy/pbcopy needed on
+-- the remote host. Paste is intentionally left as a no-op: OSC 52 read
+-- support is inconsistent across terminals and can hang waiting for a
+-- reply, so use the terminal's own native paste (e.g. Ctrl-Shift-V) instead.
+local osc52 = require("vim.ui.clipboard.osc52")
+vim.g.clipboard = {
+  name = "OSC 52 (copy-only)",
+  copy = {
+    ["+"] = osc52.copy("+"),
+    ["*"] = osc52.copy("*"),
+  },
+  paste = {
+    ["+"] = function() return {} end,
+    ["*"] = function() return {} end,
+  },
+}

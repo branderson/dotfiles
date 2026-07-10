@@ -7,6 +7,8 @@ thefuck
 tree
 nodejs
 zsh
+npm
+tree-sitter-cli
 
 # Useless stuff
 fortune-mod
