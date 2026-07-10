@@ -24,6 +24,7 @@ Lua config managed by [lazy.nvim](https://github.com/folke/lazy.nvim). Leader is
   - `<leader>;` — jump to buffer
   - `<leader>be` — jump to buffer, sorted by most recently used
   - `<leader>ag` — live grep
+  - `<leader>?` — fuzzy-search all keybindings
 - **[flash.nvim](https://github.com/folke/flash.nvim)** — jump to any visible location via search-like labels
   - `<leader>/` — jump
   - `<leader>s` — search jump
@@ -125,8 +126,7 @@ LSP buffer keymaps (set on `LspAttach`, see `plugins/lsp.lua`):
   - `<leader>u` — toggle
 - **[persistence.nvim](https://github.com/folke/persistence.nvim)** — session save/restore per project
   - restore from the dashboard's `s` button
-- **[which-key.nvim](https://github.com/folke/which-key.nvim)** — keybinding cheatsheet, built from every mapping's `desc`
-  - `<leader>?` — browse all keybindings; press a key to drill into a group, `<bs>` to go back up, `<esc>` to close
+- **[which-key.nvim](https://github.com/folke/which-key.nvim)** — shows available keybindings as you type a prefix (e.g. pause after `<leader>`), automatic
 
 ## Dashboard
 

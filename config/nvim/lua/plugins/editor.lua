@@ -38,6 +38,7 @@ return {
         desc = "Jump to buffer (MRU)",
       },
       { "<leader>ag", "<cmd>Telescope live_grep<CR>", desc = "Grep" },
+      { "<leader>?", "<cmd>Telescope keymaps<CR>", desc = "Search keybindings" },
     },
     config = function()
       local telescope = require("telescope")
