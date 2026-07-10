@@ -72,6 +72,16 @@ LSP buffer keymaps (set on `LspAttach`, see `plugins/lsp.lua`):
 - `rn` — rename
 - `ff` (visual) — format selection
 
+### Debugging (`plugins/dap.lua`)
+
+- **[nvim-dap](https://github.com/mfussenegger/nvim-dap)** — Debug Adapter Protocol client
+  - `<leader>db` — toggle breakpoint
+  - `<leader>dc` — continue / start debugging
+  - `<leader>di` / `<leader>do` / `<leader>dO` — step into / over / out
+  - `<leader>dr` — toggle REPL
+  - `<leader>dq` — terminate session
+- **[nvim-dap-python](https://github.com/mfussenegger/nvim-dap-python)** — configures nvim-dap for Python using `debugpy`. Requires `:MasonInstall debugpy`; without it, debugging is skipped with a warning.
+
 ### Formatting & linting (`plugins/format.lua`)
 
 - **[conform.nvim](https://github.com/stevearc/conform.nvim)** — format-on-save (prettier, ruff_format, rustfmt, stylua per filetype)
