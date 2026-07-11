@@ -24,6 +24,8 @@ thefuck
 tree
 arandr
 nodejs
+tree-sitter-cli
+shellcheck
 
 # zsh shell instead of bash
 zsh
