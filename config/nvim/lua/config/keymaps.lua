@@ -3,6 +3,10 @@ local map = vim.keymap.set
 -- Insert/command-mode escape via ,,
 map("i", ",,", "<Esc>", { desc = "Escape insert mode" })
 map("c", ",,", "<Esc><Esc>", { desc = "Escape command mode" })
+-- Terminal mode is a separate mode from Insert, so the above doesn't cover
+-- it (e.g. the Claude Code terminal). <C-\><C-n> is the real escape back to
+-- Normal mode there.
+map("t", ",,", "<C-\\><C-n>", { desc = "Escape terminal mode" })
 
 -- Move by display line, not physical line
 map("n", "j", "gj", { desc = "Move down by display line" })

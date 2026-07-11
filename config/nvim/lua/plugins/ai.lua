@@ -40,6 +40,19 @@ return {
         end
         return default_find_main_editor_window()
       end
+
+      -- claudecode's unified diff buffers pick up treesitter's foldexpr via
+      -- the normal FileType autocmd, so they otherwise inherit the global
+      -- foldlevelstart and open partially collapsed. Fully expand folds in
+      -- these specifically instead of changing the default for all buffers.
+      vim.api.nvim_create_autocmd("BufWinEnter", {
+        group = vim.api.nvim_create_augroup("ClaudeCodeDiffUnfold", { clear = true }),
+        callback = function(args)
+          if vim.b[args.buf].claudecode_inline_diff then
+            vim.wo.foldlevel = 99
+          end
+        end,
+      })
     end,
     keys = {
       { "<leader>ac", "<cmd>ClaudeCode<CR>", desc = "Toggle Claude Code" },
