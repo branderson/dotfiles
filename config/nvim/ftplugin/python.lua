@@ -1,2 +1,4 @@
 vim.bo.textwidth = 79
-vim.bo.fileformat = "unix"
+if vim.bo.modifiable then
+  vim.bo.fileformat = "unix"
+end
