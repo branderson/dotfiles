@@ -95,6 +95,23 @@ case "$subcommand" in
             echo "Detached HEAD: check out the feature branch before creating a PR" >&2
             exit 1
         fi
+
+        response=$(curl -sS -w '\n%{http_code}' "${GITEA_API}/repos/${owner}/${repo}/pulls?state=open" \
+            -H "Authorization: token ${GITEA_TOKEN}")
+        http_code=$(echo "$response" | tail -1)
+        json=$(echo "$response" | sed '$d')
+        if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "Failed to check for an existing PR (HTTP $http_code):" >&2
+            echo "$json" >&2
+            exit 1
+        fi
+        existing_url=$(echo "$json" | jq -r --arg head "$current_branch" \
+            '.[] | select(.head.ref == $head) | .html_url' | head -1)
+        if [ -n "$existing_url" ]; then
+            echo "$existing_url"
+            exit 0
+        fi
+
         if [ -z "$base" ]; then
             base=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's#refs/remotes/origin/##' || true)
             base="${base:-main}"
