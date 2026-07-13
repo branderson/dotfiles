@@ -96,6 +96,11 @@ case "$subcommand" in
             exit 1
         fi
 
+        if [ -z "$base" ]; then
+            base=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's#refs/remotes/origin/##' || true)
+            base="${base:-main}"
+        fi
+
         response=$(curl -sS -w '\n%{http_code}' "${GITEA_API}/repos/${owner}/${repo}/pulls?state=open" \
             -H "Authorization: token ${GITEA_TOKEN}")
         http_code=$(echo "$response" | tail -1)
@@ -105,16 +110,11 @@ case "$subcommand" in
             echo "$json" >&2
             exit 1
         fi
-        existing_url=$(echo "$json" | jq -r --arg head "$current_branch" \
-            '.[] | select(.head.ref == $head) | .html_url' | head -1)
+        existing_url=$(echo "$json" | jq -r --arg head "$current_branch" --arg base "$base" \
+            '.[] | select(.head.ref == $head and .base.ref == $base) | .html_url' | head -1)
         if [ -n "$existing_url" ]; then
             echo "$existing_url"
             exit 0
-        fi
-
-        if [ -z "$base" ]; then
-            base=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's#refs/remotes/origin/##' || true)
-            base="${base:-main}"
         fi
         if [ -z "$title" ]; then
             title="$current_branch"
