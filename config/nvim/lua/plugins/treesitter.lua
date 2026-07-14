@@ -33,16 +33,23 @@ return {
       local uname = vim.uv.os_uname()
       local sysname = (uname.sysname or ""):lower()
       local machine = uname.machine or ""
-      local os_part = sysname == "darwin" and "macos" or "linux"
-      local arch_part = ({ x86_64 = "x64", amd64 = "x64", aarch64 = "arm64", arm64 = "arm64" })[machine] or "x64"
-      local asset = "tree-sitter-" .. os_part .. "-" .. arch_part
+      local is_mac = sysname == "darwin"
+
+      local install_cmd
+      if is_mac then
+        local arch_part = ({ x86_64 = "x64", amd64 = "x64", aarch64 = "arm64", arm64 = "arm64" })[machine] or "x64"
+        local asset = "tree-sitter-macos-" .. arch_part
+        install_cmd = "  curl -L https://github.com/tree-sitter/tree-sitter/releases/latest/download/"
+          .. asset
+          .. ".gz | gunzip > ~/.local/bin/tree-sitter && chmod +x ~/.local/bin/tree-sitter"
+      else
+        install_cmd = "  cargo install --root ~/.local tree-sitter-cli"
+      end
 
       vim.notify(
         "tree-sitter CLI not found: skipping install of missing parsers.\n"
           .. "Install into ~/.local/bin:\n"
-          .. "  curl -L https://github.com/tree-sitter/tree-sitter/releases/latest/download/"
-          .. asset
-          .. ".gz | gunzip > ~/.local/bin/tree-sitter && chmod +x ~/.local/bin/tree-sitter",
+          .. install_cmd,
         vim.log.levels.WARN
       )
     end
