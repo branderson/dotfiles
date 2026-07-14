@@ -186,6 +186,19 @@ fi
 # Tool options
 export SHELLCHECK_OPTS="-e SC2029 -e SC2155"
 
+# Limit claude-code: cap CPU/memory/process count so a runaway subprocess
+# (or its children, e.g. from the Bash tool) can't overheat the laptop.
+# Adjust the -p values if these limits are ever too tight.
+if program_installed claude && program_installed systemd-run; then
+    claude() {
+        systemd-run --user --scope --quiet \
+            -p CPUQuota=50% \
+            -p MemoryMax=6G \
+            -p TasksMax=512 \
+            -- command claude "$@"
+    }
+fi
+
 # Syntax highlighting
 if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
