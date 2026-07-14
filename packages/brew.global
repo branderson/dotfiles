@@ -1,4 +1,4 @@
-nvim
+neovim
 coreutils
 tree
 ag
@@ -10,3 +10,6 @@ fortune
 tmuxinator
 python
 pipx
+tree-sitter-cli
+ripgrep
+shellcheck
