@@ -30,8 +30,19 @@ return {
     if vim.fn.executable("tree-sitter") == 1 then
       require("nvim-treesitter").install(parsers)
     else
+      local uname = vim.uv.os_uname()
+      local sysname = (uname.sysname or ""):lower()
+      local machine = uname.machine or ""
+      local os_part = sysname == "darwin" and "macos" or "linux"
+      local arch_part = ({ x86_64 = "x64", amd64 = "x64", aarch64 = "arm64", arm64 = "arm64" })[machine] or "x64"
+      local asset = "tree-sitter-" .. os_part .. "-" .. arch_part
+
       vim.notify(
-        "tree-sitter CLI not found: skipping install of missing parsers",
+        "tree-sitter CLI not found: skipping install of missing parsers.\n"
+          .. "Install into ~/.local/bin:\n"
+          .. "  curl -L https://github.com/tree-sitter/tree-sitter/releases/latest/download/"
+          .. asset
+          .. ".gz | gunzip > ~/.local/bin/tree-sitter && chmod +x ~/.local/bin/tree-sitter",
         vim.log.levels.WARN
       )
     end

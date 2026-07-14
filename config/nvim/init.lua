@@ -30,23 +30,28 @@ if vim.fn.has("nvim-0.12") == 0 then
     os.exit(1)
   end
 
-  local asset = "nvim-linux-" .. asset_arch
-  vim.api.nvim_echo({
+  local sysname = ((vim.loop.os_uname() or {}).sysname or ""):lower()
+  local is_mac = sysname == "darwin"
+  local asset = (is_mac and "nvim-macos-" or "nvim-linux-") .. asset_arch
+
+  local lines = {
     { "This config requires Neovim 0.12.0 or newer (found " .. current .. ", " .. machine .. ").\n\n", "ErrorMsg" },
-    { "Install a current build -- locally, no root needed:\n", "None" },
+    { "Install a current build into ~/.local (no root needed):\n", "None" },
     { "  curl -LO https://github.com/neovim/neovim/releases/latest/download/" .. asset .. ".tar.gz\n", "None" },
-    { "  tar xzf " .. asset .. ".tar.gz\n", "None" },
-    { "  rm -rf ~/.local/nvim && mv " .. asset .. " ~/.local/nvim\n", "None" },
-    { "  mkdir -p ~/.local/bin && ln -sf ~/.local/nvim/bin/nvim ~/.local/bin/nvim\n", "None" },
+    { "  mkdir -p ~/.local && tar xzf " .. asset .. ".tar.gz --strip-components=1 -C ~/.local\n", "None" },
     { "  rm " .. asset .. ".tar.gz\n", "None" },
     { "  # then make sure ~/.local/bin is on your PATH\n\n", "Comment" },
-    { "Or system-wide (needs root):\n", "None" },
-    { "  curl -LO https://github.com/neovim/neovim/releases/latest/download/" .. asset .. ".tar.gz\n", "None" },
-    { "  tar xzf " .. asset .. ".tar.gz\n", "None" },
-    { "  sudo rm -rf /opt/nvim && sudo mv " .. asset .. " /opt/nvim\n", "None" },
-    { "  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim\n", "None" },
-    { "  rm " .. asset .. ".tar.gz\n", "None" },
-  }, true, {})
+  }
+  if not is_mac then
+    vim.list_extend(lines, {
+      { "Or system-wide (needs root):\n", "None" },
+      { "  curl -LO https://github.com/neovim/neovim/releases/latest/download/" .. asset .. ".tar.gz\n", "None" },
+      { "  sudo mkdir -p /opt/nvim && sudo tar xzf " .. asset .. ".tar.gz --strip-components=1 -C /opt/nvim\n", "None" },
+      { "  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim\n", "None" },
+      { "  rm " .. asset .. ".tar.gz\n", "None" },
+    })
+  end
+  vim.api.nvim_echo(lines, true, {})
   vim.fn.getchar()
   os.exit(1)
 end
