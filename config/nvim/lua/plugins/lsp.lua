@@ -1,11 +1,19 @@
 local servers = { "basedpyright", "ruff" }
 
 local npm_servers = { "ts_ls", "svelte", "html", "cssls", "bashls" }
-if vim.fn.executable("npm") == 1 then
+local function has_public_npm()
+  if vim.fn.executable("npm") ~= 1 then
+    return false
+  end
+  local result = vim.fn.system("npm config get registry")
+  return result:find("registry.npmjs.org") ~= nil
+end
+
+if has_public_npm() then
   vim.list_extend(servers, npm_servers)
 else
   vim.notify(
-    "npm not found: skipping LSP servers " .. table.concat(npm_servers, ", "),
+    "public npm registry unavailable: skipping LSP servers " .. table.concat(npm_servers, ", "),
     vim.log.levels.WARN
   )
 end

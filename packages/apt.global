@@ -11,6 +11,8 @@ npm
 tree-sitter-cli
 ripgrep
 shellcheck
+bubblewrap
+socat
 
 # Agent sandboxing
 bubblewrap

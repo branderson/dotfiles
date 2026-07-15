@@ -12,3 +12,4 @@ config/icons
 config/VSCodium
 dependencies/dotfiles-local
 packages/*.local
+.claude

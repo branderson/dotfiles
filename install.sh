@@ -40,6 +40,7 @@
 # mkdir ~/dotfiles/config/themes ~/dotfiles/config/icons
 # cp -r ~/dotfiles/dependencies/Gruvbox-GTK-Theme/themes/* ~/dotfiles/config/themes
 # cp -r ~/dotfiles/dependencies/Gruvbox-GTK-Theme/icons/* ~/dotfiles/config/icons
+# cp -r ~/dotfiles/config/claude/themes/* ~/.claude/themes/
 
 # TODO: Customize lightdm
 # Move some wallpaper assets into this repo
