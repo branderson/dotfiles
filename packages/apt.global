@@ -12,6 +12,10 @@ tree-sitter-cli
 ripgrep
 shellcheck
 
+# Agent sandboxing
+bubblewrap
+socat
+
 # Useless stuff
 fortune-mod
 cowsay
