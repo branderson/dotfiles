@@ -26,6 +26,8 @@ arandr
 nodejs
 tree-sitter-cli
 shellcheck
+bubblewrap
+socat
 
 # zsh shell instead of bash
 zsh
