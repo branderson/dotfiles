@@ -130,7 +130,7 @@ return {
     config = function()
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "html", "css" },
-        callback = function() vim.fn["emmet#install"]() end,
+        callback = function() vim.cmd("EmmetInstall") end,
       })
     end,
   },
