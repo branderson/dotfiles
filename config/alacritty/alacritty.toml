@@ -22,3 +22,16 @@ style = "Regular"
 import = [
     "~/.config/alacritty/themes/themes/gruvbox_dark.toml"
 ]
+
+[keyboard]
+# Alacritty doesn't implement the CSI-u/Kitty keyboard protocol that lets a
+# terminal report Shift+Enter as distinct from plain Enter, so it needs an
+# explicit binding. Sending a raw line feed makes Shift+Enter equivalent to
+# Ctrl+J, which Claude Code (and most other terminal apps) already treats
+# as "insert newline" with zero further configuration -- this works
+# unchanged through any depth of nested tmux, since it's just a literal
+# byte rather than an escape sequence that needs to be interpreted along
+# the way.
+bindings = [
+    { key = "Return", mods = "Shift", chars = "\n" },
+]
