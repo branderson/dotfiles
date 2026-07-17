@@ -1,0 +1,8 @@
+#!/bin/sh
+# Read clipboard content on stdin (e.g. from `tmux save-buffer -`) and write
+# it as a raw OSC 52 escape sequence directly to the given tty device path.
+# Intended to be called from tmux's pane-set-clipboard hook as:
+#   tmux save-buffer - | tmux-clipboard-relay "#{client_tty}"
+tty_path="$1"
+data=$(base64 | tr -d '\n')
+printf '\033]52;c;%s\a' "$data" > "$tty_path"

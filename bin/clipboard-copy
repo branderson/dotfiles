@@ -1,9 +1,11 @@
 #!/bin/sh
 # Copy stdin to the system clipboard, regardless of platform or how deep in
 # ssh/tmux this shell is: prefer a local clipboard tool for the current
-# display server, and fall back to OSC 52 (wrapped for tmux's DCS
-# passthrough, since tmux's own Ms-based OSC 52 forwarding doesn't reliably
-# reach every terminal) when no local tool is available.
+# display server, and fall back to a single plain OSC 52 write when no local
+# tool is available (e.g. a headless remote host). Any tmux hops in between
+# here and the real terminal relay that onward themselves, recursively, via
+# the pane-set-clipboard hook in tmux.conf -- this doesn't need to know or
+# guess how many hops there are.
 if command -v pbcopy >/dev/null 2>&1; then
     exec pbcopy
 elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
@@ -15,13 +17,6 @@ elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
 elif [ -n "$DISPLAY" ] && command -v xclip >/dev/null 2>&1; then
     setsid -f xclip -selection clipboard
 else
-    # No local clipboard tool -- most likely this is a remote host reached
-    # over ssh, possibly with one or more local tmux hops between here and
-    # the actual display that this process has no way to detect. Send both
-    # the raw form and the tmux-DCS-passthrough-wrapped form: whichever one
-    # the chain in between doesn't understand is silently dropped, and the
-    # other gets through.
     data=$(base64 | tr -d '\n')
     printf '\033]52;c;%s\a' "$data" > /dev/tty
-    printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$data" > /dev/tty
 fi
