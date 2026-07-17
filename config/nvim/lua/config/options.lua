@@ -64,14 +64,15 @@ opt.shortmess:append("c")
 -- script (rather than nvim's built-in raw-OSC-52-only provider) because
 -- reaching the real clipboard needs more than a raw OSC 52 write: it picks
 -- pbcopy/xclip/wl-copy when nvim is running locally, and when none of those
--- are available (nvim on a remote host with no local display) sends OSC 52
--- both raw and wrapped for tmux's DCS passthrough, since it can't know how
--- many local tmux hops are between it and the real terminal and tmux's own
--- native OSC 52 forwarding isn't reliable. Works whether nvim is local or
--- several ssh/tmux hops deep, on any machine sharing this dotfiles repo.
--- Paste is intentionally left as a no-op: OSC 52 read support is
--- inconsistent across terminals and can hang waiting for a reply, so use
--- the terminal's own native paste (e.g. Ctrl-Shift-V) instead.
+-- are available (nvim on a remote host with no local display) sends a
+-- single plain OSC 52 write. Any tmux hops between here and the real
+-- terminal relay that onward themselves via the pane-set-clipboard hook in
+-- tmux.conf, so this works whether nvim is local or several ssh/tmux hops
+-- deep, on any machine sharing this dotfiles repo, without needing to know
+-- how many hops there are. Paste is intentionally left as a no-op: OSC 52
+-- read support is inconsistent across terminals and can hang waiting for a
+-- reply, so use the terminal's own native paste (e.g. Ctrl-Shift-V)
+-- instead.
 local clipboard_copy = vim.fn.expand("~/dotfiles/bin/clipboard-copy")
 vim.g.clipboard = {
   name = "clipboard-copy (copy-only)",
