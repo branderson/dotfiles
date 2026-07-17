@@ -60,18 +60,24 @@ opt.splitright = true
 opt.updatetime = 300
 opt.shortmess:append("c")
 
--- Clipboard: OSC 52 copy-only. This sends the "+ / "* register content to
--- the real terminal via escape sequence, so <leader>y works whether nvim is
--- local or several ssh/tmux hops deep -- no xclip/wl-copy/pbcopy needed on
--- the remote host. Paste is intentionally left as a no-op: OSC 52 read
--- support is inconsistent across terminals and can hang waiting for a
--- reply, so use the terminal's own native paste (e.g. Ctrl-Shift-V) instead.
-local osc52 = require("vim.ui.clipboard.osc52")
+-- Clipboard: copy-only, via dotfiles/bin/clipboard-copy. This is a small
+-- script (rather than nvim's built-in raw-OSC-52-only provider) because
+-- reaching the real clipboard needs more than a raw OSC 52 write: it picks
+-- pbcopy/xclip/wl-copy when nvim is running locally, and when none of those
+-- are available (nvim on a remote host with no local display) sends OSC 52
+-- both raw and wrapped for tmux's DCS passthrough, since it can't know how
+-- many local tmux hops are between it and the real terminal and tmux's own
+-- native OSC 52 forwarding isn't reliable. Works whether nvim is local or
+-- several ssh/tmux hops deep, on any machine sharing this dotfiles repo.
+-- Paste is intentionally left as a no-op: OSC 52 read support is
+-- inconsistent across terminals and can hang waiting for a reply, so use
+-- the terminal's own native paste (e.g. Ctrl-Shift-V) instead.
+local clipboard_copy = vim.fn.expand("~/dotfiles/bin/clipboard-copy")
 vim.g.clipboard = {
-  name = "OSC 52 (copy-only)",
+  name = "clipboard-copy (copy-only)",
   copy = {
-    ["+"] = osc52.copy("+"),
-    ["*"] = osc52.copy("*"),
+    ["+"] = { clipboard_copy },
+    ["*"] = { clipboard_copy },
   },
   paste = {
     ["+"] = function() return {} end,

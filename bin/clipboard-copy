@@ -1,0 +1,27 @@
+#!/bin/sh
+# Copy stdin to the system clipboard, regardless of platform or how deep in
+# ssh/tmux this shell is: prefer a local clipboard tool for the current
+# display server, and fall back to OSC 52 (wrapped for tmux's DCS
+# passthrough, since tmux's own Ms-based OSC 52 forwarding doesn't reliably
+# reach every terminal) when no local tool is available.
+if command -v pbcopy >/dev/null 2>&1; then
+    exec pbcopy
+elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
+    # wl-copy/xclip both hold the selection by staying alive as a background
+    # process (X11/Wayland selections have no central store -- the owner has
+    # to serve paste requests live). setsid -f detaches that process from
+    # our session so tmux's copy-pipe job cleanup can't kill it right after.
+    setsid -f wl-copy
+elif [ -n "$DISPLAY" ] && command -v xclip >/dev/null 2>&1; then
+    setsid -f xclip -selection clipboard
+else
+    # No local clipboard tool -- most likely this is a remote host reached
+    # over ssh, possibly with one or more local tmux hops between here and
+    # the actual display that this process has no way to detect. Send both
+    # the raw form and the tmux-DCS-passthrough-wrapped form: whichever one
+    # the chain in between doesn't understand is silently dropped, and the
+    # other gets through.
+    data=$(base64 | tr -d '\n')
+    printf '\033]52;c;%s\a' "$data" > /dev/tty
+    printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$data" > /dev/tty
+fi
