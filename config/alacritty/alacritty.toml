@@ -23,6 +23,15 @@ import = [
     "~/.config/alacritty/themes/themes/gruvbox_dark.toml"
 ]
 
+[selection]
+# X11 always sets PRIMARY (middle-click paste) on text selection; that part
+# needs no config. CLIPBOARD (Ctrl+V / Ctrl+Shift+V) is a separate buffer
+# that nothing populates without this, so mirror every selection into it
+# too. This is handled by Alacritty itself, so it covers anything visible
+# on screen -- local shell, nested tmux, SSH'd remote shells -- regardless
+# of whether the app underneath knows how to talk to the clipboard.
+save_to_clipboard = true
+
 [keyboard]
 # Alacritty doesn't implement the CSI-u/Kitty keyboard protocol that lets a
 # terminal report Shift+Enter as distinct from plain Enter, so it needs an
