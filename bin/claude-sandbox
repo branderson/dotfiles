@@ -1,0 +1,50 @@
+#!/bin/bash
+# Launch nvim inside the claude-sandbox container (see docker/claude-sandbox/),
+# with a project directory bind-mounted at its real host path. Any `claude`
+# invocation inside (a shell, or claudecode.nvim's terminal) runs with
+# --dangerously-skip-permissions.
+#
+# Usage: claude-sandbox [path-to-project] [-- nvim args...]
+#   claude-sandbox                      # sandbox the current directory
+#   claude-sandbox ~/repos/myproject
+#   claude-sandbox ~/repos/myproject src/foo.py   # open a specific file
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="$SCRIPT_DIR/../docker/claude-sandbox/docker-compose.yml"
+
+WORKSPACE_DIR="${1:-$(pwd)}"
+if [ ! -d "$WORKSPACE_DIR" ]; then
+    echo "Not a directory: $WORKSPACE_DIR" >&2
+    exit 1
+fi
+shift || true
+
+if [ "${1:-}" = "--" ]; then
+    shift
+fi
+
+WORKSPACE_DIR="$(cd "$WORKSPACE_DIR" && pwd)"
+
+if [ -z "${SSH_AUTH_SOCK:-}" ] || [ ! -S "${SSH_AUTH_SOCK}" ]; then
+    echo "SSH_AUTH_SOCK is not set or not a valid socket." >&2
+    echo "Start ssh-agent and run ssh-add before using claude-sandbox." >&2
+    exit 1
+fi
+
+if [ -z "${GITEA_TOKEN:-}" ]; then
+    GITEA_TOKEN_FILE="${GITEA_TOKEN_FILE:-$HOME/.config/gitea/token}"
+    if [ -f "$GITEA_TOKEN_FILE" ]; then
+        GITEA_TOKEN="$(<"$GITEA_TOKEN_FILE")"
+    fi
+fi
+
+export WORKSPACE_DIR
+export SSH_AUTH_SOCK
+export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
+export GITEA_TOKEN="${GITEA_TOKEN:-}"
+export GITEA_SSH_HOST="${GITEA_SSH_HOST:-}"
+export GITEA_API="${GITEA_API:-}"
+export TZ="${TZ:-$(readlink -f /etc/localtime 2>/dev/null | sed 's#.*/zoneinfo/##')}"
+
+exec docker compose -f "$COMPOSE_FILE" run --rm --build claude "$@"

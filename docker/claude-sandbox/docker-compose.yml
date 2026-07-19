@@ -1,0 +1,51 @@
+# Not meant to be run directly with plain `docker compose up`: WORKSPACE_DIR,
+# SSH_AUTH_SOCK, etc. must point at real host paths for a specific project.
+# Use `bin/claude-sandbox <path-to-project>` instead, which sets these and
+# invokes this file.
+services:
+  claude:
+    build:
+      context: ../..
+      dockerfile: docker/claude-sandbox/Dockerfile
+      args:
+        TZ: ${TZ:-UTC}
+    image: claude-sandbox:latest
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      CLAUDE_CONFIG_DIR: /home/node/.claude
+      GITEA_SSH_HOST: ${GITEA_SSH_HOST:-}
+      GITEA_API: ${GITEA_API:-}
+      GITEA_TOKEN: ${GITEA_TOKEN:-}
+      ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
+      SSH_AUTH_SOCK: /ssh-agent
+      ENABLE_FIREWALL: ${ENABLE_FIREWALL:-1}
+    volumes:
+      # Mounted at the same absolute path as on the host (rather than a
+      # fixed /workspace) so Claude Code's project/session-history keying
+      # (based on cwd) lines up with the host, letting a session started
+      # here be resumed on the host with `claude --resume`.
+      - ${WORKSPACE_DIR:?set WORKSPACE_DIR to the project directory to mount}:${WORKSPACE_DIR}
+      - ${HOME}/.claude:/home/node/.claude
+      - ${HOME}/.claude.json:/home/node/.claude.json
+      # ~/.claude/hooks is a symlink into ~/dotfiles/config/claude/hooks (an
+      # absolute host path); mount dotfiles at the same path so it resolves
+      # in the container too. Read-only: hooks are only ever read/executed
+      # from here, never written.
+      - ${HOME}/dotfiles:${HOME}/dotfiles:ro
+      - claude-code-bashhistory:/commandhistory
+      - nvim-data:/home/node/.local/share/nvim
+      - nvim-state:/home/node/.local/state/nvim
+      - nvim-cache:/home/node/.cache/nvim
+      - ${SSH_AUTH_SOCK:?set SSH_AUTH_SOCK to your running ssh-agent socket}:/ssh-agent
+      - ${SSH_KNOWN_HOSTS:-/dev/null}:/home/node/.ssh/known_hosts:ro
+    working_dir: ${WORKSPACE_DIR}
+    stdin_open: true
+    tty: true
+
+volumes:
+  claude-code-bashhistory:
+  nvim-data:
+  nvim-state:
+  nvim-cache:

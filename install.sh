@@ -135,6 +135,10 @@ picom.conf
 picom-extended.conf
 libinput-gestures.conf
 "
+# Files and directories under ~/.claude
+claude_configs="
+hooks
+"
 local_home_templates="
 zshrc_local
 profile.local
@@ -252,6 +256,40 @@ function link_dotfiles {
             fi
         fi
     done
+    echo -n "Would you like to link the Claude Code dotfiles (~/.claude/hooks etc.)? (y/N) "
+    read response
+    if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
+        for file in $claude_configs; do
+            if [[ -f claude/$file || -d claude/$file ]]; then
+                if [[ -f "$HOME/.claude/.stignore" ]] && ! grep -qxF "$file" "$HOME/.claude/.stignore"; then
+                    echo "Adding $file to ~/.claude/.stignore"
+                    echo "$file" >> "$HOME/.claude/.stignore"
+                fi
+                if [[ -L "$HOME/.claude/$file" ]]; then
+                    echo "Skipping: $file because ~/.claude/$file already linked"
+                else
+                    if [[ -f "$HOME/.claude/$file" || -d "$HOME/.claude/$file" ]]; then
+                        echo "Moving: existing ~/.claude/$file to ~/.dotfiles-backup/claude/$file"
+                        if [ ! -d $HOME/.dotfiles-backup/claude ]; then
+                            mkdir -p $HOME/.dotfiles-backup/claude
+                        fi
+                        mv "$HOME/.claude/$file" "$HOME/.dotfiles-backup/claude/$file"
+                    fi
+                    echo "Linking: $file ($config_dir/claude/$file -> ~/.claude/$file)"
+                    mkdir -p $HOME/.claude
+                    ln -s $config_dir/claude/$file $HOME/.claude/$file
+                fi
+            fi
+        done
+        if [[ -f "$HOME/.claude/settings.json" ]] && program_installed jq; then
+            if ! jq -e '[.hooks.SessionStart[]?.hooks[]?.command // empty] | any(test("sandbox-context.sh"))' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
+                echo "Adding sandbox-context.sh SessionStart hook to ~/.claude/settings.json"
+                tmp_settings=$(mktemp)
+                jq '.hooks.SessionStart = ((.hooks.SessionStart // []) + [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/sandbox-context.sh"}]}])' \
+                    "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
+            fi
+        fi
+    fi
     # TODO: These are getting in the way of dotfiles-local install so disabling
     # Refactor this
     # for file in $local_home_templates; do
