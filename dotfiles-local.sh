@@ -3,7 +3,9 @@
 # Source .profile.local in case it's been recently updated with repo
 source "$HOME/.profile"
 if [ -f "$HOME/.profile.local" ]; then
+    set -a
     source "$HOME/.profile.local"
+    set +a
 fi
 if [ -f "$HOME/.dotfiles-config" ]; then
     source "$HOME/.dotfiles-config"
