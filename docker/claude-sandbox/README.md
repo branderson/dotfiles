@@ -95,6 +95,12 @@ the firewall backs this up with real enforcement (see below); for "never
 pushes to main/master", the authoritative version of that is branch
 protection on the Gitea repo itself, which this doesn't set up for you.
 
+sandbox-context.sh also tells the agent the actual workflow to follow
+proactively, not just what's blocked: do new work in a `git worktree`
+rather than switching branches in the mounted checkout in place (that's the
+user's real working copy), then push the feature branch and run
+`gitea-pr create` from the worktree.
+
 ## Network egress firewall
 
 On start, the container runs an allowlist-only `iptables`/`ipset` firewall
@@ -117,6 +123,29 @@ disable it entirely (e.g. for debugging a blocked domain).
 If your Gitea host is only resolvable via a LAN-local DNS server, make sure
 the Docker host itself can resolve it — containers inherit the host's
 resolver by default.
+
+### Adding a domain to a running session
+
+`ALLOWED_DOMAINS` only takes effect at container start. For a domain a
+*running* session needs right now, run from the host (not inside the
+sandbox — it has no privilege to do this itself):
+
+```sh
+bin/claude-sandbox-allow crates.io                # this session only
+bin/claude-sandbox-allow crates.io --global       # + persist in config/profile
+```
+
+It resolves the domain inside the target container (so it sees what the
+container's own resolver sees) and adds the IP(s) directly to the running
+firewall's `ipset`, via `docker exec -u root`. `--global` also appends the
+domain to `ALLOWED_DOMAINS` in `config/profile` for future sessions; source
+your shell (or open a new one) for that part to take effect. If more than
+one claude-sandbox container is running, pass `--container <name>` to
+disambiguate (`docker ps` to find it).
+
+The sandbox-context.sh `SessionStart` hook tells the agent to ask for this
+by name when a task is blocked on a single missing domain, rather than
+stopping the whole session over it.
 
 ## GitHub is read-only
 
@@ -192,4 +221,6 @@ GitHub itself (403), not just blocked locally.
 
 `bin/claude-sandbox` (repo root `bin/`) is the entry point — it resolves the
 project path, checks for a live `ssh-agent`, loads `GITEA_TOKEN`/`GH_TOKEN`
-if not already set, and runs `docker compose run`.
+if not already set, and runs `docker compose run`. `bin/claude-sandbox-allow`
+adds a domain to a running session's firewall from the host - see "Adding a
+domain to a running session" above.

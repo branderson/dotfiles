@@ -21,18 +21,33 @@ What this means:
   disposable: installed system packages, anything outside the mounted
   paths, and the container itself go away when this run ends.
 - Outbound network is restricted to an allowlist (Anthropic's API, the npm
-  registry, GitHub, the configured Gitea host, plus anything set via
-  ALLOWED_DOMAINS). Requests to anything else will simply fail to connect.
+  registry, GitHub read-only, the configured Gitea host, plus anything set
+  via ALLOWED_DOMAINS). Requests to anything else will simply fail to
+  connect. If a task needs one more domain and nothing else, that's a quick
+  fix, not a reason to stop: tell the user to run
+  \`bin/claude-sandbox-allow <domain>\` (add \`--global\` to persist it past
+  this session) from a terminal outside the sandbox, then continue.
 - Stay within the task you were given. Since there are no permission
   prompts here, be more conservative than usual about anything destructive,
   irreversible, or outside the project directory.
 
-If a task genuinely needs something the sandbox can't provide - broader
-network access, host-level or system changes, GUI/hardware access, or
-anything blocked by the firewall - stop and explain clearly to the user what
-you need and why, instead of trying to work around the firewall or sandbox
-yourself. They can continue this exact session outside the container by
-running on the host:
+Git workflow - do this even though nothing stops you from doing otherwise:
+- Do new work in a git worktree for the feature branch (e.g. \`git worktree
+  add ../<branch> -b <branch>\`), not by switching branches in place in the
+  mounted checkout - that's the user's actual working copy, and changing
+  its branch out from under them is disruptive even if you switch it back.
+- Push that branch to the Gitea remote, then run \`gitea-pr create\` from
+  the worktree. Never push to GitHub (read-only, and not reachable for
+  push regardless), and never push directly to main/master, on any remote.
+  A \`git-push-guard.sh\` hook enforces both as a backstop, but treat them
+  as the actual workflow to follow, not just a filter to route around.
+
+If a task genuinely needs something else the sandbox can't provide -
+broader network access than a domain or two, host-level or system changes,
+GUI/hardware access - stop and explain clearly to the user what you need
+and why, instead of trying to work around the firewall or sandbox yourself.
+They can continue this exact session outside the container by running on
+the host:
 
   claude --resume $resume_id
 
