@@ -20,11 +20,24 @@ else
     data=$(base64 | tr -d '\n')
     # /dev/tty needs this process's own session to have a controlling
     # terminal, but a job spawned by nvim's clipboard provider doesn't get
-    # one (nvim's job-spawning doesn't establish a ctty for children).
-    # Resolve the real terminal from the parent's (nvim's) recorded tty
-    # instead, which doesn't depend on this process having its own ctty.
-    real_tty="/dev/$(ps -o tty= -p "$PPID" 2>/dev/null | tr -d ' ')"
-    if [ -w "$real_tty" ]; then
+    # one (nvim's job-spawning doesn't establish a ctty for children). Nvim
+    # itself also isn't a single process: the one actually spawning jobs is
+    # a `nvim --embed` core process with no tty of its own (shown as `?` in
+    # ps) -- the real terminal belongs to a separate parent UI process. Walk
+    # up the process tree past any tty-less ancestors to find it.
+    real_tty=""
+    pid="$PPID"
+    i=0
+    while [ "$i" -lt 10 ] && [ -n "$pid" ] && [ "$pid" != "0" ]; do
+        t=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
+        if [ -n "$t" ] && [ "$t" != "?" ]; then
+            real_tty="/dev/$t"
+            break
+        fi
+        pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+        i=$((i + 1))
+    done
+    if [ -n "$real_tty" ] && [ -w "$real_tty" ]; then
         printf '\033]52;c;%s\a' "$data" > "$real_tty"
     else
         printf '\033]52;c;%s\a' "$data" > /dev/tty
