@@ -71,6 +71,14 @@ RUN mkdir -p /home/node/.ssh && \
   chown -R node:node /home/node/.ssh && \
   chmod 700 /home/node/.ssh
 
+# Pre-create the nvim data/state/cache dirs owned by node, since they're
+# mounted as named volumes in docker-compose.yml: Docker seeds a fresh
+# named volume from whatever already exists at the mount path in the
+# image, ownership included, so this is what keeps those volumes
+# node-writable instead of defaulting to root.
+RUN mkdir -p /home/node/.local/share/nvim /home/node/.local/state/nvim /home/node/.cache/nvim && \
+  chown -R node:node /home/node/.local /home/node/.cache
+
 ARG GIT_DELTA_VERSION=0.18.2
 RUN ARCH=$(dpkg --print-architecture) && \
   wget "https://github.com/dandavison/delta/releases/download/${GIT_DELTA_VERSION}/git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
