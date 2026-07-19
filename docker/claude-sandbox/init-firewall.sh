@@ -79,7 +79,11 @@ for domain in \
             exit 1
         fi
         echo "Adding $ip for $domain"
-        ipset add allowed-domains "$ip"
+        # -exist: two domains can resolve to the same IP (e.g. pypi.org and
+        # files.pythonhosted.org share Fastly edge IPs), and ipset otherwise
+        # errors on a duplicate add, which -e/set -e turns into the whole
+        # firewall (and thus the container) failing to start.
+        ipset add allowed-domains "$ip" -exist
     done < <(echo "$ips")
 done
 
