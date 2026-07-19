@@ -14,7 +14,6 @@ services:
       - NET_ADMIN
       - NET_RAW
     environment:
-      CLAUDE_CONFIG_DIR: /home/node/.claude
       GITEA_SSH_HOST: ${GITEA_SSH_HOST:-}
       GITEA_API: ${GITEA_API:-}
       GITEA_TOKEN: ${GITEA_TOKEN:-}
