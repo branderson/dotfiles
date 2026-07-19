@@ -121,3 +121,6 @@ if program_installed i3; then
     # Set QT environment variables
     export QT_QPA_PLATFORMTHEME="qt5ct"
 fi
+
+# Extra domains claude-sandbox's firewall should allow beyond its defaults
+export ALLOWED_DOMAINS=""

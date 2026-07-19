@@ -122,6 +122,12 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 # Install Claude Code
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
+# Install the tree-sitter CLI, which nvim-treesitter (plugins/treesitter.lua)
+# needs to install/update parsers. Pinned below latest: newer tree-sitter-cli
+# prebuilds require glibc >=2.39, which this (Debian 12 bookworm) image
+# doesn't have.
+RUN npm install -g tree-sitter-cli@0.24.7
+
 # Copy and set up firewall + entrypoint scripts, the gitea-pr helper from
 # this repo's bin/ directory, the claude wrapper that pins
 # --dangerously-skip-permissions, and this user's real nvim config.
@@ -135,7 +141,8 @@ USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/entrypoint.sh /usr/local/bin/gitea-pr /usr/local/bin/claude && \
   chown -R node:node /home/node/.config/nvim && \
   echo "node ALL=(root) NOPASSWD:SETENV: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
-  chmod 0440 /etc/sudoers.d/node-firewall
+  chmod 0440 /etc/sudoers.d/node-firewall && \
+  echo 'export PATH="$PATH:/usr/local/share/npm-global/bin"' > /etc/profile.d/npm-global-path.sh
 USER node
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
