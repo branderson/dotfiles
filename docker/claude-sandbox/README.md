@@ -82,8 +82,10 @@ On start, the container runs an allowlist-only `iptables`/`ipset` firewall
 (`init-firewall.sh`), matching the reference dev container. Allowed by
 default: DNS resolution via Docker's embedded resolver (loopback only, so
 never leaves the container), the Docker host itself (not its whole subnet),
-GitHub's published IP ranges, `registry.npmjs.org`, `pypi.org` and
-`files.pythonhosted.org` (mason's Python-based LSP tools - `ruff`,
+GitHub's published IP ranges, `release-assets.githubusercontent.com`
+(GitHub release assets - e.g. mason's own registry index - redirect here,
+a separate CDN from github.com's own IPs), `registry.npmjs.org`, `pypi.org`
+and `files.pythonhosted.org` (mason's Python-based LSP tools - `ruff`,
 `basedpyright`, `debugpy` - install via pip), `api.anthropic.com`, and
 whatever hosts `GITEA_SSH_HOST`/`GITEA_API` resolve to — that last group
 isn't port-restricted, so git-over-ssh to GitHub/Gitea works without a

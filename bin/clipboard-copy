@@ -18,5 +18,15 @@ elif [ -n "$DISPLAY" ] && command -v xclip >/dev/null 2>&1; then
     setsid -f xclip -selection clipboard
 else
     data=$(base64 | tr -d '\n')
-    printf '\033]52;c;%s\a' "$data" > /dev/tty
+    # /dev/tty needs this process's own session to have a controlling
+    # terminal, but a job spawned by nvim's clipboard provider doesn't get
+    # one (nvim's job-spawning doesn't establish a ctty for children).
+    # Resolve the real terminal from the parent's (nvim's) recorded tty
+    # instead, which doesn't depend on this process having its own ctty.
+    real_tty="/dev/$(ps -o tty= -p "$PPID" 2>/dev/null | tr -d ' ')"
+    if [ -w "$real_tty" ]; then
+        printf '\033]52;c;%s\a' "$data" > "$real_tty"
+    else
+        printf '\033]52;c;%s\a' "$data" > /dev/tty
+    fi
 fi

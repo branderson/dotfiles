@@ -14,6 +14,15 @@ if [ "${ENABLE_FIREWALL:-1}" = "1" ]; then
     EXTRA_ALLOWED_DOMAINS="${extra_domains}" /usr/local/bin/init-firewall.sh
 fi
 
+# A normal login/ssh session always chowns the allocated pty to the logging
+# in user; this container's entrypoint skips that (there's no login/sshd
+# involved), leaving the tty root-owned. nvim's clipboard fallback needs to
+# write to it directly as node, so fix the ownership up here, before
+# dropping privileges.
+if [ -t 1 ]; then
+    chown node "$(tty)" 2>/dev/null || true
+fi
+
 # Drop root -> node for the actual session; node has no sudo/setuid path
 # back to root after this, so it can't re-run init-firewall.sh itself to
 # widen the allowlist mid-session.

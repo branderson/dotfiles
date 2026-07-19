@@ -65,7 +65,8 @@ for domain in \
     "api.anthropic.com" \
     "gitlab.com" \
     "pypi.org" \
-    "files.pythonhosted.org"; do
+    "files.pythonhosted.org" \
+    "release-assets.githubusercontent.com"; do
     echo "Resolving $domain..."
     ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
     if [ -z "$ips" ]; then
