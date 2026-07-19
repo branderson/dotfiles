@@ -20,6 +20,13 @@ services:
       ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
       SSH_AUTH_SOCK: /ssh-agent
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-1}
+      # Docker's own tty allocation defaults to a generic TERM (e.g. plain
+      # "xterm", dropping 256-color and any extended-keys terminfo bits),
+      # not whatever the host's actual terminal/tmux session is using.
+      # Forward the real value so nvim negotiates key sequences (e.g. the
+      # Ctrl-H/Backspace disambiguation config/tmux.conf sets up) against
+      # the terminfo entry the rest of the chain actually expects.
+      TERM: ${TERM:-xterm-256color}
     volumes:
       # Mounted at the same absolute path as on the host (rather than a
       # fixed /workspace) so Claude Code's project/session-history keying
@@ -33,6 +40,12 @@ services:
       # in the container too. Read-only: hooks are only ever read/executed
       # from here, never written.
       - ${HOME}/dotfiles:${HOME}/dotfiles:ro
+      # Also mount at node's own $HOME/dotfiles: node's actual $HOME is
+      # /home/node (not the host user's $HOME above), and plenty of this
+      # repo's own config (nvim's clipboard-copy path, vimrc sourcing, etc.)
+      # assumes dotfiles lives at $HOME/dotfiles for whichever user it's
+      # running as.
+      - ${HOME}/dotfiles:/home/node/dotfiles:ro
       - claude-code-bashhistory:/commandhistory
       - nvim-data:/home/node/.local/share/nvim
       - nvim-state:/home/node/.local/state/nvim
