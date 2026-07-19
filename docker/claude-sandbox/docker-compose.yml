@@ -34,6 +34,22 @@ services:
       # here be resumed on the host with `claude --resume`.
       - ${WORKSPACE_DIR:?set WORKSPACE_DIR to the project directory to mount}:${WORKSPACE_DIR}
       - ${HOME}/.claude:/home/node/.claude
+      # settings.json/CLAUDE.md/plugins are config and hook/plugin *code*,
+      # not runtime state - hooks run automatically with no approval gate,
+      # so a compromised session writing to them would plant something that
+      # then executes unsandboxed on the host next time Claude Code starts
+      # there. Layer them back read-only on top of the read-write parent
+      # mount above (Docker applies more specific mounts on top of broader
+      # ones); everything else under ~/.claude (session/project history,
+      # credentials refresh, caches, etc.) still needs to stay read-write.
+      - ${HOME}/.claude/settings.json:/home/node/.claude/settings.json:ro
+      - ${HOME}/.claude/CLAUDE.md:/home/node/.claude/CLAUDE.md:ro
+      - ${HOME}/.claude/plugins:/home/node/.claude/plugins:ro
+      # ~/.claude.json is a single file mixing live app state (project
+      # registry, onboarding flags, caches) with config (e.g. mcpServers, if
+      # ever set) that can't be split at the mount level - left read-write
+      # since most of its content must stay writable for normal operation.
+      # See README Security notes for this residual risk.
       - ${HOME}/.claude.json:/home/node/.claude.json
       # ~/.claude/hooks is a symlink into ~/dotfiles/config/claude/hooks (an
       # absolute host path); mount dotfiles at the same path so it resolves

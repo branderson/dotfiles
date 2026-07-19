@@ -108,14 +108,41 @@ resolver by default.
   is a potential exfiltration path for those credentials if a malicious repo
   manages to manipulate a session. The firewall limits this to
   Anthropic/npm/GitHub/your Gitea host, not the open internet.
+- `settings.json`, `CLAUDE.md`, and `plugins/` under `~/.claude` are
+  layered back read-only on top of the (otherwise read-write) `~/.claude`
+  mount. Hooks execute automatically with no separate approval step, so
+  without this a compromised session could plant a backdoored hook, rewrite
+  `CLAUDE.md` with injected instructions, or tamper with plugin code -
+  something that would then run **unsandboxed on the host** the next time
+  Claude Code starts there, turning a single compromised sandbox session
+  into persistent host compromise. Everything else under `~/.claude`
+  (session/project history, credentials refresh, caches) stays read-write,
+  since it's runtime state Claude Code needs to update.
+  `~/.claude.json` is a single file mixing that same kind of live state with
+  config (e.g. `mcpServers`, if ever set) and can't be split at the mount
+  level, so it's left fully read-write - accepted as a residual risk rather
+  than solved.
+- DNS resolution itself isn't filtered, only the IP connections made
+  afterward - Docker's embedded resolver will still resolve arbitrary
+  domains under lockdown (verified: `dig` on a non-allowlisted domain
+  resolves fine, only the subsequent connect is blocked). A compromised
+  session could still exfiltrate data by encoding it into DNS query names
+  to an attacker-controlled domain, even though it can't open a direct
+  connection anywhere off the allowlist. Not mitigated here.
 - Don't mount other host secrets (`~/.ssh` private keys, cloud credential
   files) into the container. Git push auth goes through the forwarded SSH
-  agent instead, which never exposes the key material itself.
+  agent instead, which never exposes the key material itself - though note
+  the agent will sign for *any* repo your key has access to, not just the
+  mounted project, and GitHub's allowlist is IP-range-based rather than
+  repo-scoped, so a compromised session can still reach (and push to) other
+  repos you have access to.
 - The `node` user has no `sudo`/setuid path back to root once the container
   is up: `entrypoint.sh` runs as root, sets up the firewall directly, then
   drops to `node` via `gosu` before execing `nvim`. A compromised session
   can't re-run `init-firewall.sh` with a wider allowlist to open its own
-  exfiltration path.
+  exfiltration path. Verified: capabilities (`NET_ADMIN`/`NET_RAW`) are
+  cleared from the effective/permitted sets on the `gosu` drop, and `node`
+  gets a permission error running `iptables` directly.
 
 ## Files
 
