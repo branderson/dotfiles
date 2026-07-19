@@ -15,6 +15,7 @@ iptables -t nat -X
 iptables -t mangle -F
 iptables -t mangle -X
 ipset destroy allowed-domains 2>/dev/null || true
+ipset destroy github-domains 2>/dev/null || true
 
 # 2. Selectively restore ONLY internal Docker DNS resolution
 if [ -n "$DOCKER_DNS_RULES" ]; then
@@ -33,8 +34,15 @@ fi
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
-# Create ipset with CIDR support
+# Create ipsets with CIDR support. GitHub's ranges get their own set,
+# restricted below to port 443 only: the sandbox is meant to be able to read
+# from GitHub (clone/fetch/gh over HTTPS) but never push there, and blocking
+# SSH (port 22) to it entirely means that's not just policy but physically
+# enforced - there's no transport left for the forwarded ssh-agent's real
+# key to authenticate a push with, regardless of what a hook does or
+# doesn't catch.
 ipset create allowed-domains hash:net
+ipset create github-domains hash:net
 
 # Fetch GitHub meta information and aggregate + add their IP ranges
 echo "Fetching GitHub IP ranges..."
@@ -56,7 +64,7 @@ while read -r cidr; do
         exit 1
     fi
     echo "Adding GitHub range $cidr"
-    ipset add allowed-domains "$cidr"
+    ipset add github-domains "$cidr"
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
 # Resolve and add other allowed domains
@@ -136,11 +144,16 @@ iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # Then allow only specific outbound traffic to allowed domains. This isn't
-# port-restricted, so it also covers git-over-ssh (port 22) to GitHub and
+# port-restricted, so it also covers git-over-ssh (port 22) to
 # GITEA_SSH_HOST/GITEA_API, which are already in the ipset above - no
 # separate "TCP/22 to anywhere" rule needed (that would allow SSH, or any
 # raw TCP posing as it, to any host on the internet).
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
+
+# GitHub gets port 443 only - read access (clone/fetch/gh over HTTPS) without
+# port 22, so SSH push there (which could use the forwarded agent's real
+# key) isn't just discouraged, it's unreachable.
+iptables -A OUTPUT -p tcp --dport 443 -m set --match-set github-domains dst -j ACCEPT
 
 # Explicitly REJECT all other outbound traffic for immediate feedback
 iptables -A OUTPUT -j REJECT --reject-with icmp-admin-prohibited
@@ -160,4 +173,13 @@ if ! curl --connect-timeout 5 https://api.github.com/zen >/dev/null 2>&1; then
     exit 1
 else
     echo "Firewall verification passed - able to reach https://api.github.com as expected"
+fi
+
+# Verify GitHub SSH (port 22) is NOT reachable - this is what makes GitHub
+# actually read-only from here, not just discouraged.
+if timeout 5 bash -c "cat < /dev/null > /dev/tcp/github.com/22" 2>/dev/null; then
+    echo "ERROR: Firewall verification failed - was able to reach github.com on port 22"
+    exit 1
+else
+    echo "Firewall verification passed - unable to reach github.com:22 as expected"
 fi

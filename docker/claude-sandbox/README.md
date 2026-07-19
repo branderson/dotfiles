@@ -23,6 +23,14 @@ into the container at runtime from wherever it actually sits on disk.
   `bin/gitea-pr` already needs — see its `require_config`), and a token
   available either via `GITEA_TOKEN` in the environment or at
   `~/.config/gitea/token`.
+- Optional: a **read-only** fine-grained GitHub PAT (GitHub → Settings →
+  Developer settings → Fine-grained tokens → generate, with Contents and
+  Metadata set to read-only, no write scopes) for `gh`/private-repo HTTPS
+  access, available via `GH_TOKEN` in the environment or at
+  `~/.config/gh/sandbox-token`. Don't use a normal `gh auth login` session
+  here — that's write-capable, which defeats the point (see "GitHub is
+  read-only" below). Without it, public GitHub repos still clone/fetch fine
+  anonymously over HTTPS; only private repos and `gh` API calls need it.
 
 ## Usage
 
@@ -76,28 +84,54 @@ firewall, since the same session can be resumed unrestricted on the host via
 existing `deny-dangerous-bash.sh` `PreToolUse` hook, which also applies here
 since `~/.claude` is shared.
 
+`git-push-guard.sh` (also `PreToolUse`/`Bash`, also `CLAUDE_SANDBOX`-gated)
+blocks any `git push` whose resolved remote isn't the Gitea host, and any
+push to `main`/`master` even there — the sandbox workflow is feature branch
++ `gitea-pr create`, never a direct push. Like the other hooks, this is a
+fast-fail guard against an overeager agent, not a hard security boundary: a
+sandbox session has full shell access and could in principle edit
+`.git/config` to route around it. For "never pushes to GitHub" specifically,
+the firewall backs this up with real enforcement (see below); for "never
+pushes to main/master", the authoritative version of that is branch
+protection on the Gitea repo itself, which this doesn't set up for you.
+
 ## Network egress firewall
 
 On start, the container runs an allowlist-only `iptables`/`ipset` firewall
 (`init-firewall.sh`), matching the reference dev container. Allowed by
 default: DNS resolution via Docker's embedded resolver (loopback only, so
 never leaves the container), the Docker host itself (not its whole subnet),
-GitHub's published IP ranges, `release-assets.githubusercontent.com`
-(GitHub release assets - e.g. mason's own registry index - redirect here,
-a separate CDN from github.com's own IPs), `registry.npmjs.org`, `pypi.org`
-and `files.pythonhosted.org` (mason's Python-based LSP tools - `ruff`,
-`basedpyright`, `debugpy` - install via pip), `api.anthropic.com`, and
-whatever hosts `GITEA_SSH_HOST`/`GITEA_API` resolve to — that last group
-isn't port-restricted, so git-over-ssh to GitHub/Gitea works without a
-separate blanket "port 22 to anywhere" rule. Set `ALLOWED_DOMAINS`
-(space-separated) in the environment to allow more (e.g. `crates.io` for a
-Rust project needing more than what mason/npm already cover). Everything
-else is rejected. Set `ENABLE_FIREWALL=0` to disable it entirely (e.g. for
-debugging a blocked domain).
+GitHub's published IP ranges (port 443 only - see "GitHub is read-only"
+below), `release-assets.githubusercontent.com` (GitHub release assets - e.g.
+mason's own registry index - redirect here, a separate CDN from github.com's
+own IPs), `registry.npmjs.org`, `pypi.org` and `files.pythonhosted.org`
+(mason's Python-based LSP tools - `ruff`, `basedpyright`, `debugpy` - install
+via pip), `api.anthropic.com`, and whatever hosts `GITEA_SSH_HOST`/
+`GITEA_API` resolve to — that last group isn't port-restricted, so
+git-over-ssh to Gitea works without a separate blanket "port 22 to anywhere"
+rule. Set `ALLOWED_DOMAINS` (space-separated) in the environment to allow
+more (e.g. `crates.io` for a Rust project needing more than what mason/npm
+already cover). Everything else is rejected. Set `ENABLE_FIREWALL=0` to
+disable it entirely (e.g. for debugging a blocked domain).
 
 If your Gitea host is only resolvable via a LAN-local DNS server, make sure
 the Docker host itself can resolve it — containers inherit the host's
 resolver by default.
+
+## GitHub is read-only
+
+The sandbox can read from GitHub (clone, fetch, `gh` API calls) but can
+never push there, and this is enforced at the network layer, not just by the
+`git-push-guard.sh` hook above: GitHub's IP ranges are only allowlisted on
+port 443. Port 22 is unreachable, so SSH-based push (which could otherwise
+use the forwarded agent's real key - agent forwarding doesn't distinguish
+"push" from "pull") has no transport to use at all, regardless of what any
+hook does or doesn't catch. HTTPS access itself has no write-capable
+credential either: `gh auth setup-git` (run at container start if `GH_TOKEN`
+is set - see Prerequisites) points git's github.com credential helper at
+`gh`, which only ever holds whatever token `GH_TOKEN` provides. Use a
+read-only PAT there and even a push attempt over HTTPS gets rejected by
+GitHub itself (403), not just blocked locally.
 
 ## Security notes
 
@@ -132,10 +166,12 @@ resolver by default.
 - Don't mount other host secrets (`~/.ssh` private keys, cloud credential
   files) into the container. Git push auth goes through the forwarded SSH
   agent instead, which never exposes the key material itself - though note
-  the agent will sign for *any* repo your key has access to, not just the
-  mounted project, and GitHub's allowlist is IP-range-based rather than
-  repo-scoped, so a compromised session can still reach (and push to) other
-  repos you have access to.
+  the agent will sign for *any* Gitea repo your key has access to, not just
+  the mounted project, and the firewall's Gitea allowlist is host-based
+  rather than repo-scoped, so a compromised session can still reach (and
+  push to) other repos on that host you have access to. This doesn't extend
+  to GitHub: port 22 there is blocked outright, so the forwarded agent has
+  no transport to use for it at all (see "GitHub is read-only" above).
 - The `node` user has no `sudo`/setuid path back to root once the container
   is up: `entrypoint.sh` runs as root, sets up the firewall directly, then
   drops to `node` via `gosu` before execing `nvim`. A compromised session
@@ -155,5 +191,5 @@ resolver by default.
 | `docker-compose.yml` | Wires up mounts/env; invoked via `bin/claude-sandbox`, not directly |
 
 `bin/claude-sandbox` (repo root `bin/`) is the entry point — it resolves the
-project path, checks for a live `ssh-agent`, loads `GITEA_TOKEN` if not
-already set, and runs `docker compose run`.
+project path, checks for a live `ssh-agent`, loads `GITEA_TOKEN`/`GH_TOKEN`
+if not already set, and runs `docker compose run`.

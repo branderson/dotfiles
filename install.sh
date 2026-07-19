@@ -288,6 +288,12 @@ function link_dotfiles {
                 jq '.hooks.SessionStart = ((.hooks.SessionStart // []) + [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/sandbox-context.sh"}]}])' \
                     "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
             fi
+            if ! jq -e '[.hooks.PreToolUse[]?.hooks[]?.command // empty] | any(test("git-push-guard.sh"))' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
+                echo "Adding git-push-guard.sh PreToolUse hook to ~/.claude/settings.json"
+                tmp_settings=$(mktemp)
+                jq '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/git-push-guard.sh"}]}])' \
+                    "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
+            fi
         fi
     fi
     # TODO: These are getting in the way of dotfiles-local install so disabling

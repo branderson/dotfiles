@@ -124,3 +124,7 @@ fi
 
 # Extra domains claude-sandbox's firewall should allow beyond its defaults
 export ALLOWED_DOMAINS=""
+
+# Gitea host, used by bin/gitea-pr and claude-sandbox's git-push-guard hook
+export GITEA_SSH_HOST="gitbox.bradina.localdomain"
+export GITEA_API="https://gitbox.branderson.io/api/v1"

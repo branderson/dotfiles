@@ -39,12 +39,24 @@ if [ -z "${GITEA_TOKEN:-}" ]; then
     fi
 fi
 
+if [ -z "${GH_TOKEN:-}" ]; then
+    # Deliberately not `gh auth token` / gh's own hosts.yml: a normal `gh
+    # auth login` session is write-capable, which would defeat the point.
+    # This should be a dedicated read-only fine-grained PAT (Contents +
+    # Metadata: read-only), generated separately for this sandbox.
+    GH_TOKEN_FILE="${GH_TOKEN_FILE:-$HOME/.config/gh/sandbox-token}"
+    if [ -f "$GH_TOKEN_FILE" ]; then
+        GH_TOKEN="$(<"$GH_TOKEN_FILE")"
+    fi
+fi
+
 export WORKSPACE_DIR
 export SSH_AUTH_SOCK
 export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
 export GITEA_TOKEN="${GITEA_TOKEN:-}"
 export GITEA_SSH_HOST="${GITEA_SSH_HOST:-}"
 export GITEA_API="${GITEA_API:-}"
+export GH_TOKEN="${GH_TOKEN:-}"
 export TZ="${TZ:-$(readlink -f /etc/localtime 2>/dev/null | sed 's#.*/zoneinfo/##')}"
 
 exec docker compose -f "$COMPOSE_FILE" run --rm --build claude "$@"

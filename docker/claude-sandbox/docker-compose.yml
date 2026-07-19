@@ -17,6 +17,11 @@ services:
       GITEA_SSH_HOST: ${GITEA_SSH_HOST:-}
       GITEA_API: ${GITEA_API:-}
       GITEA_TOKEN: ${GITEA_TOKEN:-}
+      # Read-only fine-grained GitHub PAT (Contents + Metadata: read-only,
+      # no write scopes). Used by `gh` and, via `gh auth setup-git`, by git
+      # itself for github.com over HTTPS - see the firewall/Dockerfile for
+      # why that's the only path GitHub is reachable through at all.
+      GH_TOKEN: ${GH_TOKEN:-}
       ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
       SSH_AUTH_SOCK: /ssh-agent
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-1}
