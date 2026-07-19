@@ -11,7 +11,9 @@ fi
 source $HOME/.profile
 # Define $POWERLINE_ROOT
 if [ -f $HOME/.profile.local ]; then
+    set -a
     source $HOME/.profile.local
+    set +a
 fi
 
 if [ -n "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR" ]; then

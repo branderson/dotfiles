@@ -37,7 +37,9 @@ COMPLETION_WAITING_DOTS="true"
 source $HOME/.profile
 # Define $POWERLINE_ROOT
 if [ -f $HOME/.profile.local ]; then
+    set -a
     source $HOME/.profile.local
+    set +a
 fi
 
 # Custom functions
