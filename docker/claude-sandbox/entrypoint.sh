@@ -11,7 +11,10 @@ fi
 extra_domains="${GITEA_SSH_HOST:-} ${gitea_api_host} ${ALLOWED_DOMAINS:-}"
 
 if [ "${ENABLE_FIREWALL:-1}" = "1" ]; then
-    sudo EXTRA_ALLOWED_DOMAINS="${extra_domains}" /usr/local/bin/init-firewall.sh
+    EXTRA_ALLOWED_DOMAINS="${extra_domains}" /usr/local/bin/init-firewall.sh
 fi
 
-exec nvim "$@"
+# Drop root -> node for the actual session; node has no sudo/setuid path
+# back to root after this, so it can't re-run init-firewall.sh itself to
+# widen the allowlist mid-session.
+exec gosu node nvim "$@"

@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   git \
   openssh-client \
   procps \
-  sudo \
   fzf \
   zsh \
   man-db \
@@ -82,8 +81,20 @@ RUN mkdir -p /home/node/.local/share/nvim /home/node/.local/state/nvim /home/nod
 ARG GIT_DELTA_VERSION=0.18.2
 RUN ARCH=$(dpkg --print-architecture) && \
   wget "https://github.com/dandavison/delta/releases/download/${GIT_DELTA_VERSION}/git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
-  sudo dpkg -i "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
+  dpkg -i "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
   rm "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb"
+
+# gosu lets entrypoint.sh (root) drop to the node user for the actual
+# session after setting up the firewall, without leaving any setuid/sudo
+# escalation path available to node afterward. Verified against the
+# published SHA256SUMS since it runs as root.
+ARG GOSU_VERSION=1.19
+RUN ARCH=$(dpkg --print-architecture) && \
+  wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${ARCH}" && \
+  wget -O /tmp/gosu.sha256sums "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/SHA256SUMS" && \
+  grep -E "gosu-${ARCH}\$" /tmp/gosu.sha256sums | sed "s#gosu-${ARCH}#/usr/local/bin/gosu#" | sha256sum -c - && \
+  rm /tmp/gosu.sha256sums && \
+  chmod +x /usr/local/bin/gosu
 
 # Install the latest stable Neovim release. Debian's packaged version is too
 # old for this config's plugins (blink.cmp etc. need a recent Neovim), so
@@ -140,9 +151,9 @@ COPY config/nvim /home/node/.config/nvim
 USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/entrypoint.sh /usr/local/bin/gitea-pr /usr/local/bin/claude && \
   chown -R node:node /home/node/.config/nvim && \
-  echo "node ALL=(root) NOPASSWD:SETENV: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
-  chmod 0440 /etc/sudoers.d/node-firewall && \
   echo 'export PATH="$PATH:/usr/local/share/npm-global/bin"' > /etc/profile.d/npm-global-path.sh
-USER node
 
+# Entrypoint runs as root (no USER node here) so it can set up the firewall
+# directly, with no sudo/setuid escalation path available to node at any
+# point afterward. It drops to node itself via gosu before execing nvim.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

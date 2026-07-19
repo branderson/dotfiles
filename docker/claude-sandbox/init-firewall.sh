@@ -26,16 +26,10 @@ else
     echo "No Docker DNS rules to restore"
 fi
 
-# First allow DNS and localhost before any restrictions
-# Allow outbound DNS
-iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
-# Allow inbound DNS responses
-iptables -A INPUT -p udp --sport 53 -j ACCEPT
-# Allow outbound SSH (covers git-over-ssh to any allowed host, e.g. Gitea)
-iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT
-# Allow inbound SSH responses
-iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
-# Allow localhost
+# Allow localhost. DNS resolution goes entirely through Docker's embedded
+# resolver at 127.0.0.11 (see resolv.conf), which stays on loopback, so this
+# also covers DNS - no need for a separate "UDP/53 to anywhere" rule, which
+# would just be an unrestricted-destination exfil channel.
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
@@ -118,12 +112,12 @@ if [ -z "$HOST_IP" ]; then
     exit 1
 fi
 
-HOST_NETWORK=$(echo "$HOST_IP" | sed "s/\.[0-9]*$/.0\/24/")
-echo "Host network detected as: $HOST_NETWORK"
+echo "Host detected as: $HOST_IP"
 
-# Set up remaining iptables rules
-iptables -A INPUT -s "$HOST_NETWORK" -j ACCEPT
-iptables -A OUTPUT -d "$HOST_NETWORK" -j ACCEPT
+# Only the host itself, not its whole subnet - other machines on the same
+# LAN/VPC have no reason to be reachable from this container.
+iptables -A INPUT -s "$HOST_IP" -j ACCEPT
+iptables -A OUTPUT -d "$HOST_IP" -j ACCEPT
 
 # Set default policies to DROP first
 iptables -P INPUT DROP
@@ -134,7 +128,11 @@ iptables -P OUTPUT DROP
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Then allow only specific outbound traffic to allowed domains
+# Then allow only specific outbound traffic to allowed domains. This isn't
+# port-restricted, so it also covers git-over-ssh (port 22) to GitHub and
+# GITEA_SSH_HOST/GITEA_API, which are already in the ipset above - no
+# separate "TCP/22 to anywhere" rule needed (that would allow SSH, or any
+# raw TCP posing as it, to any host on the internet).
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 
 # Explicitly REJECT all other outbound traffic for immediate feedback

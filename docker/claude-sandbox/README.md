@@ -80,13 +80,16 @@ since `~/.claude` is shared.
 
 On start, the container runs an allowlist-only `iptables`/`ipset` firewall
 (`init-firewall.sh`), matching the reference dev container. Allowed by
-default: DNS, SSH (port 22, for git-over-ssh to any host), the Docker
-bridge/host subnet, GitHub's published IP ranges, `registry.npmjs.org`,
-`api.anthropic.com`, and whatever hosts `GITEA_SSH_HOST`/`GITEA_API` resolve
-to. Set `ALLOWED_DOMAINS` (space-separated) in the environment to allow
-more (e.g. `crates.io` for a Rust project needing more than what mason/npm
-already cover). Everything else is rejected. Set `ENABLE_FIREWALL=0` to
-disable it entirely (e.g. for debugging a blocked domain).
+default: DNS resolution via Docker's embedded resolver (loopback only, so
+never leaves the container), the Docker host itself (not its whole subnet),
+GitHub's published IP ranges, `registry.npmjs.org`, `api.anthropic.com`, and
+whatever hosts `GITEA_SSH_HOST`/`GITEA_API` resolve to — that last group
+isn't port-restricted, so git-over-ssh to GitHub/Gitea works without a
+separate blanket "port 22 to anywhere" rule. Set `ALLOWED_DOMAINS`
+(space-separated) in the environment to allow more (e.g. `crates.io` for a
+Rust project needing more than what mason/npm already cover). Everything
+else is rejected. Set `ENABLE_FIREWALL=0` to disable it entirely (e.g. for
+debugging a blocked domain).
 
 If your Gitea host is only resolvable via a LAN-local DNS server, make sure
 the Docker host itself can resolve it — containers inherit the host's
@@ -104,6 +107,11 @@ resolver by default.
 - Don't mount other host secrets (`~/.ssh` private keys, cloud credential
   files) into the container. Git push auth goes through the forwarded SSH
   agent instead, which never exposes the key material itself.
+- The `node` user has no `sudo`/setuid path back to root once the container
+  is up: `entrypoint.sh` runs as root, sets up the firewall directly, then
+  drops to `node` via `gosu` before execing `nvim`. A compromised session
+  can't re-run `init-firewall.sh` with a wider allowlist to open its own
+  exfiltration path.
 
 ## Files
 
@@ -111,7 +119,7 @@ resolver by default.
 | --- | --- |
 | `Dockerfile` | Base image, dev tools, nvim, Claude Code + wrapper, `gitea-pr` |
 | `init-firewall.sh` | Egress allowlist firewall, run at container start |
-| `entrypoint.sh` | Runs the firewall, then execs `nvim` |
+| `entrypoint.sh` | Runs as root: sets up the firewall, drops to `node` via `gosu`, execs `nvim` |
 | `claude-wrapper.sh` | Shadows `claude` on `PATH` to always add `--dangerously-skip-permissions` |
 | `docker-compose.yml` | Wires up mounts/env; invoked via `bin/claude-sandbox`, not directly |
 
