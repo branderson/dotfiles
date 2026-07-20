@@ -23,6 +23,11 @@ services:
       # why that's the only path GitHub is reachable through at all.
       GH_TOKEN: ${GH_TOKEN:-}
       ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
+      # Base URL of a Loki push endpoint (e.g. http://10.0.30.11:3100) to
+      # ship DNS-query and firewall allow/reject logs to. Its host is
+      # automatically firewall-allowlisted (see entrypoint.sh). Optional -
+      # logging is skipped entirely if unset.
+      LOKI_URL: ${LOKI_URL:-}
       SSH_AUTH_SOCK: /ssh-agent
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-1}
       # Docker's own tty allocation defaults to a generic TERM (e.g. plain

@@ -4,6 +4,10 @@
 set -euo pipefail  # Exit on error, undefined vars, and pipeline failures
 IFS=$'\n\t'       # Stricter word splitting
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=fixed-domains.sh
+source "$SCRIPT_DIR/fixed-domains.sh"
+
 # 1. Extract Docker DNS info BEFORE any flushing
 DOCKER_DNS_RULES=$(iptables-save -t nat | grep "127\.0\.0\.11" || true)
 
@@ -16,6 +20,17 @@ iptables -t mangle -F
 iptables -t mangle -X
 ipset destroy allowed-domains 2>/dev/null || true
 ipset destroy github-domains 2>/dev/null || true
+
+# Block IPv6 outright - there's no IPv6 equivalent of the allowlist below, so
+# without this, any host with IPv6 egress enabled would let a container
+# bypass the entire IPv4-based firewall via an AAAA-resolved address. `||
+# true` throughout since ip6tables may simply be unavailable on hosts with
+# IPv6 fully disabled at the kernel level, which is an equally fine outcome.
+ip6tables -F 2>/dev/null || true
+ip6tables -X 2>/dev/null || true
+ip6tables -P INPUT DROP 2>/dev/null || true
+ip6tables -P OUTPUT DROP 2>/dev/null || true
+ip6tables -P FORWARD DROP 2>/dev/null || true
 
 # 2. Selectively restore ONLY internal Docker DNS resolution
 if [ -n "$DOCKER_DNS_RULES" ]; then
@@ -67,14 +82,9 @@ while read -r cidr; do
     ipset add github-domains "$cidr"
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
-# Resolve and add other allowed domains
-for domain in \
-    "registry.npmjs.org" \
-    "api.anthropic.com" \
-    "gitlab.com" \
-    "pypi.org" \
-    "files.pythonhosted.org" \
-    "release-assets.githubusercontent.com"; do
+# Resolve and add other allowed domains (shared with dns-proxy.sh's name
+# allowlist via fixed-domains.sh, so the two can't drift apart)
+for domain in "${FIXED_DOMAINS[@]}"; do
     echo "Resolving $domain..."
     ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
     if [ -z "$ips" ]; then
@@ -101,7 +111,20 @@ done
 # be run without any Gitea config set, or a host may be transiently
 # unresolvable, and that shouldn't prevent the firewall from coming up.
 if [ -n "${EXTRA_ALLOWED_DOMAINS:-}" ]; then
+    # The script-wide IFS above drops plain space to tighten word splitting
+    # elsewhere, but EXTRA_ALLOWED_DOMAINS is a space-separated list by
+    # construction (entrypoint.sh joins GITEA_SSH_HOST/GITEA_API host/
+    # LOKI_URL host/ALLOWED_DOMAINS with spaces) - restore it just for this
+    # loop, or a multi-entry value silently collapses into one bogus token.
+    IFS=' '
     for domain in $EXTRA_ALLOWED_DOMAINS; do
+        # A literal IP (e.g. a monitoring host given as an IP, not a
+        # hostname) needs no resolution - add it directly.
+        if [[ "$domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo "Adding $domain (extra, literal IP)"
+            ipset add allowed-domains "$domain" -exist
+            continue
+        fi
         echo "Resolving $domain (extra)..."
         ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
         if [ -z "$ips" ]; then
@@ -132,6 +155,7 @@ echo "Host detected as: $HOST_IP"
 # Only the host itself, not its whole subnet - other machines on the same
 # LAN/VPC have no reason to be reachable from this container.
 iptables -A INPUT -s "$HOST_IP" -j ACCEPT
+iptables -A OUTPUT -d "$HOST_IP" -j NFLOG --nflog-group 1 --nflog-prefix "allow-host"
 iptables -A OUTPUT -d "$HOST_IP" -j ACCEPT
 
 # Set default policies to DROP first
@@ -148,14 +172,24 @@ iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 # GITEA_SSH_HOST/GITEA_API, which are already in the ipset above - no
 # separate "TCP/22 to anywhere" rule needed (that would allow SSH, or any
 # raw TCP posing as it, to any host on the internet).
+#
+# Each terminal ACCEPT/REJECT decision below is also tagged with NFLOG so
+# ulogd2 can capture every new outbound connection attempt and its verdict
+# (log-shipper.sh ships these to Loki alongside dns-proxy.sh's query log).
+# Only new connections reach these rules at all - the ESTABLISHED,RELATED
+# rule above already short-circuits the rest of a connection's packets, so
+# this logs once per attempt, not once per packet.
+iptables -A OUTPUT -m set --match-set allowed-domains dst -j NFLOG --nflog-group 1 --nflog-prefix "allow"
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 
 # GitHub gets port 443 only - read access (clone/fetch/gh over HTTPS) without
 # port 22, so SSH push there (which could use the forwarded agent's real
 # key) isn't just discouraged, it's unreachable.
+iptables -A OUTPUT -p tcp --dport 443 -m set --match-set github-domains dst -j NFLOG --nflog-group 1 --nflog-prefix "allow-gh"
 iptables -A OUTPUT -p tcp --dport 443 -m set --match-set github-domains dst -j ACCEPT
 
 # Explicitly REJECT all other outbound traffic for immediate feedback
+iptables -A OUTPUT -j NFLOG --nflog-group 2 --nflog-prefix "reject"
 iptables -A OUTPUT -j REJECT --reject-with icmp-admin-prohibited
 
 echo "Firewall configuration complete"

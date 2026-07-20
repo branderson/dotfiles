@@ -8,10 +8,28 @@ if [ -n "${GITEA_API:-}" ]; then
     gitea_api_host=$(echo "$GITEA_API" | sed -E 's#^[a-zA-Z]+://([^/]+).*#\1#')
 fi
 
-extra_domains="${GITEA_SSH_HOST:-} ${gitea_api_host} ${ALLOWED_DOMAINS:-}"
+# Same for LOKI_URL (also a full URL) - Loki's host needs to be reachable
+# for log-shipper.sh to actually deliver anything.
+loki_host=""
+if [ -n "${LOKI_URL:-}" ]; then
+    loki_host=$(echo "$LOKI_URL" | sed -E 's#^[a-zA-Z]+://##; s#[:/].*##')
+fi
+
+extra_domains="${GITEA_SSH_HOST:-} ${gitea_api_host} ${loki_host} ${ALLOWED_DOMAINS:-}"
 
 if [ "${ENABLE_FIREWALL:-1}" = "1" ]; then
+    # dns-proxy.sh must run first: it repoints /etc/resolv.conf at a local
+    # dnsmasq that only resolves allowlisted names, so init-firewall.sh's own
+    # dig calls (and everything afterward) go through the same restriction.
+    EXTRA_ALLOWED_DOMAINS="${extra_domains}" /usr/local/bin/dns-proxy.sh
     EXTRA_ALLOWED_DOMAINS="${extra_domains}" /usr/local/bin/init-firewall.sh
+
+    # NFLOG groups only exist once init-firewall.sh has run, so ulogd2 (the
+    # NFLOG consumer) and the Loki shipper start after it. Both are
+    # best-effort visibility on top of the enforcement above, not required
+    # for it - log-shipper.sh itself no-ops if LOKI_URL isn't set.
+    /usr/sbin/ulogd -d -c /etc/ulogd-sandbox.conf
+    /usr/local/bin/log-shipper.sh &
 fi
 
 # A normal login/ssh session always chowns the allocated pty to the logging

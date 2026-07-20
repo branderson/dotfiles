@@ -31,6 +31,9 @@ into the container at runtime from wherever it actually sits on disk.
   here — that's write-capable, which defeats the point (see "GitHub is
   read-only" below). Without it, public GitHub repos still clone/fetch fine
   anonymously over HTTPS; only private repos and `gh` API calls need it.
+- Optional: `LOKI_URL` (a base URL, e.g. `http://10.0.30.11:3100`) to ship
+  DNS-query and firewall allow/reject logs to a Loki push endpoint - see
+  "Network request logging" below. Logging is skipped entirely if unset.
 
 ## Usage
 
@@ -105,24 +108,45 @@ user's real working copy), then push the feature branch and run
 
 On start, the container runs an allowlist-only `iptables`/`ipset` firewall
 (`init-firewall.sh`), matching the reference dev container. Allowed by
-default: DNS resolution via Docker's embedded resolver (loopback only, so
-never leaves the container), the Docker host itself (not its whole subnet),
-GitHub's published IP ranges (port 443 only - see "GitHub is read-only"
-below), `release-assets.githubusercontent.com` (GitHub release assets - e.g.
-mason's own registry index - redirect here, a separate CDN from github.com's
-own IPs), `registry.npmjs.org`, `pypi.org` and `files.pythonhosted.org`
-(mason's Python-based LSP tools - `ruff`, `basedpyright`, `debugpy` - install
-via pip), `api.anthropic.com`, and whatever hosts `GITEA_SSH_HOST`/
-`GITEA_API` resolve to — that last group isn't port-restricted, so
-git-over-ssh to Gitea works without a separate blanket "port 22 to anywhere"
-rule. Set `ALLOWED_DOMAINS` (space-separated) in the environment to allow
-more (e.g. `crates.io` for a Rust project needing more than what mason/npm
-already cover). Everything else is rejected. Set `ENABLE_FIREWALL=0` to
-disable it entirely (e.g. for debugging a blocked domain).
+default: DNS resolution via a local DNS proxy (see "DNS is allowlisted too"
+below), the Docker host itself (not its whole subnet), GitHub's published IP
+ranges (port 443 only - see "GitHub is read-only" below),
+`release-assets.githubusercontent.com` (GitHub release assets - e.g. mason's
+own registry index - redirect here, a separate CDN from github.com's own
+IPs), `registry.npmjs.org`, `pypi.org` and `files.pythonhosted.org` (mason's
+Python-based LSP tools - `ruff`, `basedpyright`, `debugpy` - install via
+pip), `api.anthropic.com`, and whatever hosts `GITEA_SSH_HOST`/`GITEA_API`
+resolve to — that last group isn't port-restricted, so git-over-ssh to Gitea
+works without a separate blanket "port 22 to anywhere" rule. Set
+`ALLOWED_DOMAINS` (space-separated) in the environment to allow more (e.g.
+`crates.io` for a Rust project needing more than what mason/npm already
+cover). Everything else is rejected. Set `ENABLE_FIREWALL=0` to disable it
+entirely (e.g. for debugging a blocked domain).
+
+IPv6 is blocked outright (`ip6tables` policy DROP on INPUT/OUTPUT/FORWARD,
+and dnsmasq strips AAAA answers so nothing wastes a connection attempt on an
+address that could never be reached) - there's no IPv6 equivalent of the
+allowlist above, so leaving it open would bypass the entire firewall on any
+host with IPv6 egress enabled.
 
 If your Gitea host is only resolvable via a LAN-local DNS server, make sure
 the Docker host itself can resolve it — containers inherit the host's
 resolver by default.
+
+### DNS is allowlisted too
+
+Resolution itself is restricted, not just the IP connections made
+afterward: `dns-proxy.sh` runs a local `dnsmasq` bound to 127.0.0.1 with no
+fallback resolver, and `/etc/resolv.conf` is repointed at it. Only names
+matching the same allowlist as above (plus `github.com`/
+`githubusercontent.com`/`githubassets.com`, needed since GitHub is
+allowlisted by IP range rather than by resolving those names - see
+`fixed-domains.sh`) get forwarded to Docker's real resolver; anything else
+gets no upstream configured at all and is refused outright. Without this, a
+compromised session could still exfiltrate data by encoding it into query
+names to an attacker-controlled domain even though it could never open a
+direct connection there - IP-based filtering alone doesn't stop that, since
+the DNS query itself was never restricted.
 
 ### Adding a domain to a running session
 
@@ -135,17 +159,39 @@ bin/claude-sandbox-allow crates.io                # this session only
 bin/claude-sandbox-allow crates.io --global       # + persist in config/profile
 ```
 
-It resolves the domain inside the target container (so it sees what the
-container's own resolver sees) and adds the IP(s) directly to the running
-firewall's `ipset`, via `docker exec -u root`. `--global` also appends the
-domain to `ALLOWED_DOMAINS` in `config/profile` for future sessions; source
-your shell (or open a new one) for that part to take effect. If more than
-one claude-sandbox container is running, pass `--container <name>` to
+It first adds the domain to the running dnsmasq's allowlist (appends a
+`server=` line to its servers-file and sends `SIGHUP` to reload just that
+file - no restart), then resolves it through the now-unblocked container
+resolver and adds the IP(s) to the running firewall's `ipset`, all via
+`docker exec -u root`. `--global` also appends the domain to
+`ALLOWED_DOMAINS` in `config/profile` for future sessions; source your shell
+(or open a new one) for that part to take effect. If more than one
+claude-sandbox container is running, pass `--container <name>` to
 disambiguate (`docker ps` to find it).
 
 The sandbox-context.sh `SessionStart` hook tells the agent to ask for this
 by name when a task is blocked on a single missing domain, rather than
 stopping the whole session over it.
+
+## Network request logging
+
+If `LOKI_URL` is set (see Prerequisites), every DNS query and every new
+outbound connection attempt - allowed or rejected - is shipped to that Loki
+endpoint. Two sources, both tailed and pushed by `log-shipper.sh`:
+
+- `dns-proxy.sh`'s dnsmasq logs every query and whether it was forwarded
+  (allowed) or refused (not on the allowlist) - labeled `job=claude-sandbox-dns`.
+- `init-firewall.sh` tags its terminal ACCEPT/REJECT rules with `NFLOG`
+  (group 1 for allowed, group 2 for rejected), which `ulogd2`
+  (`ulogd.conf`) turns into JSON lines with source/dest IP, port, and an
+  `action` field - labeled `job=claude-sandbox-net`. Only new connection
+  attempts are logged, not every packet: the firewall's existing
+  ESTABLISHED,RELATED rule short-circuits the rest of a connection before it
+  ever reaches the tagged rules.
+
+This is visibility on top of the firewall/DNS-proxy enforcement above, not a
+substitute for it - nothing about logging changes what's actually allowed to
+resolve or connect.
 
 ## GitHub is read-only
 
@@ -185,13 +231,11 @@ GitHub itself (403), not just blocked locally.
   config (e.g. `mcpServers`, if ever set) and can't be split at the mount
   level, so it's left fully read-write - accepted as a residual risk rather
   than solved.
-- DNS resolution itself isn't filtered, only the IP connections made
-  afterward - Docker's embedded resolver will still resolve arbitrary
-  domains under lockdown (verified: `dig` on a non-allowlisted domain
-  resolves fine, only the subsequent connect is blocked). A compromised
-  session could still exfiltrate data by encoding it into DNS query names
-  to an attacker-controlled domain, even though it can't open a direct
-  connection anywhere off the allowlist. Not mitigated here.
+- DNS resolution itself is allowlisted (see "DNS is allowlisted too" above),
+  not just the IP connections made afterward, closing off exfiltration via
+  encoding data into query names to an attacker-controlled domain - verified
+  a non-allowlisted domain gets refused outright (`status: REFUSED`) rather
+  than resolving and then only failing to connect.
 - Don't mount other host secrets (`~/.ssh` private keys, cloud credential
   files) into the container. Git push auth goes through the forwarded SSH
   agent instead, which never exposes the key material itself - though note
@@ -214,8 +258,12 @@ GitHub itself (403), not just blocked locally.
 | File | Purpose |
 | --- | --- |
 | `Dockerfile` | Base image, dev tools, nvim, Claude Code + wrapper, `gitea-pr` |
-| `init-firewall.sh` | Egress allowlist firewall, run at container start |
-| `entrypoint.sh` | Runs as root: sets up the firewall, drops to `node` via `gosu`, execs `nvim` |
+| `fixed-domains.sh` | Shared domain list sourced by both `init-firewall.sh` and `dns-proxy.sh` |
+| `dns-proxy.sh` | Starts the DNS-allowlisting `dnsmasq`, repoints `resolv.conf` at it |
+| `init-firewall.sh` | IPv4/IPv6 egress allowlist firewall, run at container start |
+| `ulogd.conf` | `ulogd2` config: turns `init-firewall.sh`'s NFLOG-tagged packets into JSON |
+| `log-shipper.sh` | Tails the dnsmasq/ulogd2 logs and ships them to `$LOKI_URL` |
+| `entrypoint.sh` | Runs as root: DNS proxy, firewall, logging, drops to `node` via `gosu`, execs `nvim` |
 | `claude-wrapper.sh` | Shadows `claude` on `PATH` to always add `--dangerously-skip-permissions` |
 | `docker-compose.yml` | Wires up mounts/env; invoked via `bin/claude-sandbox`, not directly |
 

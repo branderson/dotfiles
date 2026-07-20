@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   dnsutils \
   aggregate \
   jq \
+  dnsmasq \
+  ulogd2 \
+  ulogd2-json \
   nano \
   vim \
   ripgrep \
@@ -139,17 +142,21 @@ RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 # doesn't have.
 RUN npm install -g tree-sitter-cli@0.24.7
 
-# Copy and set up firewall + entrypoint scripts, the gitea-pr helper from
-# this repo's bin/ directory, the claude wrapper that pins
+# Copy and set up firewall + DNS-proxy + entrypoint scripts, the gitea-pr
+# helper from this repo's bin/ directory, the claude wrapper that pins
 # --dangerously-skip-permissions, and this user's real nvim config.
+COPY docker/claude-sandbox/fixed-domains.sh /usr/local/bin/
+COPY docker/claude-sandbox/dns-proxy.sh /usr/local/bin/
 COPY docker/claude-sandbox/init-firewall.sh /usr/local/bin/
+COPY docker/claude-sandbox/log-shipper.sh /usr/local/bin/
+COPY docker/claude-sandbox/ulogd.conf /etc/ulogd-sandbox.conf
 COPY docker/claude-sandbox/entrypoint.sh /usr/local/bin/
 COPY docker/claude-sandbox/claude-wrapper.sh /usr/local/bin/claude
 COPY bin/gitea-pr /usr/local/bin/gitea-pr
 COPY config/nvim /home/node/.config/nvim
 
 USER root
-RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/entrypoint.sh /usr/local/bin/gitea-pr /usr/local/bin/claude && \
+RUN chmod +x /usr/local/bin/dns-proxy.sh /usr/local/bin/init-firewall.sh /usr/local/bin/log-shipper.sh /usr/local/bin/entrypoint.sh /usr/local/bin/gitea-pr /usr/local/bin/claude && \
   chown -R node:node /home/node/.config/nvim && \
   echo 'export PATH="$PATH:/usr/local/share/npm-global/bin"' > /etc/profile.d/npm-global-path.sh
 
