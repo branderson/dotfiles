@@ -7,6 +7,8 @@ FIXED_DOMAINS=(
     "pypi.org"
     "files.pythonhosted.org"
     "release-assets.githubusercontent.com"
+    "proxy.golang.org"
+    "sum.golang.org"
 )
 
 # GitHub itself is allowlisted by IP range (see github-domains ipset,

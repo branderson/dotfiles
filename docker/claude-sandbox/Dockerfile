@@ -134,6 +134,23 @@ RUN asset_url=$(curl -fsSL https://api.github.com/repos/neovim/neovim/releases/l
   tar -C /usr/local --strip-components=1 -xzf nvim.tar.gz && \
   rm nvim.tar.gz
 
+# Install the latest stable Go toolchain. go.dev's own release JSON gives
+# both the download URL and a SHA256 per file, verified below since this
+# runs as root - same pattern as gosu above. `go build`/`go mod download`
+# need proxy.golang.org and sum.golang.org reachable at runtime - see
+# fixed-domains.sh.
+RUN ARCH=$(dpkg --print-architecture) && \
+  release_json=$(curl -fsSL 'https://go.dev/dl/?mode=json') && \
+  filename=$(echo "$release_json" | jq -r --arg arch "$ARCH" \
+    '[.[] | select(.stable == true)][0].files[] | select(.os == "linux" and .arch == $arch and .kind == "archive") | .filename') && \
+  sha256=$(echo "$release_json" | jq -r --arg arch "$ARCH" \
+    '[.[] | select(.stable == true)][0].files[] | select(.os == "linux" and .arch == $arch and .kind == "archive") | .sha256') && \
+  wget -O go.tar.gz "https://go.dev/dl/${filename}" && \
+  echo "${sha256}  go.tar.gz" | sha256sum -c - && \
+  tar -C /usr/local -xzf go.tar.gz && \
+  rm go.tar.gz
+ENV PATH=$PATH:/usr/local/go/bin
+
 # Set up non-root user
 USER node
 

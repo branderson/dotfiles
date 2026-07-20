@@ -136,7 +136,9 @@ ranges (port 443 only - see "GitHub is read-only" below),
 own registry index - redirect here, a separate CDN from github.com's own
 IPs), `registry.npmjs.org`, `pypi.org` and `files.pythonhosted.org` (mason's
 Python-based LSP tools - `ruff`, `basedpyright`, `debugpy` - install via
-pip), `api.anthropic.com`, and whatever hosts `GITEA_SSH_HOST`/`GITEA_API`
+pip), `proxy.golang.org` and `sum.golang.org` (`go build`/`go mod download`'s
+module proxy and checksum database), `api.anthropic.com`, and whatever hosts
+`GITEA_SSH_HOST`/`GITEA_API`
 resolve to — that last group isn't port-restricted, so git-over-ssh to Gitea
 works without a separate blanket "port 22 to anywhere" rule. Set
 `ALLOWED_DOMAINS` (space-separated) in the environment to allow more (e.g.
