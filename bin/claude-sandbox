@@ -58,6 +58,12 @@ fi
 SANDBOX_SHARE_DIR="${SANDBOX_SHARE_DIR:-$HOME/.local/share/claude-sandbox/shared}"
 mkdir -p "$SANDBOX_SHARE_DIR"
 
+# ~/.claude/CLAUDE.md (carried into the container) tells agents to write
+# specs to ~/specs/ rather than a project-local path - make sure that
+# actually exists before it's bind-mounted, for a fresh machine that hasn't
+# used the convention yet.
+mkdir -p "$HOME/specs"
+
 export WORKSPACE_DIR
 export SANDBOX_SHARE_DIR
 export SSH_AUTH_SOCK

@@ -61,6 +61,13 @@ services:
       # since most of its content must stay writable for normal operation.
       # See README Security notes for this residual risk.
       - ${HOME}/.claude.json:/home/node/.claude.json
+      # ~/.claude/CLAUDE.md (mounted above) tells agents to write specs to
+      # ~/specs/ rather than a project-local path - that instruction is
+      # already in effect inside the container (CLAUDE.md carries over), so
+      # the directory it points at needs to actually exist and be writable
+      # here too, or an agent following it just writes into an ephemeral
+      # path inside the container that vanishes with the session.
+      - ${HOME}/specs:/home/node/specs
       # ~/.claude/hooks is a symlink into ~/dotfiles/config/claude/hooks (an
       # absolute host path); mount dotfiles at the same path so it resolves
       # in the container too. Read-only: hooks are only ever read/executed

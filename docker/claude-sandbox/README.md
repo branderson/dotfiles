@@ -83,6 +83,13 @@ touching the actual project checkout. It persists across sessions since it's
 a real directory, not a container volume. Set `SANDBOX_SHARE_DIR` to point
 it somewhere else.
 
+`~/specs` is also bind-mounted read-write, at the fixed host path `~/specs`
+(created automatically if it doesn't exist yet) - not configurable like
+`SANDBOX_SHARE_DIR`, since it exists to make the global `CLAUDE.md`
+convention of writing specs to `~/specs/` (also carried into the container)
+actually work there instead of writing into a path that vanishes with the
+session.
+
 ## Sandbox self-awareness
 
 A `SessionStart` hook (`~/.claude/hooks/sandbox-context.sh`, registered in
