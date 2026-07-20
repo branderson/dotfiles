@@ -79,7 +79,12 @@ while read -r cidr; do
         exit 1
     fi
     echo "Adding GitHub range $cidr"
-    ipset add github-domains "$cidr"
+    # -exist: aggregate -q collapses overlapping ranges within each of
+    # web/api/git, but not necessarily across all three combined - the same
+    # crash this already caused once on the allowed-domains ipset (a
+    # duplicate add errors, and set -e turns that into the whole firewall,
+    # and thus the whole container, failing to start).
+    ipset add github-domains "$cidr" -exist
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
 # Resolve and add other allowed domains (shared with dns-proxy.sh's name
