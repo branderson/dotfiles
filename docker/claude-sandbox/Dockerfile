@@ -8,13 +8,17 @@ ENV TZ="$TZ"
 ARG CLAUDE_CODE_VERSION=latest
 
 # Install basic development tools, iptables/ipset (for the egress firewall),
-# openssh-client (for git-over-ssh and agent forwarding), the toolchain
-# nvim's plugin config (config/nvim, telescope/treesitter/mason) expects, and
-# bubblewrap/socat, which Claude Code's own internal per-command sandboxing
-# (~/.claude/settings.json's "sandbox" block - separate from and in addition
-# to this container) and /remote-control both need to even be offered,
-# without which Claude Code detects the environment can't support them and
-# silently disables both rather than erroring when used.
+# openssh-client (for git-over-ssh and agent forwarding), and the toolchain
+# nvim's plugin config (config/nvim, telescope/treesitter/mason) expects.
+#
+# Deliberately NOT installing bubblewrap/socat: those exist to let Claude
+# Code's own internal per-command sandboxing (~/.claude/settings.json's
+# "sandbox" block) and /remote-control run, but that inner sandbox is
+# redundant on top of this container - it can't even function inside it
+# anyway (bwrap can't create a namespace here, and fixing that would need
+# privilege escalation approaching --privileged, undoing this container's
+# own hardening). bin/claude-sandbox mounts a settings.json copy with
+# sandbox.enabled forced to false, so there's nothing here to satisfy.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   less \
   git \
@@ -47,8 +51,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   cowsay \
   fortune-mod \
   fortunes-min \
-  bubblewrap \
-  socat \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && ln -s "$(command -v fdfind)" /usr/local/bin/fd
 

@@ -48,9 +48,38 @@ setup() {
 
 @test "~/.claude settings/CLAUDE.md/plugins are layered read-only over the read-write parent mount" {
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude:/home/node/\.claude\s*$' "$SANDBOX_DIR/docker-compose.yml"
-    grep -qE '^\s*-\s*\$\{HOME\}/\.claude/settings\.json:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    # settings.json specifically comes from a generated $SANDBOX_SETTINGS_FILE
+    # (see below), not the real file directly - it still has to be read-only
+    # in the container, just from a different, sandbox-specific source.
+    grep -qE '^\s*-\s*\$\{SANDBOX_SETTINGS_FILE.*\}:/home/node/\.claude/settings\.json:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude/CLAUDE\.md:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude/plugins:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
+}
+
+@test "bin/claude-sandbox forces sandbox.enabled to false in the generated settings.json" {
+    # Claude Code's own internal per-command sandboxing is redundant on top
+    # of this container and can't actually function inside it (bwrap can't
+    # create a namespace here) - settings.json is read-only precisely so it
+    # can't be patched from inside, so this has to happen in the generation
+    # step on the host, before the container starts.
+    grep -qE '\.sandbox\.enabled\s*=\s*false' "$REPO_ROOT/bin/claude-sandbox"
+}
+
+@test "Dockerfile never installs bubblewrap or socat" {
+    # Nothing needs them now that sandbox.enabled is forced off - if they
+    # come back, it's worth asking why before just re-adding them.
+    run grep -E '^\s*(bubblewrap|socat)\s*\\?\s*$' "$SANDBOX_DIR/Dockerfile"
+    [ "$status" -ne 0 ]
+}
+
+@test "sandbox-context.sh never tells the agent to worktree outside the mounted project" {
+    # ../<branch> (a sibling of the mounted project) or anything under $HOME
+    # lands in container-local ephemeral storage, not real host storage -
+    # the worktree, and whatever work went into it, silently vanishes when
+    # the session ends. Regression check for exactly this bug.
+    run grep -E '(worktree add|git worktree)[^\\n]*\.\./' "$REPO_ROOT/config/claude/hooks/sandbox-context.sh"
+    [ "$status" -ne 0 ]
+    grep -q '.worktrees/' "$REPO_ROOT/config/claude/hooks/sandbox-context.sh"
 }
 
 @test "entrypoint runs as root and drops to node via gosu, not a baked-in USER node" {

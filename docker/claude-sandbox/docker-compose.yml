@@ -52,7 +52,15 @@ services:
       # mount above (Docker applies more specific mounts on top of broader
       # ones); everything else under ~/.claude (session/project history,
       # credentials refresh, caches, etc.) still needs to stay read-write.
-      - ${HOME}/.claude/settings.json:/home/node/.claude/settings.json:ro
+      #
+      # settings.json specifically comes from $SANDBOX_SETTINGS_FILE (a
+      # bin/claude-sandbox-generated copy with sandbox.enabled forced to
+      # false), not the real file directly - Claude Code's own internal
+      # per-command sandboxing is redundant on top of this container (and
+      # can't actually function inside it anyway), and mounting it read-only
+      # means it can't be patched from inside, so the substitution has to
+      # happen on the host before the container ever starts.
+      - ${SANDBOX_SETTINGS_FILE:?set by bin/claude-sandbox}:/home/node/.claude/settings.json:ro
       - ${HOME}/.claude/CLAUDE.md:/home/node/.claude/CLAUDE.md:ro
       - ${HOME}/.claude/plugins:/home/node/.claude/plugins:ro
       # ~/.claude.json is a single file mixing live app state (project

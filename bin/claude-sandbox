@@ -64,8 +64,23 @@ mkdir -p "$SANDBOX_SHARE_DIR"
 # used the convention yet.
 mkdir -p "$HOME/specs"
 
+# Claude Code's own internal per-command sandboxing (~/.claude/settings.json's
+# "sandbox" block) is redundant here - it can't even function inside this
+# container (bwrap can't create a namespace, and getting it to would need
+# privilege escalation approaching --privileged, undoing this container's own
+# hardening), and this container is already a real, working sandbox on its
+# own. settings.json is mounted read-only precisely so a session can't
+# tamper with it, so it can't be patched from inside - generate a sandbox-
+# specific copy here instead and mount that in place of the real one.
+# Everything else in it (hooks, permissions, plugins) carries over unchanged.
+SANDBOX_SETTINGS_FILE="$(mktemp "${TMPDIR:-/tmp}/claude-sandbox-settings.XXXXXX.json")"
+jq '.sandbox.enabled = false' "$HOME/.claude/settings.json" > "$SANDBOX_SETTINGS_FILE"
+cleanup() { rm -f "$SANDBOX_SETTINGS_FILE"; }
+trap cleanup EXIT
+
 export WORKSPACE_DIR
 export SANDBOX_SHARE_DIR
+export SANDBOX_SETTINGS_FILE
 export SSH_AUTH_SOCK
 export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
 export GITEA_TOKEN="${GITEA_TOKEN:-}"
@@ -74,4 +89,6 @@ export GITEA_API="${GITEA_API:-}"
 export GH_TOKEN="${GH_TOKEN:-}"
 export TZ="${TZ:-$(readlink -f /etc/localtime 2>/dev/null | sed 's#.*/zoneinfo/##')}"
 
-exec docker compose -f "$COMPOSE_FILE" run --rm --build claude "$@"
+# Not `exec`: the EXIT trap above needs this shell to still be around
+# afterward to actually clean up the generated settings file.
+docker compose -f "$COMPOSE_FILE" run --rm --build claude "$@"

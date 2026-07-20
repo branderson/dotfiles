@@ -119,7 +119,11 @@ sandbox-context.sh also tells the agent the actual workflow to follow
 proactively, not just what's blocked: do new work in a `git worktree`
 rather than switching branches in the mounted checkout in place (that's the
 user's real working copy), then push the feature branch and run
-`gitea-pr create` from the worktree.
+`gitea-pr create` from the worktree. The worktree has to live *under* the
+mounted project directory (e.g. `.worktrees/<branch>`, not `../<branch>`) -
+only the exact bind-mounted path is backed by real host storage, so a
+worktree created as a sibling of the project (or anywhere under `$HOME`)
+looks fine but silently disappears with the container, worktree and all.
 
 ## Network egress firewall
 

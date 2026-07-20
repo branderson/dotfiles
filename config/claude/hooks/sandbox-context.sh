@@ -35,10 +35,21 @@ What this means:
   irreversible, or outside the project directory.
 
 Git workflow - do this even though nothing stops you from doing otherwise:
-- Do new work in a git worktree for the feature branch (e.g. \`git worktree
-  add ../<branch> -b <branch>\`), not by switching branches in place in the
-  mounted checkout - that's the user's actual working copy, and changing
-  its branch out from under them is disruptive even if you switch it back.
+- Do new work in a git worktree for the feature branch, not by switching
+  branches in place in the mounted checkout - that's the user's actual
+  working copy, and changing its branch out from under them is disruptive
+  even if you switch it back.
+- The worktree MUST live under the mounted project directory itself, e.g.
+  \`git worktree add .worktrees/<branch> -b <branch>\` run from the project
+  root - never \`../<branch>\` or any other path outside it, including
+  anywhere under \$HOME. Only the exact directory bind-mounted into this
+  container is backed by real storage on the host; everything else,
+  including what looks like the project's own parent directory, is
+  container-local and silently disappears when the session ends - a
+  worktree created there is real work that just gets thrown away. Add
+  \`.worktrees/\` to \`.git/info/exclude\` (not \`.gitignore\` - this is
+  sandbox-local, not something to commit) so it doesn't clutter \`git
+  status\` for the user's real checkout.
 - Push that branch to the Gitea remote, then run \`gitea-pr create\` from
   the worktree. Never push to GitHub (read-only, and not reachable for
   push regardless), and never push directly to main/master, on any remote.
