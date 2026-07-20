@@ -31,7 +31,7 @@ into the container at runtime from wherever it actually sits on disk.
   here — that's write-capable, which defeats the point (see "GitHub is
   read-only" below). Without it, public GitHub repos still clone/fetch fine
   anonymously over HTTPS; only private repos and `gh` API calls need it.
-- Optional: `LOKI_URL` (a base URL, e.g. `http://10.0.30.11:3100`) to ship
+- Optional: `LOKI_URL` (a base URL, e.g. `http://loki.internal:3100`) to ship
   DNS-query and firewall allow/reject logs to a Loki push endpoint - see
   "Network request logging" below. Logging is skipped entirely if unset.
 
@@ -254,8 +254,42 @@ GitHub itself (403), not just blocked locally.
 
 ## Security notes
 
+**Threat model, honestly stated:** this reduces the blast radius of a
+misbehaving or prompt-injected coding agent - it does not make it safe to
+point at arbitrary untrusted or adversarial input, and it does not turn
+`--dangerously-skip-permissions` into something without real risk. Point it
+at repositories you already trust. Everything below is about how bad a
+compromised session *inside* that trust boundary can get, not a claim that
+one can't happen.
+
 - `--dangerously-skip-permissions` removes your chance to review tool calls
   before they run. Only point this at trusted repositories.
+- The mounted project itself has **no write protection**. `deny-dangerous-
+  bash.sh` and `git-push-guard.sh` are regex pattern-matching on the literal
+  Bash command string - a fast-fail guard against an overeager agent doing
+  something obviously destructive, not a boundary against one that's
+  actively trying to get around them (a different scripting language, an
+  encoded command, editing `.git/config` directly all sail right through).
+  Nothing here stops a compromised or badly-instructed session from
+  modifying or deleting the real working copy it's mounted against.
+- Allowing egress to a domain at all creates a channel for exfiltrating data
+  through *that service's own request surface* (query strings, lookups,
+  etc.), not just to a literal attacker-controlled destination. Domain-level
+  allowlisting closes off reaching somewhere new; it can't inspect or
+  restrict what gets sent to somewhere already trusted for normal operation
+  (installing packages, calling the model API). That's a structural limit of
+  allowlist-only firewalls in general, not something specific to this setup,
+  and nothing here addresses it.
+- This is container-level isolation (Linux namespaces plus a small
+  capability set), not VM-level isolation - no gVisor/Firecracker or
+  similar. It shares the host kernel, so a container-escape vulnerability
+  would defeat every other control described here at once.
+- Everything in this document has been verified by hand, at a point in
+  time - there's no automated test suite re-checking these properties on
+  every change, so a future edit could silently reintroduce a gap. This has
+  already happened once in this file's own history (a missing `ipset`
+  dedup flag broke firewall startup entirely, twice, on two different
+  ipsets, before being caught).
 - Because `~/.claude` (including `.credentials.json`) is bind-mounted in,
   anything reachable from inside the container (the allowed domains above)
   is a potential exfiltration path for those credentials if a malicious repo
