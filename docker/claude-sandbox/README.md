@@ -18,7 +18,12 @@ into the container at runtime from wherever it actually sits on disk.
 - Docker with the `docker compose` v2 plugin.
 - `ssh-agent` running with the key for your Gitea remote(s) added
   (`ssh-add -l` should list it). The container never sees your private key,
-  only a forwarded agent socket.
+  only a forwarded agent socket. `bin/claude-sandbox` warns (non-fatally) at
+  launch if the agent has zero identities loaded - the socket still forwards
+  fine either way, but git-over-ssh will fail until you `ssh-add` a key. That
+  takes effect immediately in an already-running session too (it's a live
+  reference to the same host agent process, not a snapshot) - no need to
+  restart the sandbox after `ssh-add`ing.
 - `GITEA_SSH_HOST` and `GITEA_API` exported in your shell (same variables
   `bin/gitea-pr` already needs — see its `require_config`), and a token
   available either via `GITEA_TOKEN` in the environment or at
@@ -72,6 +77,17 @@ Caveat: MCP servers or hooks that shell out to host-specific binaries (e.g. a
 browser for Playwright, a language runtime not installed in this image) may
 not work inside the container unless that tooling is also added to the
 `Dockerfile`.
+
+Your global `~/.gitconfig` (`user.name`/`user.email` and the like) is also
+carried over, so commits made inside the sandbox have the right identity
+without any extra setup - falls back to an empty config if you don't have
+one, it's not a hard requirement. It's a throwaway copy rather than the
+real file, in its own directory rather than mounted directly at
+`~/.gitconfig` (`GIT_CONFIG_GLOBAL` points git at it instead) - `gh auth
+setup-git` needs to write a credential-helper entry into it, and both a
+read-only mount and a single-file bind mount at `~/.gitconfig` break that
+write in different ways. Nothing written to it during a session reaches
+your real `~/.gitconfig`.
 
 ## Shared scratch space
 

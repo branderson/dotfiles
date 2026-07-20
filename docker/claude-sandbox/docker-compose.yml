@@ -22,6 +22,10 @@ services:
       # itself for github.com over HTTPS - see the firewall/Dockerfile for
       # why that's the only path GitHub is reachable through at all.
       GH_TOKEN: ${GH_TOKEN:-}
+      # Points git at the gitconfig copy mounted below instead of the
+      # default ~/.gitconfig - see that mount's comment for why it can't
+      # just live at ~/.gitconfig directly.
+      GIT_CONFIG_GLOBAL: /home/node/.gitconfig-sandbox/.gitconfig
       ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
       # Base URL of a Loki push endpoint (e.g. http://10.0.30.11:3100) to
       # ship DNS-query and firewall allow/reject logs to. Its host is
@@ -76,6 +80,16 @@ services:
       # here too, or an agent following it just writes into an ephemeral
       # path inside the container that vanishes with the session.
       - ${HOME}/specs:/home/node/specs
+      # Global git identity (user.name/user.email) - a throwaway copy of it,
+      # in its own directory rather than a single file bind-mounted at
+      # ~/.gitconfig: entrypoint.sh's `gh auth setup-git` writes a
+      # credential-helper entry into it via git's usual write-temp-then-
+      # rename pattern, which fails on a single-file mount ("Device or
+      # resource busy" - Linux won't let that mount point's backing inode be
+      # replaced). GIT_CONFIG_GLOBAL below points git at the file inside
+      # this directory instead. See bin/claude-sandbox - nothing written
+      # here ever reaches the user's real ~/.gitconfig.
+      - ${SANDBOX_GITCONFIG_DIR:?set by bin/claude-sandbox}:/home/node/.gitconfig-sandbox
       # ~/.claude/hooks is a symlink into ~/dotfiles/config/claude/hooks (an
       # absolute host path); mount dotfiles at the same path so it resolves
       # in the container too. Read-only: hooks are only ever read/executed

@@ -32,6 +32,15 @@ if [ -z "${SSH_AUTH_SOCK:-}" ] || [ ! -S "${SSH_AUTH_SOCK}" ]; then
     exit 1
 fi
 
+# A valid socket with zero identities loaded forwards fine (the container
+# sees a live, working agent) but is useless for git-over-ssh - warn now
+# rather than have that surface confusingly deep into a session as a failed
+# push. Non-fatal: a task might not need git-over-ssh at all.
+if ! ssh-add -l >/dev/null 2>&1; then
+    echo "Warning: ssh-agent has no identities loaded (ssh-add -l shows none)." >&2
+    echo "git-over-ssh (e.g. pushing to Gitea) will fail until you ssh-add a key." >&2
+fi
+
 if [ -z "${GITEA_TOKEN:-}" ]; then
     GITEA_TOKEN_FILE="${GITEA_TOKEN_FILE:-$HOME/.config/gitea/token}"
     if [ -f "$GITEA_TOKEN_FILE" ]; then
@@ -75,12 +84,33 @@ mkdir -p "$HOME/specs"
 # Everything else in it (hooks, permissions, plugins) carries over unchanged.
 SANDBOX_SETTINGS_FILE="$(mktemp "${TMPDIR:-/tmp}/claude-sandbox-settings.XXXXXX.json")"
 jq '.sandbox.enabled = false' "$HOME/.claude/settings.json" > "$SANDBOX_SETTINGS_FILE"
-cleanup() { rm -f "$SANDBOX_SETTINGS_FILE"; }
+cleanup() { rm -f "$SANDBOX_SETTINGS_FILE"; rm -rf "$SANDBOX_GITCONFIG_DIR"; }
 trap cleanup EXIT
+
+# Git commits inside the sandbox need a user.name/user.email - carry over a
+# copy of the host's global gitconfig, read-write: entrypoint.sh's
+# `gh auth setup-git` (what makes GitHub read-only from in here - see
+# README) needs to *write* a credential-helper entry into it.
+#
+# A whole directory, not a single file bind-mounted at ~/.gitconfig: `git
+# config` writes via the usual write-temp-then-rename-over-original pattern,
+# which fails with "Device or resource busy" on a single-file bind mount -
+# Linux won't let that mount point's backing inode be replaced, only a file
+# *within* a mounted directory can be freely renamed over. Point git at the
+# copy via GIT_CONFIG_GLOBAL instead of relying on it being at ~/.gitconfig.
+# Nothing written in here ever reaches the user's real ~/.gitconfig either
+# way, since it's a copy in its own directory, not the real file/parent.
+SANDBOX_GITCONFIG_DIR="$(mktemp -d "${TMPDIR:-/tmp}/claude-sandbox-gitconfig.XXXXXX")"
+if [ -f "$HOME/.gitconfig" ]; then
+    cp "$HOME/.gitconfig" "$SANDBOX_GITCONFIG_DIR/.gitconfig"
+else
+    touch "$SANDBOX_GITCONFIG_DIR/.gitconfig"
+fi
 
 export WORKSPACE_DIR
 export SANDBOX_SHARE_DIR
 export SANDBOX_SETTINGS_FILE
+export SANDBOX_GITCONFIG_DIR
 export SSH_AUTH_SOCK
 export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
 export GITEA_TOKEN="${GITEA_TOKEN:-}"

@@ -56,6 +56,19 @@ setup() {
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude/plugins:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
 }
 
+@test "gitconfig is a throwaway copy in its own directory, not a single-file mount" {
+    # entrypoint.sh's `gh auth setup-git` writes a credential-helper entry
+    # via git's write-temp-then-rename pattern, which fails with "Device or
+    # resource busy" on a single-file bind mount at ~/.gitconfig directly -
+    # a real regression this guards against (Linux won't let a bind mount's
+    # backing inode be replaced, only a file *within* a mounted directory
+    # can be freely renamed over). Must be a directory mount, with
+    # GIT_CONFIG_GLOBAL pointing git at the file inside it.
+    grep -qE '^\s*-\s*\$\{SANDBOX_GITCONFIG_DIR.*\}:/home/node/\.gitconfig-sandbox\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*GIT_CONFIG_GLOBAL:\s*/home/node/\.gitconfig-sandbox/\.gitconfig\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -q 'mktemp -d.*gitconfig' "$REPO_ROOT/bin/claude-sandbox"
+}
+
 @test "bin/claude-sandbox forces sandbox.enabled to false in the generated settings.json" {
     # Claude Code's own internal per-command sandboxing is redundant on top
     # of this container and can't actually function inside it (bwrap can't
