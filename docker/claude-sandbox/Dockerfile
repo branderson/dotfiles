@@ -65,6 +65,12 @@ ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 # running inside this container rather than directly on the host.
 ENV CLAUDE_SANDBOX=1
 
+# Dedicated unprivileged user for ulogd2 (see entrypoint.sh) - unlike
+# dnsmasq, the ulogd2 Debian package doesn't create one of its own. ulogd2
+# opens its log/output files and the NFLOG netlink socket before dropping to
+# this user, so it doesn't need to own anything itself.
+RUN useradd -r -s /usr/sbin/nologin ulogd
+
 # Create the ssh directory and set permissions. The project directory itself
 # is bind-mounted at runtime at its real host path (see docker-compose.yml),
 # not a fixed /workspace, so it can share ~/.claude project/session history

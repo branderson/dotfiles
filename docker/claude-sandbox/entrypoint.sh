@@ -27,8 +27,23 @@ if [ "${ENABLE_FIREWALL:-1}" = "1" ]; then
     # NFLOG groups only exist once init-firewall.sh has run, so ulogd2 (the
     # NFLOG consumer) and the Loki shipper start after it. Both are
     # best-effort visibility on top of the enforcement above, not required
-    # for it - log-shipper.sh itself no-ops if LOKI_URL isn't set.
-    /usr/sbin/ulogd -d -c /etc/ulogd-sandbox.conf
+    # for it - log-shipper.sh itself no-ops if LOKI_URL isn't set. Runs as
+    # its own unprivileged `ulogd` user (opens the NFLOG socket and output
+    # files first, then drops), not root - it's parsing headers from
+    # attacker-influenceable packets (whatever a compromised session sends),
+    # so a bug in it shouldn't be a path back to root in the container.
+    #
+    # `ulogd -d` daemonizes immediately and always exits 0 from this shell's
+    # point of view, regardless of whether the daemon itself goes on to
+    # start successfully - so `set -e` above won't catch a failure here (nor
+    # should it: logging is best-effort, not something worth failing the
+    # whole container over). Check separately so a failure is at least
+    # visible instead of silently producing no logs.
+    /usr/sbin/ulogd -d -u ulogd -c /etc/ulogd-sandbox.conf
+    sleep 0.5
+    if ! pgrep -x ulogd >/dev/null; then
+        echo "WARNING: ulogd2 failed to start - connection logging will be unavailable (see /var/log/ulogd.log)" >&2
+    fi
     /usr/local/bin/log-shipper.sh &
 fi
 
