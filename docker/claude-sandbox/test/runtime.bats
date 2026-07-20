@@ -1,0 +1,162 @@
+#!/usr/bin/env bats
+bats_require_minimum_version 1.5.0
+
+# Behavioral checks against a live container running the real entrypoint.sh
+# (SANDBOX_TEST_MODE=1 - see entrypoint.sh - runs the actual DNS
+# proxy/firewall/logging setup, then execs `sleep infinity` as node instead
+# of nvim so the suite can attach). One container is shared across the whole
+# file (setup_file/teardown_file, not setup/teardown) since spinning up a
+# fresh one per test would make this suite too slow to actually get run.
+#
+# Needs Docker. Set SKIP_BUILD=1 to reuse whatever claude-sandbox:latest is
+# already built, for fast iteration - the default is to always rebuild, so a
+# stale image can't produce a false pass.
+#
+# Safety: every iptables/ipset/ip6tables mutation below happens inside the
+# test container's own network namespace (no --network host, no bind mounts
+# of host paths) - none of it touches the host's real firewall state, same
+# as any other container. Container/network names are derived from
+# BATS_FILE_TMPDIR (a directory bats itself guarantees is unique per run and
+# stable across setup_file/every test/teardown_file in this file), so a
+# stray real container or network can never collide with, and get torn down
+# by, this suite. Don't derive these from $$ instead - bats reruns this
+# file's top-level code in a fresh subshell per test, so $$ (unlike
+# BATS_FILE_TMPDIR) is a *different* value in every test, setup_file, and
+# teardown_file, silently pointing them at containers that don't match.
+
+IMAGE=claude-sandbox:latest
+
+container_name() { echo "claude-sandbox-test-$(basename "$BATS_FILE_TMPDIR")"; }
+network_name() { echo "claude-sandbox-test-net-$(basename "$BATS_FILE_TMPDIR")"; }
+
+setup_file() {
+    SANDBOX_DIR="$BATS_TEST_DIRNAME/.."
+    REPO_ROOT="$BATS_TEST_DIRNAME/../../.."
+    local container network
+    container=$(container_name)
+    network=$(network_name)
+
+    if [ "${SKIP_BUILD:-0}" != "1" ]; then
+        docker build -q -t "$IMAGE" -f "$SANDBOX_DIR/Dockerfile" "$REPO_ROOT" >&2
+    fi
+
+    docker rm -f "$container" >/dev/null 2>&1 || true
+    docker network rm "$network" >/dev/null 2>&1 || true
+    docker network create "$network" >/dev/null
+
+    # No GITEA_*/GH_TOKEN/LOKI_URL: this suite only asserts the default
+    # allowlist and enforcement, which shouldn't depend on any of them.
+    docker run -d --name "$container" \
+        --cap-add=NET_ADMIN --cap-add=NET_RAW \
+        --network "$network" \
+        -e SANDBOX_TEST_MODE=1 \
+        --entrypoint /usr/local/bin/entrypoint.sh \
+        "$IMAGE" >/dev/null
+
+    for _ in $(seq 1 60); do
+        # pgrep -x sleep also transiently matches entrypoint.sh's own `sleep
+        # 0.5` (used for its ulogd readiness check) before the real, final
+        # `sleep infinity` - harmless here, since by the time *either* sleep
+        # runs, dns-proxy.sh/init-firewall.sh have already fully completed
+        # (they're earlier, sequential steps under set -e).
+        if docker exec "$container" pgrep -x sleep >/dev/null 2>&1; then
+            return
+        fi
+        sleep 1
+    done
+    echo "container never reached the post-entrypoint sleep - startup log:" >&2
+    docker logs "$container" >&2
+    return 1
+}
+
+teardown_file() {
+    docker rm -f "$(container_name)" >/dev/null 2>&1 || true
+    docker network rm "$(network_name)" >/dev/null 2>&1 || true
+}
+
+dexec() {
+    docker exec "$(container_name)" "$@"
+}
+
+dexec_node() {
+    docker exec -u node "$(container_name)" "$@"
+}
+
+@test "IPv6 is fully blocked" {
+    run dexec ip6tables -L OUTPUT -n
+    [[ "$output" == *"policy DROP"* ]]
+}
+
+@test "a non-allowlisted domain is refused by the DNS proxy, not just left to fail later" {
+    run dexec dig definitely-not-on-the-allowlist.example.org
+    [[ "$output" == *"status: REFUSED"* ]]
+}
+
+@test "an allowlisted domain resolves via the DNS proxy" {
+    run dexec dig +short api.anthropic.com
+    [ -n "$output" ]
+}
+
+@test "a non-allowlisted destination is unreachable" {
+    run dexec curl --connect-timeout 5 -s -o /dev/null https://example.com
+    [ "$status" -ne 0 ]
+}
+
+@test "GitHub is reachable on port 443" {
+    run dexec curl --connect-timeout 5 -s -o /dev/null -w "%{http_code}" https://api.github.com/zen
+    [ "$status" -eq 0 ]
+}
+
+@test "GitHub is NOT reachable on port 22 (push transport is physically absent)" {
+    run dexec timeout 5 bash -c "cat < /dev/null > /dev/tcp/github.com/22"
+    [ "$status" -ne 0 ]
+}
+
+@test "node cannot run iptables directly" {
+    run dexec_node iptables -L
+    [ "$status" -ne 0 ]
+}
+
+@test "node cannot re-run init-firewall.sh to widen the allowlist" {
+    run dexec_node /usr/local/bin/init-firewall.sh
+    [ "$status" -ne 0 ]
+}
+
+@test "node has no working sudo" {
+    # `run !` rather than checking $status: this fails with 127 (command
+    # not found) today since sudo isn't installed at all, not some other
+    # nonzero code - both are "no working sudo," and pinning to one exact
+    # code would make the test brittle to which specific way that stays true.
+    run ! dexec_node sudo -n true
+}
+
+@test "the real running node process has NET_ADMIN/NET_RAW stripped, not just the bounding set" {
+    run dexec cat /proc/1/status
+    [ "$status" -eq 0 ]
+    cap_eff=$(echo "$output" | awk '/^CapEff:/ {print $2}')
+    [ "$cap_eff" = "0000000000000000" ]
+}
+
+@test "ulogd2 runs as its own unprivileged user, not root" {
+    run dexec ps -eo user,comm
+    [[ "$output" == *"ulogd    ulogd"* ]] || [[ "$output" == *$'\nulogd '* ]]
+    ! [[ "$output" == *$'\nroot     ulogd'* ]]
+}
+
+@test "the ipset stays in sync with fresh (non-cached) DNS answers, not just the boot-time snapshot" {
+    ip=$(dexec dig +short pypi.org | head -1)
+    [ -n "$ip" ]
+    dexec ipset del allowed-domains "$ip"
+    run dexec ipset test allowed-domains "$ip"
+    [ "$status" -ne 0 ]
+
+    # SIGHUP clears dnsmasq's answer cache, forcing a genuine upstream
+    # re-forward on the next query instead of a cache hit - only a fresh
+    # forward triggers dnsmasq's --ipset= tracking (see dns-proxy.sh).
+    dexec bash -c 'kill -HUP "$(cat /var/run/dnsmasq-sandbox.pid)"'
+    sleep 0.5
+    dexec dig +short pypi.org >/dev/null
+    sleep 0.5
+    run dexec ipset test allowed-domains "$ip"
+    [ "$status" -eq 0 ]
+}

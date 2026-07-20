@@ -67,6 +67,16 @@ if [ -n "${GH_TOKEN:-}" ]; then
     gosu node gh auth setup-git
 fi
 
+# Test harness hook (docker/claude-sandbox/test/): everything above this
+# point is the real startup sequence - DNS proxy, firewall, IPv6 block,
+# logging, privilege-drop prep. Skip execing nvim (which needs a real tty)
+# so the suite can `docker exec` into a live, fully-initialized container
+# and assert against it, exercising the actual code path instead of a
+# reimplementation of it that could drift out of sync.
+if [ "${SANDBOX_TEST_MODE:-0}" = "1" ]; then
+    exec gosu node sleep infinity
+fi
+
 # Drop root -> node for the actual session; node has no sudo/setuid path
 # back to root after this, so it can't re-run init-firewall.sh itself to
 # widen the allowlist mid-session.

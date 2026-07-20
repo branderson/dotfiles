@@ -331,6 +331,38 @@ one can't happen.
   cleared from the effective/permitted sets on the `gosu` drop, and `node`
   gets a permission error running `iptables` directly.
 
+## Tests
+
+`test/` has a [bats](https://github.com/bats-core/bats-core) suite covering
+the security invariants above - not a substitute for reading this document,
+but a way to actually catch a future change silently breaking one of them
+instead of finding out the hard way:
+
+```sh
+bats docker/claude-sandbox/test/               # everything
+bats docker/claude-sandbox/test/static.bats     # fast, no Docker/build needed
+SKIP_BUILD=1 bats docker/claude-sandbox/test/runtime.bats   # reuse the current image
+```
+
+`static.bats` greps the repo's own files - no sudo in the `Dockerfile`, every
+`ipset add` is duplicate-safe, no `docker.sock`/host-credential mounts, the
+`~/.claude` read-only overlay lines are present, `bin/claude-sandbox-allow`
+rejects a malicious domain argument. `runtime.bats` builds the image, boots
+a real container running the actual `entrypoint.sh` (a `SANDBOX_TEST_MODE`
+env var makes it stop just short of execing `nvim`, so the suite can attach
+to a fully-initialized container instead of reimplementing its own copy of
+the setup sequence), and asserts against it: IPv6 blocked, DNS/IP allowlist
+enforcement in both directions, GitHub read-only, no working `sudo`/
+`iptables`/`init-firewall.sh` as `node`, capabilities actually stripped
+(not just absent from a `docker exec` that doesn't have them to begin
+with), `ulogd2` unprivileged, and the dynamic-ipset CDN-rotation fix.
+
+Every mutation in `runtime.bats` (firewall rules, `ipset` entries) happens
+inside the test container's own network namespace, same as any other
+container - none of it touches the host. Container/network names are
+derived from bats' own per-run temp directory, not anything guessable or
+likely to collide with a real container you have running.
+
 ## Files
 
 | File | Purpose |
