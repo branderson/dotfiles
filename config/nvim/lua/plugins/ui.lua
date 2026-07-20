@@ -56,10 +56,20 @@ return {
       local dashboard = require("alpha.themes.dashboard")
 
       local function fortune_header()
-        local cows = vim.fn.systemlist("cowsay -l")
+        -- cowsay -l prints a header line, then wraps every cow name across
+        -- several space-separated lines (not one name per line), so a name
+        -- has to be picked from all of them split on whitespace, not by
+        -- treating a whole (possibly multi-name) line as one name.
+        local raw = vim.fn.systemlist("cowsay -l")
         local cow = "default"
-        if #cows > 1 then
-          cow = cows[math.random(2, #cows)]
+        local names = {}
+        for i = 2, #raw do
+          for name in raw[i]:gmatch("%S+") do
+            table.insert(names, name)
+          end
+        end
+        if #names > 0 then
+          cow = names[math.random(#names)]
         end
         local moods = { "b", "d", "g", "p", "s", "t", "w", "y" }
         local mood = moods[math.random(#moods)]

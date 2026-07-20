@@ -78,6 +78,12 @@ services:
       - nvim-cache:/home/node/.cache/nvim
       - ${SSH_AUTH_SOCK:?set SSH_AUTH_SOCK to your running ssh-agent socket}:/ssh-agent
       - ${SSH_KNOWN_HOSTS:-/dev/null}:/home/node/.ssh/known_hosts:ro
+      # Read-write scratch space for passing files back and forth with the
+      # sandboxed session (screenshots, temp scripts) without touching the
+      # actual project checkout - separate from WORKSPACE_DIR above, and a
+      # real host directory (not a named volume) so it's actually visible on
+      # both sides, persisting across sessions.
+      - ${SANDBOX_SHARE_DIR}:/home/node/shared
     working_dir: ${WORKSPACE_DIR}
     stdin_open: true
     tty: true

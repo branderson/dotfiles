@@ -73,6 +73,16 @@ browser for Playwright, a language runtime not installed in this image) may
 not work inside the container unless that tooling is also added to the
 `Dockerfile`.
 
+## Shared scratch space
+
+`~/shared` inside the container is a read-write bind mount of a real host
+directory (`$SANDBOX_SHARE_DIR`, default `~/.local/share/claude-sandbox/shared`,
+created automatically) - separate from the project mount, for passing files
+(screenshots, temp scripts) back and forth with a sandboxed session without
+touching the actual project checkout. It persists across sessions since it's
+a real directory, not a container volume. Set `SANDBOX_SHARE_DIR` to point
+it somewhere else.
+
 ## Sandbox self-awareness
 
 A `SessionStart` hook (`~/.claude/hooks/sandbox-context.sh`, registered in
@@ -192,6 +202,40 @@ endpoint. Two sources, both tailed and pushed by `log-shipper.sh`:
 This is visibility on top of the firewall/DNS-proxy enforcement above, not a
 substitute for it - nothing about logging changes what's actually allowed to
 resolve or connect.
+
+### Viewing logs in Grafana
+
+Nothing sandbox-specific needed on the Grafana side beyond a Loki data
+source pointed at wherever `LOKI_URL` resolves to (Connections → Data
+sources → Loki, if one isn't already configured against that instance) -
+`log-shipper.sh` pushes directly to Loki's HTTP API, there's no Prometheus
+scrape target or exporter involved.
+
+In Grafana's Explore view (or a dashboard panel with a Loki query), both
+streams are selectable by their `job` label:
+
+```logql
+{job="claude-sandbox-dns"}                          # every DNS query + verdict
+{job="claude-sandbox-net"}                          # every connection attempt, as JSON
+```
+
+Useful filters on top of those:
+
+```logql
+# DNS lookups that got refused (not on the allowlist)
+{job="claude-sandbox-dns"} |= "REFUSED"
+
+# Rejected connections only (parses ulogd2's JSON, filters on its action field)
+{job="claude-sandbox-net"} | json | action="blocked"
+
+# Both streams together, e.g. to watch a live session across sources
+{source="claude-sandbox"}
+```
+
+`{job="claude-sandbox-net"}` lines are one full ulogd2 JSON object per
+connection attempt (`| json` in a query unpacks fields like `dest_ip`,
+`dest_port`, `action`) - Loki's Explore view shows these expandable/
+pretty-printed by default, no extra parsing setup needed.
 
 ## GitHub is read-only
 

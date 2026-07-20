@@ -39,8 +39,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip \
   python3-venv \
   xz-utils \
+  cowsay \
+  fortune-mod \
+  fortunes-min \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && ln -s "$(command -v fdfind)" /usr/local/bin/fd
+
+# cowsay/cowthink/fortune install to /usr/games on Debian, which isn't on
+# PATH by default - config/nvim's start-screen header (plugins/ui.lua) shells
+# out to them by bare name. Set via ENV (not a profile.d script) so it's
+# picked up by every process unconditionally, including nvim's non-login
+# subprocess spawns, which wouldn't source /etc/profile.d.
+ENV PATH=/usr/games:$PATH
 
 # Ensure default node user has access to /usr/local/share
 RUN mkdir -p /usr/local/share/npm-global && \

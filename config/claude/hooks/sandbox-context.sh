@@ -17,9 +17,12 @@ You are running inside the claude-sandbox Docker container
 
 What this means:
 - The workspace directory is bind-mounted read-write and is the real
-  project, but everything else in the container besides ~/.claude is
-  disposable: installed system packages, anything outside the mounted
-  paths, and the container itself go away when this run ends.
+  project. ~/shared is also a real, persistent host directory (not part of
+  the project) - use it to hand the user a file (a screenshot, a temp
+  script) without touching the project checkout, or to pick up something
+  they left there for you. Everything else in the container besides
+  ~/.claude is disposable: installed system packages, anything outside the
+  mounted paths, and the container itself go away when this run ends.
 - Outbound network is restricted to an allowlist (Anthropic's API, the npm
   registry, GitHub read-only, the configured Gitea host, plus anything set
   via ALLOWED_DOMAINS). Requests to anything else will simply fail to

@@ -50,7 +50,16 @@ if [ -z "${GH_TOKEN:-}" ]; then
     fi
 fi
 
+# Read-write scratch space, separate from WORKSPACE_DIR, for passing files
+# (screenshots, temp scripts) back and forth with a sandboxed session without
+# touching the actual project checkout. Persists across sessions (it's a
+# real host directory, not a container volume) since the point is sharing
+# things with the host, not just scratch space for one run.
+SANDBOX_SHARE_DIR="${SANDBOX_SHARE_DIR:-$HOME/.local/share/claude-sandbox/shared}"
+mkdir -p "$SANDBOX_SHARE_DIR"
+
 export WORKSPACE_DIR
+export SANDBOX_SHARE_DIR
 export SSH_AUTH_SOCK
 export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
 export GITEA_TOKEN="${GITEA_TOKEN:-}"
