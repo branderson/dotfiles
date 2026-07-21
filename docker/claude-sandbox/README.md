@@ -106,6 +106,40 @@ convention of writing specs to `~/specs/` (also carried into the container)
 actually work there instead of writing into a path that vanishes with the
 session.
 
+## Testing frontend changes
+
+Playwright (Chromium) is pre-installed, browser included - `require
+("playwright")` works from any script, anywhere in the container, not just
+a project with its own `npm install playwright`. Both the npm package and
+the matching Chromium build are baked in at image build time, so a session
+never needs network access for either.
+
+Testing against a project's own local dev server needs no firewall changes
+at all - `localhost`/loopback traffic never goes through the egress
+firewall in the first place. Testing against a real external site works
+the same as any other network use: the domain needs to be on the allowlist
+(`ALLOWED_DOMAINS`, or `bin/claude-sandbox-allow <domain>` for a running
+session) - verified the firewall applies to the browser's own traffic
+exactly like everything else (a non-allowlisted domain gets blocked from
+inside the browser too, not just from `curl`/`git`).
+
+If a project has its *own* pinned `playwright`/`@playwright/test`
+devDependency at a different version than the one baked in here, its
+`npm install` may still try to download a matching Chromium build from
+Playwright's own CDN, which isn't on the default allowlist - allow it the
+same way as any other one-off domain need if that comes up.
+
+Chromium's own internal process sandbox is best-effort here, not something
+to rely on: it launches without erroring, but its setuid sandbox helper
+isn't actually setuid in this image, and this host has the same
+unprivileged-userns restriction that keeps Claude Code's own internal
+sandboxing (see Security notes) from working either - so its namespace-
+based isolation almost certainly isn't active, Chromium just doesn't
+hard-fail the way `bubblewrap` does when it's missing. Not treated as a
+real boundary: this container is already the boundary that matters, and a
+compromised session already has full `node`-level bash access, which a
+Chromium exploit couldn't exceed regardless.
+
 ## Sandbox self-awareness
 
 A `SessionStart` hook (`~/.claude/hooks/sandbox-context.sh`, registered in

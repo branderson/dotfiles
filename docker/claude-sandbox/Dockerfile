@@ -151,12 +151,24 @@ RUN ARCH=$(dpkg --print-architecture) && \
   rm go.tar.gz
 ENV PATH=$PATH:/usr/local/go/bin
 
+# System libraries Chromium needs (fonts, libnss, libatk, etc.) for
+# Playwright, installed here since it needs apt/root - the actual
+# `playwright` package and browser binary install as node, further down,
+# so they land in node's own npm prefix/cache correctly.
+ARG PLAYWRIGHT_VERSION=1.61.1
+RUN npx -y playwright@${PLAYWRIGHT_VERSION} install-deps chromium
+
 # Set up non-root user
 USER node
 
 # Install global packages
 ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global
 ENV PATH=$PATH:/usr/local/share/npm-global/bin
+# A global npm install only puts a package's CLI on PATH, not its module on
+# Node's require() resolution path - NODE_PATH is what makes `require
+# ("playwright")` work from any script anywhere, not just the project's own
+# node_modules (which it likely doesn't have without its own npm install).
+ENV NODE_PATH=/usr/local/share/npm-global/lib/node_modules
 
 # Set the default shell to zsh rather than sh
 ENV SHELL=/bin/zsh
@@ -183,6 +195,26 @@ RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 # prebuilds require glibc >=2.39, which this (Debian 12 bookworm) image
 # doesn't have.
 RUN npm install -g tree-sitter-cli@0.24.7
+
+# Playwright, for testing frontend changes against a locally-running dev
+# server - localhost traffic never goes through the egress firewall, so
+# this needs no allowlist changes for that. System deps were already
+# installed as root above; this installs the npm package and downloads the
+# matching Chromium build into node's own cache, both at build time so a
+# session never needs network access for either.
+#
+# Chromium's own internal process sandbox is questionable here: it launches
+# without --no-sandbox and without error, but its setuid sandbox helper
+# (chrome_sandbox) isn't actually setuid-root in this image, and this host
+# has the same unprivileged-userns restriction that broke bubblewrap - so
+# its namespace-based isolation almost certainly isn't active either, it's
+# just not hard-failing the way bubblewrap did. Not treated as a real
+# security boundary either way: this container is already the boundary that
+# matters, and a compromised session already has full `node`-level bash
+# access, which a Chromium exploit couldn't exceed regardless of whichever
+# of its own internal sandbox layers happen to be active.
+RUN npm install -g playwright@${PLAYWRIGHT_VERSION} && \
+  npx playwright install chromium
 
 # Copy and set up firewall + DNS-proxy + entrypoint scripts, the gitea-pr
 # helper from this repo's bin/ directory, the claude wrapper that pins

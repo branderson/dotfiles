@@ -19,6 +19,15 @@ setup() {
     [ "$status" -ne 0 ]
 }
 
+@test "Playwright is installed and require()-able globally" {
+    # A global npm install only puts the CLI on PATH, not the module on
+    # Node's require() resolution path - NODE_PATH is what makes
+    # require("playwright") work from any script, not just one with its own
+    # local node_modules (see runtime.bats for the actual launch test).
+    grep -q 'npm install -g playwright' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^\s*ENV\s+NODE_PATH=' "$SANDBOX_DIR/Dockerfile"
+}
+
 @test "every ipset add in init-firewall.sh is duplicate-safe" {
     # Same bug class that broke firewall startup twice (718f6b7, a86fefc):
     # ipset add without -exist errors on a duplicate entry, and set -e turns

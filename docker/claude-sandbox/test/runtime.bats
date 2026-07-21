@@ -160,3 +160,45 @@ dexec_node() {
     run dexec ipset test allowed-domains "$ip"
     [ "$status" -eq 0 ]
 }
+
+@test "Playwright/Chromium actually launches and renders, not just installs" {
+    dexec_node bash -c 'cat > /tmp/pw-launch-test.js <<'"'"'EOF'"'"'
+const { chromium } = require("playwright");
+(async () => {
+  const browser = await chromium.launch({});
+  const page = await browser.newPage();
+  await page.setContent("<h1>ok</h1>");
+  const text = await page.textContent("h1");
+  if (text !== "ok") throw new Error("unexpected content: " + text);
+  await browser.close();
+  console.log("PLAYWRIGHT_LAUNCH_OK");
+})();
+EOF'
+    run dexec_node node /tmp/pw-launch-test.js
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"PLAYWRIGHT_LAUNCH_OK"* ]]
+}
+
+@test "the firewall applies to Playwright's browser traffic, not just curl/git" {
+    # The whole point of pre-baking the browser at build time is that a
+    # session never needs new network access for it - confirm the egress
+    # allowlist actually governs what the browser itself can reach, the same
+    # as every other tool in the container.
+    dexec_node bash -c 'cat > /tmp/pw-firewall-test.js <<'"'"'EOF'"'"'
+const { chromium } = require("playwright");
+(async () => {
+  const browser = await chromium.launch({});
+  const page = await browser.newPage();
+  try {
+    await page.goto("http://example.com", { timeout: 5000 });
+    console.log("REACHED_BLOCKED_DOMAIN");
+  } catch (e) {
+    console.log("BLOCKED_AS_EXPECTED");
+  }
+  await browser.close();
+})();
+EOF'
+    run dexec_node node /tmp/pw-firewall-test.js
+    [[ "$output" == *"BLOCKED_AS_EXPECTED"* ]]
+    ! [[ "$output" == *"REACHED_BLOCKED_DOMAIN"* ]]
+}
