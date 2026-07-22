@@ -19,6 +19,27 @@ setup() {
     [ "$status" -ne 0 ]
 }
 
+@test "Dockerfile creates a SANDBOX_USER matching the host user, not a hardcoded node" {
+    grep -qE '^ARG SANDBOX_USER=node\s*$' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^ARG SANDBOX_UID=1000\s*$' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^ARG SANDBOX_GID=1000\s*$' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^ARG SANDBOX_HOME=/home/node\s*$' "$SANDBOX_DIR/Dockerfile"
+    grep -q 'useradd -u "$SANDBOX_UID" -g "$SANDBOX_GID" -m -d "$SANDBOX_HOME"' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^ENV SANDBOX_USER=\$SANDBOX_USER\s*$' "$SANDBOX_DIR/Dockerfile"
+    grep -qE '^ENV SANDBOX_HOME=\$SANDBOX_HOME\s*$' "$SANDBOX_DIR/Dockerfile"
+    # No literal "USER node" anywhere - the mid-build USER switch must use
+    # the parametrized variable, not the old hardcoded name.
+    run grep -E '^USER\s+node\s*$' "$SANDBOX_DIR/Dockerfile"
+    [ "$status" -ne 0 ]
+    grep -qE '^USER\s+\$SANDBOX_USER\s*$' "$SANDBOX_DIR/Dockerfile"
+}
+
+@test "entrypoint.sh drops privilege via SANDBOX_USER, not a literal node" {
+    run grep -E 'gosu node\b' "$SANDBOX_DIR/entrypoint.sh"
+    [ "$status" -ne 0 ]
+    grep -q 'gosu "$SANDBOX_USER"' "$SANDBOX_DIR/entrypoint.sh"
+}
+
 @test "Playwright is installed and require()-able globally" {
     # A global npm install only puts the CLI on PATH, not the module on
     # Node's require() resolution path - NODE_PATH is what makes
