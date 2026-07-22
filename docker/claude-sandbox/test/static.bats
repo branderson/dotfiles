@@ -216,3 +216,9 @@ setup() {
     grep -q 'SANDBOX_SSH_KEY' "$REPO_ROOT/bin/claude-sandbox"
     grep -q 'export SANDBOX_SSH_KEY_FILE' "$REPO_ROOT/bin/claude-sandbox"
 }
+
+@test "bin/claude-sandbox warns when SANDBOX_SSH_KEY looks like a default personal key" {
+    grep -q 'looks like a default personal SSH key' "$REPO_ROOT/bin/claude-sandbox"
+    run grep -E '^\s*id_rsa\|id_ecdsa\|id_ed25519\|id_dsa\|id_ecdsa_sk\|id_ed25519_sk\)\s*$' "$REPO_ROOT/bin/claude-sandbox"
+    [ "$status" -eq 0 ]
+}

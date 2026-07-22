@@ -37,6 +37,19 @@ if [ -n "$SANDBOX_SSH_KEY" ]; then
         echo "Warning: $SANDBOX_SSH_KEY is readable by group/other (mode $key_perms)." >&2
         echo "Recommended: chmod 600 $SANDBOX_SSH_KEY" >&2
     fi
+    # SANDBOX_SSH_KEY is meant to be a dedicated, low-privilege deploy key
+    # (see README "Headless git push"), not your real identity - it stays
+    # loaded in an in-container agent for the whole session, unattended.
+    # Nothing enforces that convention, so at least catch the common case
+    # of pointing it at a default personal keyfile by mistake.
+    case "$(basename -- "$SANDBOX_SSH_KEY")" in
+        id_rsa|id_ecdsa|id_ed25519|id_dsa|id_ecdsa_sk|id_ed25519_sk)
+            echo "Warning: $SANDBOX_SSH_KEY looks like a default personal SSH key," \
+                 "not a dedicated one." >&2
+            echo "It will be loaded into the sandbox for the whole unattended session -" \
+                 "see README 'Headless git push'." >&2
+            ;;
+    esac
 fi
 
 have_forwarded_agent=1

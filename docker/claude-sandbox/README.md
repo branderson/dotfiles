@@ -440,6 +440,20 @@ one can't happen.
   push to) other repos on that host you have access to. This doesn't extend
   to GitHub: port 22 there is blocked outright, so the forwarded agent has
   no transport to use for it at all (see "GitHub is read-only" above).
+- `SANDBOX_SSH_KEY` (see "Headless git push without agent forwarding") is a
+  second, independent credential-loading path with the same "signs for any
+  Gitea repo it has access to" shape as the forwarded agent above - the
+  mitigation is that it's meant to be a dedicated deploy key scoped to only
+  the repos that actually need push access, not your personal identity.
+  That scoping is a convention, not something enforced here: nothing checks
+  what `SANDBOX_SSH_KEY` actually points at, so pointing it at your real
+  `~/.ssh/id_ed25519`/`id_rsa` instead of a dedicated key would load your
+  full personal identity into the container for the whole session (`bin/
+  claude-sandbox` warns if this looks like it might be happening - see
+  below - but doesn't block it). The key source itself is mounted read-only
+  at `/root/...`, not under the sandbox user's own home, specifically so
+  that user (which the session actually runs as) has no path to read the
+  raw key material - only the agent socket it's loaded into.
 - The sandbox's own user (matching your host user — see "Config parity"
   above) has no `sudo`/setuid path back to root once the container is up:
   `entrypoint.sh` runs as root, sets up the firewall directly, then drops to
