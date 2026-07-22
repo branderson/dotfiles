@@ -74,7 +74,11 @@ fi
 # the sandbox user rather than left forwarded, so it keeps working for the
 # rest of this container's life even after whatever client connection
 # forwarded the *other* agent goes away.
-SANDBOX_SSH_KEY_SRC="$SANDBOX_HOME/.ssh-sandbox-key-src"
+#
+# Mounted at /root (not under $SANDBOX_HOME) so only this root-run block
+# can ever read it - copied out, loaded into the agent, and the copy
+# deleted, all before dropping to the sandbox user below.
+SANDBOX_SSH_KEY_SRC="/root/.ssh-sandbox-key-src"
 if [ -s "$SANDBOX_SSH_KEY_SRC" ]; then
     install -o "$SANDBOX_USER" -g "$SANDBOX_USER" -m 600 "$SANDBOX_SSH_KEY_SRC" "$SANDBOX_HOME/.ssh/sandbox-key"
     eval "$(gosu "$SANDBOX_USER" ssh-agent -s)" >/dev/null

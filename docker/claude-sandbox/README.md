@@ -123,9 +123,7 @@ ssh-keygen -t ed25519 -N '' -f ~/.ssh/claude-sandbox_ed25519
 
 Passphrase-less is deliberate: headless operation has no human to answer a
 prompt, and this is meant to be a low-privilege credential that only ever
-lives inside the container, not your personal identity — a compromised
-session already has full access as the container's own user regardless (see
-Security notes), so this isn't a new category of exposure. Add the public
+lives inside the container, not your personal identity. Add the public
 half as a Gitea deploy key scoped to only the repos that actually need push
 access, then:
 
@@ -133,11 +131,17 @@ access, then:
 SANDBOX_SSH_KEY=~/.ssh/claude-sandbox_ed25519 bin/claude-sandbox ~/repos/some-project
 ```
 
-At container start, `entrypoint.sh` loads it into a fresh `ssh-agent`
-running inside the container itself — independent of the forwarded socket —
-and deletes the plaintext copy immediately afterward, so nothing readable is
-left on disk once it's in the agent. When `SANDBOX_SSH_KEY` is set, a live
-forwarded agent is no longer required to start the sandbox at all.
+The key is bind-mounted read-only at `/root/.ssh-sandbox-key-src` — under
+`/root`, not `$SANDBOX_HOME` — so only entrypoint.sh's root-run startup code
+can ever read it; the sandbox user (which the session actually runs as) has
+no path to that directory at all. At container start, `entrypoint.sh` loads
+it into a fresh `ssh-agent` running inside the container itself —
+independent of the forwarded socket — copies it out just long enough to do
+that, and deletes the copy immediately afterward. A compromised session can
+use the agent's socket to sign git-over-ssh operations (bounded by whatever
+the deploy key has push access to), but can't read the raw key material
+itself. When `SANDBOX_SSH_KEY` is set, a live forwarded agent is no longer
+required to start the sandbox at all.
 
 ## Shared scratch space
 

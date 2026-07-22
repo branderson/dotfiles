@@ -134,7 +134,7 @@ dexec_node() {
         --cap-add=NET_ADMIN --cap-add=NET_RAW \
         --network "$(network_name)" \
         -e SANDBOX_TEST_MODE=1 \
-        -v "$key_dir/testkey:/home/node/.ssh-sandbox-key-src:ro" \
+        -v "$key_dir/testkey:/root/.ssh-sandbox-key-src:ro" \
         --entrypoint /usr/local/bin/entrypoint.sh \
         "$IMAGE" >/dev/null
 
@@ -157,6 +157,15 @@ dexec_node() {
     [ -n "$output" ]
 
     run docker exec -u node "$test_container" test -e /home/node/.ssh/sandbox-key
+    [ "$status" -ne 0 ]
+
+    # The regression this guards against: /root/.ssh-sandbox-key-src is the
+    # bind-mounted original, still present for the container's whole life
+    # (unlike the deleted copy above, this can't be rm'd from inside). If
+    # it were reachable by the sandbox user, that user's uid matching the
+    # host's (see Dockerfile) would make the raw key directly readable,
+    # defeating the point of only ever exposing it via the agent socket.
+    run docker exec -u node "$test_container" cat /root/.ssh-sandbox-key-src
     [ "$status" -ne 0 ]
 }
 

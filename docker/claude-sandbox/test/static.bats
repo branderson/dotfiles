@@ -188,8 +188,20 @@ setup() {
 }
 
 @test "the dedicated SSH key mount is optional, not a hard requirement" {
-    grep -qE '^\s*-\s*\$\{SANDBOX_SSH_KEY_FILE:-/dev/null\}:\$\{HOME\}/\.ssh-sandbox-key-src:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*-\s*\$\{SANDBOX_SSH_KEY_FILE:-/dev/null\}:/root/\.ssh-sandbox-key-src:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -qE '^\s*-\s*\$\{SSH_AUTH_SOCK:-/dev/null\}:/ssh-agent\s*$' "$SANDBOX_DIR/docker-compose.yml"
+}
+
+@test "the dedicated SSH key source is mounted under /root, not the sandbox user's home" {
+    # A mount under \$SANDBOX_HOME would be readable by the sandbox user
+    # directly, since its uid now matches the host user's (see Dockerfile) -
+    # /root is only reachable by root, which is all that should ever read
+    # this file (see entrypoint.sh).
+    run grep -E '\.ssh-sandbox-key-src' "$SANDBOX_DIR/docker-compose.yml"
+    [[ "$output" != *'${HOME}'* ]]
+    run grep -F 'SANDBOX_SSH_KEY_SRC=' "$SANDBOX_DIR/entrypoint.sh"
+    [[ "$output" != *'SANDBOX_HOME'* ]]
+    grep -qF 'SANDBOX_SSH_KEY_SRC="/root/.ssh-sandbox-key-src"' "$SANDBOX_DIR/entrypoint.sh"
 }
 
 @test "entrypoint.sh deletes the plaintext dedicated-key copy after loading it into the agent" {
