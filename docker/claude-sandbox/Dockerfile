@@ -61,17 +61,38 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # subprocess spawns, which wouldn't source /etc/profile.d.
 ENV PATH=/usr/games:$PATH
 
-# Ensure default node user has access to /usr/local/share
-RUN mkdir -p /usr/local/share/npm-global && \
-  chown -R node:node /usr/local/share
+# Replace the base image's built-in `node` user (uid/gid 1000,
+# $HOME=/home/node) with one matching the host user who runs
+# bin/claude-sandbox - so absolute paths under $HOME (dotfiles, and
+# ~/.claude/plugins/installed_plugins.json's own installPath bookkeeping,
+# which Claude Code resolves as a literal host-absolute string rather than
+# relative to whatever $HOME happens to be) resolve identically inside and
+# outside the container, instead of needing a one-off dual-mount for every
+# individual thing that assumes the real host path. Defaults below
+# reproduce today's node/1000/1000//home/node exactly, so a build that
+# never overrides them (bin/claude-sandbox always does; the test suite
+# never does) exercises this same rename path rather than a separate,
+# untested one.
+ARG SANDBOX_USER=node
+ARG SANDBOX_UID=1000
+ARG SANDBOX_GID=1000
+ARG SANDBOX_HOME=/home/node
+RUN userdel -r node 2>/dev/null; \
+  groupdel node 2>/dev/null; \
+  groupadd -g "$SANDBOX_GID" "$SANDBOX_USER" && \
+  useradd -u "$SANDBOX_UID" -g "$SANDBOX_GID" -m -d "$SANDBOX_HOME" -s /bin/bash "$SANDBOX_USER"
+ENV SANDBOX_USER=$SANDBOX_USER
+ENV SANDBOX_HOME=$SANDBOX_HOME
 
-ARG USERNAME=node
+# Ensure the sandbox user has access to /usr/local/share
+RUN mkdir -p /usr/local/share/npm-global && \
+  chown -R $SANDBOX_USER:$SANDBOX_USER /usr/local/share
 
 # Persist bash history.
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
   && mkdir /commandhistory \
   && touch /commandhistory/.bash_history \
-  && chown -R $USERNAME /commandhistory
+  && chown -R $SANDBOX_USER /commandhistory
 
 # Set `DEVCONTAINER` environment variable to help with orientation
 ENV DEVCONTAINER=true
@@ -94,17 +115,17 @@ RUN useradd -r -s /usr/sbin/nologin ulogd
 # is bind-mounted at runtime at its real host path (see docker-compose.yml),
 # not a fixed /workspace, so it can share ~/.claude project/session history
 # with the host. ~/.claude is bind-mounted too, not baked in here.
-RUN mkdir -p /home/node/.ssh && \
-  chown -R node:node /home/node/.ssh && \
-  chmod 700 /home/node/.ssh
+RUN mkdir -p $SANDBOX_HOME/.ssh && \
+  chown -R $SANDBOX_USER:$SANDBOX_USER $SANDBOX_HOME/.ssh && \
+  chmod 700 $SANDBOX_HOME/.ssh
 
-# Pre-create the nvim data/state/cache dirs owned by node, since they're
-# mounted as named volumes in docker-compose.yml: Docker seeds a fresh
-# named volume from whatever already exists at the mount path in the
-# image, ownership included, so this is what keeps those volumes
-# node-writable instead of defaulting to root.
-RUN mkdir -p /home/node/.local/share/nvim /home/node/.local/state/nvim /home/node/.cache/nvim && \
-  chown -R node:node /home/node/.local /home/node/.cache
+# Pre-create the nvim data/state/cache dirs owned by the sandbox user,
+# since they're mounted as named volumes in docker-compose.yml: Docker
+# seeds a fresh named volume from whatever already exists at the mount
+# path in the image, ownership included, so this is what keeps those
+# volumes writable by that user instead of defaulting to root.
+RUN mkdir -p $SANDBOX_HOME/.local/share/nvim $SANDBOX_HOME/.local/state/nvim $SANDBOX_HOME/.cache/nvim && \
+  chown -R $SANDBOX_USER:$SANDBOX_USER $SANDBOX_HOME/.local $SANDBOX_HOME/.cache
 
 ARG GIT_DELTA_VERSION=0.18.2
 RUN ARCH=$(dpkg --print-architecture) && \
@@ -159,7 +180,7 @@ ARG PLAYWRIGHT_VERSION=1.61.1
 RUN npx -y playwright@${PLAYWRIGHT_VERSION} install-deps chromium
 
 # Set up non-root user
-USER node
+USER $SANDBOX_USER
 
 # Install global packages
 ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global
@@ -227,11 +248,11 @@ COPY docker/claude-sandbox/ulogd.conf /etc/ulogd-sandbox.conf
 COPY docker/claude-sandbox/entrypoint.sh /usr/local/bin/
 COPY docker/claude-sandbox/claude-wrapper.sh /usr/local/bin/claude
 COPY bin/gitea-pr /usr/local/bin/gitea-pr
-COPY config/nvim /home/node/.config/nvim
+COPY config/nvim $SANDBOX_HOME/.config/nvim
 
 USER root
 RUN chmod +x /usr/local/bin/dns-proxy.sh /usr/local/bin/init-firewall.sh /usr/local/bin/log-shipper.sh /usr/local/bin/entrypoint.sh /usr/local/bin/gitea-pr /usr/local/bin/claude && \
-  chown -R node:node /home/node/.config/nvim && \
+  chown -R $SANDBOX_USER:$SANDBOX_USER $SANDBOX_HOME/.config/nvim && \
   echo 'export PATH="$PATH:/usr/local/share/npm-global/bin"' > /etc/profile.d/npm-global-path.sh
 
 # Entrypoint runs as root (no USER node here) so it can set up the firewall

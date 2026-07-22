@@ -74,12 +74,99 @@ teardown_file() {
     docker network rm "$(network_name)" >/dev/null 2>&1 || true
 }
 
+teardown() {
+    docker rm -f "claude-sandbox-test-override-$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+    docker rmi "claude-sandbox-test-override:$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+    docker rm -f "claude-sandbox-test-sshkey-$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+}
+
 dexec() {
     docker exec "$(container_name)" "$@"
 }
 
 dexec_node() {
     docker exec -u node "$(container_name)" "$@"
+}
+
+@test "the container's user actually matches overridden SANDBOX_USER/UID/GID/HOME build args, not just the defaults" {
+    local test_image="claude-sandbox-test-override:$(basename "$BATS_FILE_TMPDIR")"
+    local test_container="claude-sandbox-test-override-$(basename "$BATS_FILE_TMPDIR")"
+    local sandbox_dir="$BATS_TEST_DIRNAME/.."
+    local repo_root="$BATS_TEST_DIRNAME/../../.."
+
+    docker build -q -t "$test_image" \
+        --build-arg SANDBOX_USER=testuser \
+        --build-arg SANDBOX_UID=1234 \
+        --build-arg SANDBOX_GID=1234 \
+        --build-arg SANDBOX_HOME=/home/testuser \
+        -f "$sandbox_dir/Dockerfile" "$repo_root" >&2
+
+    docker run -d --name "$test_container" \
+        --cap-add=NET_ADMIN --cap-add=NET_RAW \
+        -e SANDBOX_TEST_MODE=1 \
+        --entrypoint /usr/local/bin/entrypoint.sh \
+        "$test_image" >/dev/null
+
+    for _ in $(seq 1 60); do
+        if docker exec "$test_container" pgrep -x sleep >/dev/null 2>&1; then break; fi
+        sleep 1
+    done
+
+    run docker exec -u testuser "$test_container" whoami
+    [ "$status" -eq 0 ]
+    [ "$output" = "testuser" ]
+
+    run docker exec -u testuser "$test_container" printenv HOME
+    [ "$status" -eq 0 ]
+    [ "$output" = "/home/testuser" ]
+
+    run docker exec -u testuser "$test_container" id -u
+    [ "$output" = "1234" ]
+}
+
+@test "a dedicated SANDBOX_SSH_KEY loads into its own in-container agent with no forwarded socket at all" {
+    local key_dir test_container
+    key_dir="$BATS_TEST_TMPDIR"
+    ssh-keygen -t ed25519 -N '' -f "$key_dir/testkey" >/dev/null
+
+    test_container="claude-sandbox-test-sshkey-$(basename "$BATS_FILE_TMPDIR")"
+    docker run -d --name "$test_container" \
+        --cap-add=NET_ADMIN --cap-add=NET_RAW \
+        --network "$(network_name)" \
+        -e SANDBOX_TEST_MODE=1 \
+        -v "$key_dir/testkey:/root/.ssh-sandbox-key-src:ro" \
+        --entrypoint /usr/local/bin/entrypoint.sh \
+        "$IMAGE" >/dev/null
+
+    for _ in $(seq 1 60); do
+        if docker exec "$test_container" pgrep -x sleep >/dev/null 2>&1; then break; fi
+        sleep 1
+    done
+
+    # A fresh `docker exec` is a sibling of PID 1, not a descendant of the
+    # exec chain entrypoint.sh set SSH_AUTH_SOCK in, so it doesn't inherit
+    # that export the way a real session's nvim/terminal children would
+    # (nvim itself *is* that same process, continued via exec, not a
+    # separate one) - read the value back out of PID 1's own environment
+    # instead of assuming docker exec sees it.
+    run docker exec -u node "$test_container" sh -c '
+        export SSH_AUTH_SOCK=$(cat /proc/1/environ | tr "\0" "\n" | grep ^SSH_AUTH_SOCK= | cut -d= -f2-)
+        ssh-add -l
+    '
+    [ "$status" -eq 0 ]
+    [ -n "$output" ]
+
+    run docker exec -u node "$test_container" test -e /home/node/.ssh/sandbox-key
+    [ "$status" -ne 0 ]
+
+    # The regression this guards against: /root/.ssh-sandbox-key-src is the
+    # bind-mounted original, still present for the container's whole life
+    # (unlike the deleted copy above, this can't be rm'd from inside). If
+    # it were reachable by the sandbox user, that user's uid matching the
+    # host's (see Dockerfile) would make the raw key directly readable,
+    # defeating the point of only ever exposing it via the agent socket.
+    run docker exec -u node "$test_container" cat /root/.ssh-sandbox-key-src
+    [ "$status" -ne 0 ]
 }
 
 @test "IPv6 is fully blocked" {

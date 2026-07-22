@@ -24,6 +24,10 @@ into the container at runtime from wherever it actually sits on disk.
   takes effect immediately in an already-running session too (it's a live
   reference to the same host agent process, not a snapshot) - no need to
   restart the sandbox after `ssh-add`ing.
+  For a sandbox that needs to keep working unattended after your client
+  disconnects, see "Headless git push without agent forwarding" below —
+  `SANDBOX_SSH_KEY` is an alternative to this forwarded-agent requirement,
+  not just an addition to it.
 - `GITEA_SSH_HOST` and `GITEA_API` exported in your shell (same variables
   `bin/gitea-pr` already needs — see its `require_config`), and a token
   available either via `GITEA_TOKEN` in the environment or at
@@ -73,6 +77,19 @@ project/session-history keying lines up between host and container. A
 session started in the sandbox can be resumed on the host afterward with
 `claude --resume <session-id>`.
 
+The container's own user is built to match yours exactly — same username,
+uid, gid, and home directory (`bin/claude-sandbox` passes these as Docker
+build args; see `Dockerfile`). This is what makes `$HOME`-relative
+assumptions actually work inside the container instead of just superficially
+resembling your setup — your dotfiles, and Claude Code's own plugin
+bookkeeping (which records install locations as literal host-absolute
+paths, not relative to whatever `$HOME` happens to be), resolve to the same
+paths on both sides. The build defaults to `node`/1000/1000/`/home/node` if
+these aren't supplied, so building the image directly (bypassing
+`bin/claude-sandbox`) still works, just without this parity. On a shared
+machine, the built image is tagged per-user (`claude-sandbox:<username>`) so
+two accounts building concurrently don't clobber each other's image.
+
 Caveat: MCP servers or hooks that shell out to host-specific binaries (e.g. a
 browser for Playwright, a language runtime not installed in this image) may
 not work inside the container unless that tooling is also added to the
@@ -88,6 +105,43 @@ setup-git` needs to write a credential-helper entry into it, and both a
 read-only mount and a single-file bind mount at `~/.gitconfig` break that
 write in different ways. Nothing written to it during a session reaches
 your real `~/.gitconfig`.
+
+### Headless git push without agent forwarding
+
+Agent forwarding (the default — see Prerequisites) ties the sandbox's SSH
+access to whichever client's agent is currently forwarded. On a devbox
+reached over SSH+tmux, that agent belongs to whichever client connected —
+when that client disconnects, the forwarded socket dies with it, breaking
+git-over-ssh for anything still running headless in the sandbox.
+
+For sandboxes meant to keep running unattended, generate a dedicated,
+purpose-built keypair instead — not your personal key:
+
+```sh
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/claude-sandbox_ed25519
+```
+
+Passphrase-less is deliberate: headless operation has no human to answer a
+prompt, and this is meant to be a low-privilege credential that only ever
+lives inside the container, not your personal identity. Add the public
+half as a Gitea deploy key scoped to only the repos that actually need push
+access, then:
+
+```sh
+SANDBOX_SSH_KEY=~/.ssh/claude-sandbox_ed25519 bin/claude-sandbox ~/repos/some-project
+```
+
+The key is bind-mounted read-only at `/root/.ssh-sandbox-key-src` — under
+`/root`, not `$SANDBOX_HOME` — so only entrypoint.sh's root-run startup code
+can ever read it; the sandbox user (which the session actually runs as) has
+no path to that directory at all. At container start, `entrypoint.sh` loads
+it into a fresh `ssh-agent` running inside the container itself —
+independent of the forwarded socket — copies it out just long enough to do
+that, and deletes the copy immediately afterward. A compromised session can
+use the agent's socket to sign git-over-ssh operations (bounded by whatever
+the deploy key has push access to), but can't read the raw key material
+itself. When `SANDBOX_SSH_KEY` is set, a live forwarded agent is no longer
+required to start the sandbox at all.
 
 ## Shared scratch space
 
@@ -137,8 +191,8 @@ sandboxing (see Security notes) from working either - so its namespace-
 based isolation almost certainly isn't active, Chromium just doesn't
 hard-fail the way `bubblewrap` does when it's missing. Not treated as a
 real boundary: this container is already the boundary that matters, and a
-compromised session already has full `node`-level bash access, which a
-Chromium exploit couldn't exceed regardless.
+compromised session already has full bash access as the container's own
+user regardless, which a Chromium exploit couldn't exceed.
 
 ## Sandbox self-awareness
 
@@ -386,13 +440,28 @@ one can't happen.
   push to) other repos on that host you have access to. This doesn't extend
   to GitHub: port 22 there is blocked outright, so the forwarded agent has
   no transport to use for it at all (see "GitHub is read-only" above).
-- The `node` user has no `sudo`/setuid path back to root once the container
-  is up: `entrypoint.sh` runs as root, sets up the firewall directly, then
-  drops to `node` via `gosu` before execing `nvim`. A compromised session
-  can't re-run `init-firewall.sh` with a wider allowlist to open its own
+- `SANDBOX_SSH_KEY` (see "Headless git push without agent forwarding") is a
+  second, independent credential-loading path with the same "signs for any
+  Gitea repo it has access to" shape as the forwarded agent above - the
+  mitigation is that it's meant to be a dedicated deploy key scoped to only
+  the repos that actually need push access, not your personal identity.
+  That scoping is a convention, not something enforced here: nothing checks
+  what `SANDBOX_SSH_KEY` actually points at, so pointing it at your real
+  `~/.ssh/id_ed25519`/`id_rsa` instead of a dedicated key would load your
+  full personal identity into the container for the whole session (`bin/
+  claude-sandbox` warns if this looks like it might be happening - see
+  below - but doesn't block it). The key source itself is mounted read-only
+  at `/root/...`, not under the sandbox user's own home, specifically so
+  that user (which the session actually runs as) has no path to read the
+  raw key material - only the agent socket it's loaded into.
+- The sandbox's own user (matching your host user — see "Config parity"
+  above) has no `sudo`/setuid path back to root once the container is up:
+  `entrypoint.sh` runs as root, sets up the firewall directly, then drops to
+  that user via `gosu` before execing `nvim`. A compromised session can't
+  re-run `init-firewall.sh` with a wider allowlist to open its own
   exfiltration path. Verified: capabilities (`NET_ADMIN`/`NET_RAW`) are
-  cleared from the effective/permitted sets on the `gosu` drop, and `node`
-  gets a permission error running `iptables` directly.
+  cleared from the effective/permitted sets on the `gosu` drop, and that
+  user gets a permission error running `iptables` directly.
 
 ## Tests
 

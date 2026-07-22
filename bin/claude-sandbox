@@ -26,19 +26,53 @@ fi
 
 WORKSPACE_DIR="$(cd "$WORKSPACE_DIR" && pwd)"
 
+SANDBOX_SSH_KEY="${SANDBOX_SSH_KEY:-}"
+if [ -n "$SANDBOX_SSH_KEY" ] && [ ! -f "$SANDBOX_SSH_KEY" ]; then
+    echo "SANDBOX_SSH_KEY is set but not a file: $SANDBOX_SSH_KEY" >&2
+    exit 1
+fi
+if [ -n "$SANDBOX_SSH_KEY" ]; then
+    key_perms=$(stat -c '%a' "$SANDBOX_SSH_KEY")
+    if [ "${key_perms: -2}" != "00" ]; then
+        echo "Warning: $SANDBOX_SSH_KEY is readable by group/other (mode $key_perms)." >&2
+        echo "Recommended: chmod 600 $SANDBOX_SSH_KEY" >&2
+    fi
+    # SANDBOX_SSH_KEY is meant to be a dedicated, low-privilege deploy key
+    # (see README "Headless git push"), not your real identity - it stays
+    # loaded in an in-container agent for the whole session, unattended.
+    # Nothing enforces that convention, so at least catch the common case
+    # of pointing it at a default personal keyfile by mistake.
+    case "$(basename -- "$SANDBOX_SSH_KEY")" in
+        id_rsa|id_ecdsa|id_ed25519|id_dsa|id_ecdsa_sk|id_ed25519_sk)
+            echo "Warning: $SANDBOX_SSH_KEY looks like a default personal SSH key," \
+                 "not a dedicated one." >&2
+            echo "It will be loaded into the sandbox for the whole unattended session -" \
+                 "see README 'Headless git push'." >&2
+            ;;
+    esac
+fi
+
+have_forwarded_agent=1
 if [ -z "${SSH_AUTH_SOCK:-}" ] || [ ! -S "${SSH_AUTH_SOCK}" ]; then
-    echo "SSH_AUTH_SOCK is not set or not a valid socket." >&2
-    echo "Start ssh-agent and run ssh-add before using claude-sandbox." >&2
+    have_forwarded_agent=0
+fi
+
+if [ "$have_forwarded_agent" = 0 ] && [ -z "$SANDBOX_SSH_KEY" ]; then
+    echo "SSH_AUTH_SOCK is not set or not a valid socket, and SANDBOX_SSH_KEY is not set." >&2
+    echo "Either start ssh-agent and run ssh-add, or set SANDBOX_SSH_KEY to a dedicated" >&2
+    echo "key for headless use - see README 'Headless git push' section." >&2
     exit 1
 fi
 
-# A valid socket with zero identities loaded forwards fine (the container
-# sees a live, working agent) but is useless for git-over-ssh - warn now
-# rather than have that surface confusingly deep into a session as a failed
-# push. Non-fatal: a task might not need git-over-ssh at all.
-if ! ssh-add -l >/dev/null 2>&1; then
+# A valid forwarded socket with zero identities loaded forwards fine (the
+# container sees a live, working agent) but is useless for git-over-ssh -
+# warn now rather than have that surface confusingly deep into a session as
+# a failed push. Non-fatal: a task might not need git-over-ssh at all, and
+# SANDBOX_SSH_KEY (if set) provides its own identity independently of this.
+if [ "$have_forwarded_agent" = 1 ] && ! ssh-add -l >/dev/null 2>&1; then
     echo "Warning: ssh-agent has no identities loaded (ssh-add -l shows none)." >&2
-    echo "git-over-ssh (e.g. pushing to Gitea) will fail until you ssh-add a key." >&2
+    echo "git-over-ssh (e.g. pushing to Gitea) will fail until you ssh-add a key," >&2
+    echo "unless SANDBOX_SSH_KEY is also set." >&2
 fi
 
 if [ -z "${GITEA_TOKEN:-}" ]; then
@@ -108,10 +142,17 @@ else
 fi
 
 export WORKSPACE_DIR
+# The image's user is built to match this uid/gid/username exactly (see
+# Dockerfile) - this is what makes $HOME-based absolute paths (dotfiles,
+# ~/.claude's plugin bookkeeping) resolve identically inside the container.
+export SANDBOX_USER="$(id -un)"
+export SANDBOX_UID="$(id -u)"
+export SANDBOX_GID="$(id -g)"
 export SANDBOX_SHARE_DIR
 export SANDBOX_SETTINGS_FILE
 export SANDBOX_GITCONFIG_DIR
 export SSH_AUTH_SOCK
+export SANDBOX_SSH_KEY_FILE="$SANDBOX_SSH_KEY"
 export SSH_KNOWN_HOSTS="${SSH_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
 export GITEA_TOKEN="${GITEA_TOKEN:-}"
 export GITEA_SSH_HOST="${GITEA_SSH_HOST:-}"
