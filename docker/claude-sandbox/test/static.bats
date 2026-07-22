@@ -72,16 +72,20 @@ setup() {
 }
 
 @test "docker-compose.yml never mounts host SSH/cloud credential directories" {
-    run grep -E '\$\{HOME\}/\.(ssh|aws|gcloud|azure)(/|:)' "$SANDBOX_DIR/docker-compose.yml"
+    # Anchored to the *source* side of a mount (right after the leading
+    # "- ") - the container's own $HOME legitimately contains .ssh/known_hosts
+    # as a *destination* path now that it mirrors the host's $HOME, which
+    # isn't the same thing as mounting the host's real ~/.ssh directory in.
+    run grep -E '^\s*-\s*\$\{HOME\}/\.(ssh|aws|gcloud|azure)(/|:)' "$SANDBOX_DIR/docker-compose.yml"
     [ "$status" -ne 0 ]
 }
 
 @test "~/.claude settings/CLAUDE.md/plugins are layered read-only over the read-write parent mount" {
-    grep -qE '^\s*-\s*\$\{HOME\}/\.claude:/home/node/\.claude\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*-\s*\$\{HOME\}/\.claude:\$\{HOME\}/\.claude\s*$' "$SANDBOX_DIR/docker-compose.yml"
     # settings.json specifically comes from a generated $SANDBOX_SETTINGS_FILE
     # (see below), not the real file directly - it still has to be read-only
     # in the container, just from a different, sandbox-specific source.
-    grep -qE '^\s*-\s*\$\{SANDBOX_SETTINGS_FILE.*\}:/home/node/\.claude/settings\.json:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*-\s*\$\{SANDBOX_SETTINGS_FILE.*\}:\$\{HOME\}/\.claude/settings\.json:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude/CLAUDE\.md:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -qE '^\s*-\s*\$\{HOME\}/\.claude/plugins:.*:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
 }
@@ -94,9 +98,36 @@ setup() {
     # backing inode be replaced, only a file *within* a mounted directory
     # can be freely renamed over). Must be a directory mount, with
     # GIT_CONFIG_GLOBAL pointing git at the file inside it.
-    grep -qE '^\s*-\s*\$\{SANDBOX_GITCONFIG_DIR.*\}:/home/node/\.gitconfig-sandbox\s*$' "$SANDBOX_DIR/docker-compose.yml"
-    grep -qE '^\s*GIT_CONFIG_GLOBAL:\s*/home/node/\.gitconfig-sandbox/\.gitconfig\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*-\s*\$\{SANDBOX_GITCONFIG_DIR.*\}:\$\{HOME\}/\.gitconfig-sandbox\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*GIT_CONFIG_GLOBAL:\s*\$\{HOME\}/\.gitconfig-sandbox/\.gitconfig\s*$' "$SANDBOX_DIR/docker-compose.yml"
     grep -q 'mktemp -d.*gitconfig' "$REPO_ROOT/bin/claude-sandbox"
+}
+
+@test "docker-compose.yml never hardcodes /home/node - the container home is host-parametrized" {
+    # ${HOME:-/home/node} (the SANDBOX_HOME build arg's own default value,
+    # mirroring the Dockerfile's default) is the one legitimate exception -
+    # it's a fallback expression, not a hardcoded container path.
+    run bash -c "grep -v '^\s*#' '$SANDBOX_DIR/docker-compose.yml' | grep -v '\${HOME:-/home/node}' | grep '/home/node'"
+    [ "$status" -ne 0 ]
+}
+
+@test "docker-compose.yml builds with a per-user image tag and passes the host identity as build args" {
+    grep -qE '^\s*image:\s*claude-sandbox:\$\{SANDBOX_USER:-node\}\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*SANDBOX_USER:\s*\$\{SANDBOX_USER:-node\}\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*SANDBOX_UID:\s*\$\{SANDBOX_UID:-1000\}\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*SANDBOX_GID:\s*\$\{SANDBOX_GID:-1000\}\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*SANDBOX_HOME:\s*\$\{HOME:-/home/node\}\s*$' "$SANDBOX_DIR/docker-compose.yml"
+}
+
+@test "bin/claude-sandbox exports the host user identity for the build" {
+    grep -q 'SANDBOX_USER="$(id -un)"' "$REPO_ROOT/bin/claude-sandbox"
+    grep -q 'SANDBOX_UID="$(id -u)"' "$REPO_ROOT/bin/claude-sandbox"
+    grep -q 'SANDBOX_GID="$(id -g)"' "$REPO_ROOT/bin/claude-sandbox"
+}
+
+@test "dotfiles is mounted once now that the container home matches the host home" {
+    count=$(grep -c '\${HOME}/dotfiles:' "$SANDBOX_DIR/docker-compose.yml")
+    [ "$count" -eq 1 ]
 }
 
 @test "bin/claude-sandbox forces sandbox.enabled to false in the generated settings.json" {

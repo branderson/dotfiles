@@ -74,12 +74,53 @@ teardown_file() {
     docker network rm "$(network_name)" >/dev/null 2>&1 || true
 }
 
+teardown() {
+    docker rm -f "claude-sandbox-test-override-$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+    docker rmi "claude-sandbox-test-override:$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+}
+
 dexec() {
     docker exec "$(container_name)" "$@"
 }
 
 dexec_node() {
     docker exec -u node "$(container_name)" "$@"
+}
+
+@test "the container's user actually matches overridden SANDBOX_USER/UID/GID/HOME build args, not just the defaults" {
+    local test_image="claude-sandbox-test-override:$(basename "$BATS_FILE_TMPDIR")"
+    local test_container="claude-sandbox-test-override-$(basename "$BATS_FILE_TMPDIR")"
+    local sandbox_dir="$BATS_TEST_DIRNAME/.."
+    local repo_root="$BATS_TEST_DIRNAME/../../.."
+
+    docker build -q -t "$test_image" \
+        --build-arg SANDBOX_USER=testuser \
+        --build-arg SANDBOX_UID=1234 \
+        --build-arg SANDBOX_GID=1234 \
+        --build-arg SANDBOX_HOME=/home/testuser \
+        -f "$sandbox_dir/Dockerfile" "$repo_root" >&2
+
+    docker run -d --name "$test_container" \
+        --cap-add=NET_ADMIN --cap-add=NET_RAW \
+        -e SANDBOX_TEST_MODE=1 \
+        --entrypoint /usr/local/bin/entrypoint.sh \
+        "$test_image" >/dev/null
+
+    for _ in $(seq 1 60); do
+        if docker exec "$test_container" pgrep -x sleep >/dev/null 2>&1; then break; fi
+        sleep 1
+    done
+
+    run docker exec -u testuser "$test_container" whoami
+    [ "$status" -eq 0 ]
+    [ "$output" = "testuser" ]
+
+    run docker exec -u testuser "$test_container" printenv HOME
+    [ "$status" -eq 0 ]
+    [ "$output" = "/home/testuser" ]
+
+    run docker exec -u testuser "$test_container" id -u
+    [ "$output" = "1234" ]
 }
 
 @test "IPv6 is fully blocked" {

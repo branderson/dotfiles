@@ -9,7 +9,19 @@ services:
       dockerfile: docker/claude-sandbox/Dockerfile
       args:
         TZ: ${TZ:-UTC}
-    image: claude-sandbox:latest
+        # Matches the container's own user to the real host user - see
+        # Dockerfile. Defaults reproduce today's node/1000/1000//home/node
+        # exactly if these aren't set (e.g. building directly, bypassing
+        # bin/claude-sandbox).
+        SANDBOX_USER: ${SANDBOX_USER:-node}
+        SANDBOX_UID: ${SANDBOX_UID:-1000}
+        SANDBOX_GID: ${SANDBOX_GID:-1000}
+        SANDBOX_HOME: ${HOME:-/home/node}
+    # Tagged per-user, not a fixed :latest - bin/claude-sandbox always
+    # passes --build, and two different accounts on a shared devbox
+    # building from their own checkouts would otherwise silently overwrite
+    # each other's image under the same tag.
+    image: claude-sandbox:${SANDBOX_USER:-node}
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -25,7 +37,7 @@ services:
       # Points git at the gitconfig copy mounted below instead of the
       # default ~/.gitconfig - see that mount's comment for why it can't
       # just live at ~/.gitconfig directly.
-      GIT_CONFIG_GLOBAL: /home/node/.gitconfig-sandbox/.gitconfig
+      GIT_CONFIG_GLOBAL: ${HOME}/.gitconfig-sandbox/.gitconfig
       ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
       # Base URL of a Loki push endpoint (e.g. http://10.0.30.11:3100) to
       # ship DNS-query and firewall allow/reject logs to. Its host is
@@ -47,7 +59,7 @@ services:
       # (based on cwd) lines up with the host, letting a session started
       # here be resumed on the host with `claude --resume`.
       - ${WORKSPACE_DIR:?set WORKSPACE_DIR to the project directory to mount}:${WORKSPACE_DIR}
-      - ${HOME}/.claude:/home/node/.claude
+      - ${HOME}/.claude:${HOME}/.claude
       # settings.json/CLAUDE.md/plugins are config and hook/plugin *code*,
       # not runtime state - hooks run automatically with no approval gate,
       # so a compromised session writing to them would plant something that
@@ -64,55 +76,51 @@ services:
       # can't actually function inside it anyway), and mounting it read-only
       # means it can't be patched from inside, so the substitution has to
       # happen on the host before the container ever starts.
-      - ${SANDBOX_SETTINGS_FILE:?set by bin/claude-sandbox}:/home/node/.claude/settings.json:ro
-      - ${HOME}/.claude/CLAUDE.md:/home/node/.claude/CLAUDE.md:ro
-      - ${HOME}/.claude/plugins:/home/node/.claude/plugins:ro
+      - ${SANDBOX_SETTINGS_FILE:?set by bin/claude-sandbox}:${HOME}/.claude/settings.json:ro
+      - ${HOME}/.claude/CLAUDE.md:${HOME}/.claude/CLAUDE.md:ro
+      - ${HOME}/.claude/plugins:${HOME}/.claude/plugins:ro
       # ~/.claude.json is a single file mixing live app state (project
       # registry, onboarding flags, caches) with config (e.g. mcpServers, if
       # ever set) that can't be split at the mount level - left read-write
       # since most of its content must stay writable for normal operation.
       # See README Security notes for this residual risk.
-      - ${HOME}/.claude.json:/home/node/.claude.json
+      - ${HOME}/.claude.json:${HOME}/.claude.json
       # ~/.claude/CLAUDE.md (mounted above) tells agents to write specs to
       # ~/specs/ rather than a project-local path - that instruction is
       # already in effect inside the container (CLAUDE.md carries over), so
       # the directory it points at needs to actually exist and be writable
       # here too, or an agent following it just writes into an ephemeral
       # path inside the container that vanishes with the session.
-      - ${HOME}/specs:/home/node/specs
+      - ${HOME}/specs:${HOME}/specs
       # Global git identity (user.name/user.email) - a throwaway copy of it,
       # in its own directory rather than a single file bind-mounted at
       # ~/.gitconfig: entrypoint.sh's `gh auth setup-git` writes a
       # credential-helper entry into it via git's usual write-temp-then-
       # rename pattern, which fails on a single-file mount ("Device or
       # resource busy" - Linux won't let that mount point's backing inode be
-      # replaced). GIT_CONFIG_GLOBAL below points git at the file inside
+      # replaced). GIT_CONFIG_GLOBAL above points git at the file inside
       # this directory instead. See bin/claude-sandbox - nothing written
       # here ever reaches the user's real ~/.gitconfig.
-      - ${SANDBOX_GITCONFIG_DIR:?set by bin/claude-sandbox}:/home/node/.gitconfig-sandbox
+      - ${SANDBOX_GITCONFIG_DIR:?set by bin/claude-sandbox}:${HOME}/.gitconfig-sandbox
       # ~/.claude/hooks is a symlink into ~/dotfiles/config/claude/hooks (an
       # absolute host path); mount dotfiles at the same path so it resolves
       # in the container too. Read-only: hooks are only ever read/executed
-      # from here, never written.
+      # from here, never written. Only one mount is needed now (unlike
+      # before) - the container's own $HOME equals the host's $HOME, so
+      # there's no separate node-specific path to mirror it at.
       - ${HOME}/dotfiles:${HOME}/dotfiles:ro
-      # Also mount at node's own $HOME/dotfiles: node's actual $HOME is
-      # /home/node (not the host user's $HOME above), and plenty of this
-      # repo's own config (nvim's clipboard-copy path, vimrc sourcing, etc.)
-      # assumes dotfiles lives at $HOME/dotfiles for whichever user it's
-      # running as.
-      - ${HOME}/dotfiles:/home/node/dotfiles:ro
       - claude-code-bashhistory:/commandhistory
-      - nvim-data:/home/node/.local/share/nvim
-      - nvim-state:/home/node/.local/state/nvim
-      - nvim-cache:/home/node/.cache/nvim
+      - nvim-data:${HOME}/.local/share/nvim
+      - nvim-state:${HOME}/.local/state/nvim
+      - nvim-cache:${HOME}/.cache/nvim
       - ${SSH_AUTH_SOCK:?set SSH_AUTH_SOCK to your running ssh-agent socket}:/ssh-agent
-      - ${SSH_KNOWN_HOSTS:-/dev/null}:/home/node/.ssh/known_hosts:ro
+      - ${SSH_KNOWN_HOSTS:-/dev/null}:${HOME}/.ssh/known_hosts:ro
       # Read-write scratch space for passing files back and forth with the
       # sandboxed session (screenshots, temp scripts) without touching the
       # actual project checkout - separate from WORKSPACE_DIR above, and a
       # real host directory (not a named volume) so it's actually visible on
       # both sides, persisting across sessions.
-      - ${SANDBOX_SHARE_DIR}:/home/node/shared
+      - ${SANDBOX_SHARE_DIR}:${HOME}/shared
     working_dir: ${WORKSPACE_DIR}
     stdin_open: true
     tty: true

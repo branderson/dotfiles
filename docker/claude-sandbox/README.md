@@ -73,6 +73,19 @@ project/session-history keying lines up between host and container. A
 session started in the sandbox can be resumed on the host afterward with
 `claude --resume <session-id>`.
 
+The container's own user is built to match yours exactly — same username,
+uid, gid, and home directory (`bin/claude-sandbox` passes these as Docker
+build args; see `Dockerfile`). This is what makes `$HOME`-relative
+assumptions actually work inside the container instead of just superficially
+resembling your setup — your dotfiles, and Claude Code's own plugin
+bookkeeping (which records install locations as literal host-absolute
+paths, not relative to whatever `$HOME` happens to be), resolve to the same
+paths on both sides. The build defaults to `node`/1000/1000/`/home/node` if
+these aren't supplied, so building the image directly (bypassing
+`bin/claude-sandbox`) still works, just without this parity. On a shared
+machine, the built image is tagged per-user (`claude-sandbox:<username>`) so
+two accounts building concurrently don't clobber each other's image.
+
 Caveat: MCP servers or hooks that shell out to host-specific binaries (e.g. a
 browser for Playwright, a language runtime not installed in this image) may
 not work inside the container unless that tooling is also added to the
@@ -137,8 +150,8 @@ sandboxing (see Security notes) from working either - so its namespace-
 based isolation almost certainly isn't active, Chromium just doesn't
 hard-fail the way `bubblewrap` does when it's missing. Not treated as a
 real boundary: this container is already the boundary that matters, and a
-compromised session already has full `node`-level bash access, which a
-Chromium exploit couldn't exceed regardless.
+compromised session already has full bash access as the container's own
+user regardless, which a Chromium exploit couldn't exceed.
 
 ## Sandbox self-awareness
 
@@ -386,13 +399,14 @@ one can't happen.
   push to) other repos on that host you have access to. This doesn't extend
   to GitHub: port 22 there is blocked outright, so the forwarded agent has
   no transport to use for it at all (see "GitHub is read-only" above).
-- The `node` user has no `sudo`/setuid path back to root once the container
-  is up: `entrypoint.sh` runs as root, sets up the firewall directly, then
-  drops to `node` via `gosu` before execing `nvim`. A compromised session
-  can't re-run `init-firewall.sh` with a wider allowlist to open its own
+- The sandbox's own user (matching your host user — see "Config parity"
+  above) has no `sudo`/setuid path back to root once the container is up:
+  `entrypoint.sh` runs as root, sets up the firewall directly, then drops to
+  that user via `gosu` before execing `nvim`. A compromised session can't
+  re-run `init-firewall.sh` with a wider allowlist to open its own
   exfiltration path. Verified: capabilities (`NET_ADMIN`/`NET_RAW`) are
-  cleared from the effective/permitted sets on the `gosu` drop, and `node`
-  gets a permission error running `iptables` directly.
+  cleared from the effective/permitted sets on the `gosu` drop, and that
+  user gets a permission error running `iptables` directly.
 
 ## Tests
 

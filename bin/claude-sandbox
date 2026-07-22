@@ -108,6 +108,12 @@ else
 fi
 
 export WORKSPACE_DIR
+# The image's user is built to match this uid/gid/username exactly (see
+# Dockerfile) - this is what makes $HOME-based absolute paths (dotfiles,
+# ~/.claude's plugin bookkeeping) resolve identically inside the container.
+export SANDBOX_USER="$(id -un)"
+export SANDBOX_UID="$(id -u)"
+export SANDBOX_GID="$(id -g)"
 export SANDBOX_SHARE_DIR
 export SANDBOX_SETTINGS_FILE
 export SANDBOX_GITCONFIG_DIR
