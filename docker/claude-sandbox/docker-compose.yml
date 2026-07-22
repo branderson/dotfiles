@@ -113,8 +113,15 @@ services:
       - nvim-data:${HOME}/.local/share/nvim
       - nvim-state:${HOME}/.local/state/nvim
       - nvim-cache:${HOME}/.cache/nvim
-      - ${SSH_AUTH_SOCK:?set SSH_AUTH_SOCK to your running ssh-agent socket}:/ssh-agent
+      # Required only if SANDBOX_SSH_KEY isn't set - bin/claude-sandbox
+      # itself enforces that at least one of the two is present.
+      - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent
       - ${SSH_KNOWN_HOSTS:-/dev/null}:${HOME}/.ssh/known_hosts:ro
+      # Dedicated, purpose-built key for headless git push - see README
+      # "Headless git push without agent forwarding". Read-only single-file
+      # mount is fine here (unlike the gitconfig mount above): nothing in
+      # the container ever writes to this file.
+      - ${SANDBOX_SSH_KEY_FILE:-/dev/null}:${HOME}/.ssh-sandbox-key-src:ro
       # Read-write scratch space for passing files back and forth with the
       # sandboxed session (screenshots, temp scripts) without touching the
       # actual project checkout - separate from WORKSPACE_DIR above, and a

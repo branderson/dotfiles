@@ -67,6 +67,22 @@ if [ -n "${GH_TOKEN:-}" ]; then
     gosu "$SANDBOX_USER" gh auth setup-git
 fi
 
+# Dedicated headless SSH identity (optional - see bin/claude-sandbox's
+# SANDBOX_SSH_KEY and README "Headless git push"): a purpose-built key
+# mounted read-only, independent of whatever forwarded agent socket the
+# SSH_AUTH_SOCK mount above provides. Loaded into a fresh agent owned by
+# the sandbox user rather than left forwarded, so it keeps working for the
+# rest of this container's life even after whatever client connection
+# forwarded the *other* agent goes away.
+SANDBOX_SSH_KEY_SRC="$SANDBOX_HOME/.ssh-sandbox-key-src"
+if [ -s "$SANDBOX_SSH_KEY_SRC" ]; then
+    install -o "$SANDBOX_USER" -g "$SANDBOX_USER" -m 600 "$SANDBOX_SSH_KEY_SRC" "$SANDBOX_HOME/.ssh/sandbox-key"
+    eval "$(gosu "$SANDBOX_USER" ssh-agent -s)" >/dev/null
+    gosu "$SANDBOX_USER" ssh-add "$SANDBOX_HOME/.ssh/sandbox-key"
+    rm -f "$SANDBOX_HOME/.ssh/sandbox-key"
+    export SSH_AUTH_SOCK
+fi
+
 # Test harness hook (docker/claude-sandbox/test/): everything above this
 # point is the real startup sequence - DNS proxy, firewall, IPv6 block,
 # logging, privilege-drop prep. Skip execing nvim (which needs a real tty)

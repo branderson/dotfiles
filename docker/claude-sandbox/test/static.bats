@@ -186,3 +186,21 @@ setup() {
     [ "$status" -ne 0 ]
     [[ "$output" != *"Not a valid domain"* ]]
 }
+
+@test "the dedicated SSH key mount is optional, not a hard requirement" {
+    grep -qE '^\s*-\s*\$\{SANDBOX_SSH_KEY_FILE:-/dev/null\}:\$\{HOME\}/\.ssh-sandbox-key-src:ro\s*$' "$SANDBOX_DIR/docker-compose.yml"
+    grep -qE '^\s*-\s*\$\{SSH_AUTH_SOCK:-/dev/null\}:/ssh-agent\s*$' "$SANDBOX_DIR/docker-compose.yml"
+}
+
+@test "entrypoint.sh deletes the plaintext dedicated-key copy after loading it into the agent" {
+    grep -q 'gosu "$SANDBOX_USER" ssh-add' "$SANDBOX_DIR/entrypoint.sh"
+    grep -q 'rm -f "$SANDBOX_HOME/.ssh/sandbox-key"' "$SANDBOX_DIR/entrypoint.sh"
+    ssh_add_line=$(grep -n 'gosu "$SANDBOX_USER" ssh-add' "$SANDBOX_DIR/entrypoint.sh" | head -1 | cut -d: -f1)
+    rm_line=$(grep -n 'rm -f "$SANDBOX_HOME/.ssh/sandbox-key"' "$SANDBOX_DIR/entrypoint.sh" | head -1 | cut -d: -f1)
+    [ "$rm_line" -gt "$ssh_add_line" ]
+}
+
+@test "bin/claude-sandbox allows a dedicated SANDBOX_SSH_KEY in place of a forwarded agent" {
+    grep -q 'SANDBOX_SSH_KEY' "$REPO_ROOT/bin/claude-sandbox"
+    grep -q 'export SANDBOX_SSH_KEY_FILE' "$REPO_ROOT/bin/claude-sandbox"
+}

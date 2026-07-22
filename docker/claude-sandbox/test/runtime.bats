@@ -77,6 +77,7 @@ teardown_file() {
 teardown() {
     docker rm -f "claude-sandbox-test-override-$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
     docker rmi "claude-sandbox-test-override:$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
+    docker rm -f "claude-sandbox-test-sshkey-$(basename "$BATS_FILE_TMPDIR")" >/dev/null 2>&1 || true
 }
 
 dexec() {
@@ -121,6 +122,42 @@ dexec_node() {
 
     run docker exec -u testuser "$test_container" id -u
     [ "$output" = "1234" ]
+}
+
+@test "a dedicated SANDBOX_SSH_KEY loads into its own in-container agent with no forwarded socket at all" {
+    local key_dir test_container
+    key_dir="$BATS_TEST_TMPDIR"
+    ssh-keygen -t ed25519 -N '' -f "$key_dir/testkey" >/dev/null
+
+    test_container="claude-sandbox-test-sshkey-$(basename "$BATS_FILE_TMPDIR")"
+    docker run -d --name "$test_container" \
+        --cap-add=NET_ADMIN --cap-add=NET_RAW \
+        --network "$(network_name)" \
+        -e SANDBOX_TEST_MODE=1 \
+        -v "$key_dir/testkey:/home/node/.ssh-sandbox-key-src:ro" \
+        --entrypoint /usr/local/bin/entrypoint.sh \
+        "$IMAGE" >/dev/null
+
+    for _ in $(seq 1 60); do
+        if docker exec "$test_container" pgrep -x sleep >/dev/null 2>&1; then break; fi
+        sleep 1
+    done
+
+    # A fresh `docker exec` is a sibling of PID 1, not a descendant of the
+    # exec chain entrypoint.sh set SSH_AUTH_SOCK in, so it doesn't inherit
+    # that export the way a real session's nvim/terminal children would
+    # (nvim itself *is* that same process, continued via exec, not a
+    # separate one) - read the value back out of PID 1's own environment
+    # instead of assuming docker exec sees it.
+    run docker exec -u node "$test_container" sh -c '
+        export SSH_AUTH_SOCK=$(cat /proc/1/environ | tr "\0" "\n" | grep ^SSH_AUTH_SOCK= | cut -d= -f2-)
+        ssh-add -l
+    '
+    [ "$status" -eq 0 ]
+    [ -n "$output" ]
+
+    run docker exec -u node "$test_container" test -e /home/node/.ssh/sandbox-key
+    [ "$status" -ne 0 ]
 }
 
 @test "IPv6 is fully blocked" {

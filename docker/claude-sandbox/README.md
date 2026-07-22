@@ -24,6 +24,10 @@ into the container at runtime from wherever it actually sits on disk.
   takes effect immediately in an already-running session too (it's a live
   reference to the same host agent process, not a snapshot) - no need to
   restart the sandbox after `ssh-add`ing.
+  For a sandbox that needs to keep working unattended after your client
+  disconnects, see "Headless git push without agent forwarding" below —
+  `SANDBOX_SSH_KEY` is an alternative to this forwarded-agent requirement,
+  not just an addition to it.
 - `GITEA_SSH_HOST` and `GITEA_API` exported in your shell (same variables
   `bin/gitea-pr` already needs — see its `require_config`), and a token
   available either via `GITEA_TOKEN` in the environment or at
@@ -101,6 +105,39 @@ setup-git` needs to write a credential-helper entry into it, and both a
 read-only mount and a single-file bind mount at `~/.gitconfig` break that
 write in different ways. Nothing written to it during a session reaches
 your real `~/.gitconfig`.
+
+### Headless git push without agent forwarding
+
+Agent forwarding (the default — see Prerequisites) ties the sandbox's SSH
+access to whichever client's agent is currently forwarded. On a devbox
+reached over SSH+tmux, that agent belongs to whichever client connected —
+when that client disconnects, the forwarded socket dies with it, breaking
+git-over-ssh for anything still running headless in the sandbox.
+
+For sandboxes meant to keep running unattended, generate a dedicated,
+purpose-built keypair instead — not your personal key:
+
+```sh
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/claude-sandbox_ed25519
+```
+
+Passphrase-less is deliberate: headless operation has no human to answer a
+prompt, and this is meant to be a low-privilege credential that only ever
+lives inside the container, not your personal identity — a compromised
+session already has full access as the container's own user regardless (see
+Security notes), so this isn't a new category of exposure. Add the public
+half as a Gitea deploy key scoped to only the repos that actually need push
+access, then:
+
+```sh
+SANDBOX_SSH_KEY=~/.ssh/claude-sandbox_ed25519 bin/claude-sandbox ~/repos/some-project
+```
+
+At container start, `entrypoint.sh` loads it into a fresh `ssh-agent`
+running inside the container itself — independent of the forwarded socket —
+and deletes the plaintext copy immediately afterward, so nothing readable is
+left on disk once it's in the agent. When `SANDBOX_SSH_KEY` is set, a live
+forwarded agent is no longer required to start the sandbox at all.
 
 ## Shared scratch space
 
