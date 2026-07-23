@@ -136,8 +136,11 @@ picom-extended.conf
 libinput-gestures.conf
 "
 # Files and directories under ~/.claude
+# Whole-item symlinks for anything directly under claude/ that isn't itself
+# a shared directory another tool also drops files into (hooks/ is handled
+# separately below, per-file, since a standalone claude-sandbox install
+# also symlinks into ~/.claude/hooks).
 claude_configs="
-hooks
 "
 local_home_templates="
 zshrc_local
@@ -281,17 +284,30 @@ function link_dotfiles {
                 fi
             fi
         done
-        if [[ -f "$HOME/.claude/settings.json" ]] && program_installed jq; then
-            if ! jq -e '[.hooks.SessionStart[]?.hooks[]?.command // empty] | any(test("sandbox-context.sh"))' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
-                echo "Adding sandbox-context.sh SessionStart hook to ~/.claude/settings.json"
-                tmp_settings=$(mktemp)
-                jq '.hooks.SessionStart = ((.hooks.SessionStart // []) + [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/sandbox-context.sh"}]}])' \
-                    "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
+        # ~/.claude/hooks is a real directory, not a single symlink: other
+        # installs (e.g. a standalone claude-sandbox checkout) also drop
+        # their own hook files in there, so dotfiles only ever links its own
+        # individual files into it, never claims the whole directory.
+        mkdir -p "$HOME/.claude/hooks"
+        for hook_file in claude/hooks/*; do
+            hook_name=$(basename "$hook_file")
+            if [[ -L "$HOME/.claude/hooks/$hook_name" ]]; then
+                echo "Skipping: hooks/$hook_name because ~/.claude/hooks/$hook_name already linked"
+            else
+                if [[ -f "$HOME/.claude/hooks/$hook_name" ]]; then
+                    echo "Moving: existing ~/.claude/hooks/$hook_name to ~/.dotfiles-backup/claude/hooks/$hook_name"
+                    mkdir -p "$HOME/.dotfiles-backup/claude/hooks"
+                    mv "$HOME/.claude/hooks/$hook_name" "$HOME/.dotfiles-backup/claude/hooks/$hook_name"
+                fi
+                echo "Linking: hooks/$hook_name ($config_dir/claude/hooks/$hook_name -> ~/.claude/hooks/$hook_name)"
+                ln -s "$config_dir/claude/hooks/$hook_name" "$HOME/.claude/hooks/$hook_name"
             fi
-            if ! jq -e '[.hooks.PreToolUse[]?.hooks[]?.command // empty] | any(test("git-push-guard.sh"))' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
-                echo "Adding git-push-guard.sh PreToolUse hook to ~/.claude/settings.json"
+        done
+        if [[ -f "$HOME/.claude/settings.json" ]] && program_installed jq; then
+            if ! jq -e '[.hooks.PreToolUse[]?.hooks[]?.command // empty] | any(test("deny-dangerous-bash.sh"))' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
+                echo "Adding deny-dangerous-bash.sh PreToolUse hook to ~/.claude/settings.json"
                 tmp_settings=$(mktemp)
-                jq '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/git-push-guard.sh"}]}])' \
+                jq '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/deny-dangerous-bash.sh"}]}])' \
                     "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
             fi
         fi
