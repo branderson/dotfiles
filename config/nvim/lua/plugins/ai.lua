@@ -9,6 +9,19 @@ return {
         provider = "snacks",
         split_side = "right",
         split_width_percentage = 0.30,
+        -- snacks.nvim's terminal style binds a double-<Esc>-within-200ms
+        -- shortcut (term_normal) that silently drops the buffer out of
+        -- terminal-mode into Neovim's own Normal mode -- swallowing the
+        -- second Esc instead of forwarding it to the claude CLI, which uses
+        -- double-Esc itself (e.g. to rewind/interrupt). Once stuck in Normal
+        -- mode there (invisible, since showmode is off), the next keystroke
+        -- meant for the CLI -- e.g. Ctrl-O to toggle expanded tool output --
+        -- is instead consumed by Neovim's built-in Normal-mode <C-o> (jump
+        -- to older jumplist position), yanking focus to a different window.
+        -- Disabling this shortcut makes every Esc pass through raw to the
+        -- CLI; ,, (config/keymaps.lua) remains the deliberate way to reach
+        -- Normal mode in this terminal.
+        snacks_win_opts = { keys = { term_normal = false } },
       },
       diff_opts = {
         keep_terminal_focus = true,
