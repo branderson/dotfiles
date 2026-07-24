@@ -259,7 +259,7 @@ function link_dotfiles {
             fi
         fi
     done
-    echo -n "Would you like to link the Claude Code dotfiles (~/.claude/hooks etc.)? (y/N) "
+    echo -n "Would you like to link the Claude Code dotfiles (~/.claude/[CLAUDE.md, hooks, themes, etc])? (y/N) "
     read response
     if [[ "$response" == 'y' ]] || [[ "$response" == 'Y' ]]; then
         for file in $claude_configs; do
@@ -284,6 +284,18 @@ function link_dotfiles {
                 fi
             fi
         done
+        # CLAUDE.md is user-authored content, not a shared config: if one
+        # already exists it's left alone (no backup-and-replace) since it's
+        # likely the user's own instructions, not a leftover to overwrite.
+        if [[ -L "$HOME/.claude/CLAUDE.md" ]]; then
+            echo "Skipping: CLAUDE.md because ~/.claude/CLAUDE.md already linked"
+        elif [[ -f "$HOME/.claude/CLAUDE.md" ]]; then
+            echo "Skipping: CLAUDE.md because ~/.claude/CLAUDE.md already exists"
+        else
+            echo "Linking: CLAUDE.md ($config_dir/claude/CLAUDE.md -> ~/.claude/CLAUDE.md)"
+            mkdir -p $HOME/.claude
+            ln -s $config_dir/claude/CLAUDE.md $HOME/.claude/CLAUDE.md
+        fi
         # ~/.claude/hooks is a real directory, not a single symlink: other
         # installs (e.g. a standalone claude-sandbox checkout) also drop
         # their own hook files in there, so dotfiles only ever links its own
