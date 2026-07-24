@@ -141,6 +141,7 @@ libinput-gestures.conf
 # separately below, per-file, since a standalone claude-sandbox install
 # also symlinks into ~/.claude/hooks).
 claude_configs="
+statusline.sh
 "
 local_home_templates="
 zshrc_local
@@ -320,6 +321,12 @@ function link_dotfiles {
                 echo "Adding deny-dangerous-bash.sh PreToolUse hook to ~/.claude/settings.json"
                 tmp_settings=$(mktemp)
                 jq '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "$HOME/.claude/hooks/deny-dangerous-bash.sh"}]}])' \
+                    "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
+            fi
+            if ! jq -e '.statusLine' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
+                echo "Adding statusline.sh statusLine to ~/.claude/settings.json"
+                tmp_settings=$(mktemp)
+                jq '.statusLine = {"type": "command", "command": "$HOME/.claude/statusline.sh"}' \
                     "$HOME/.claude/settings.json" > "$tmp_settings" && mv "$tmp_settings" "$HOME/.claude/settings.json"
             fi
         fi
