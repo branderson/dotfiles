@@ -72,16 +72,23 @@ opt.shortmess:append("c")
 -- how many hops there are. Paste is intentionally left as a no-op: OSC 52
 -- read support is inconsistent across terminals and can hang waiting for a
 -- reply, so use the terminal's own native paste (e.g. Ctrl-Shift-V)
--- instead.
+-- instead. Guarded on executable() rather than assumed present - not every
+-- machine this config runs on has the rest of dotfiles checked out too
+-- (e.g. claude-sandbox mounts in only this nvim config directory), and
+-- without the guard vim.g.clipboard would point at a script that isn't
+-- there, erroring on every yank instead of just falling back to nvim's
+-- default clipboard handling.
 local clipboard_copy = vim.fn.expand("~/dotfiles/bin/clipboard-copy")
-vim.g.clipboard = {
-  name = "clipboard-copy (copy-only)",
-  copy = {
-    ["+"] = { clipboard_copy },
-    ["*"] = { clipboard_copy },
-  },
-  paste = {
-    ["+"] = function() return {} end,
-    ["*"] = function() return {} end,
-  },
-}
+if vim.fn.executable(clipboard_copy) == 1 then
+  vim.g.clipboard = {
+    name = "clipboard-copy (copy-only)",
+    copy = {
+      ["+"] = { clipboard_copy },
+      ["*"] = { clipboard_copy },
+    },
+    paste = {
+      ["+"] = function() return {} end,
+      ["*"] = function() return {} end,
+    },
+  }
+end
