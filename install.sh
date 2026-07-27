@@ -134,11 +134,12 @@ xfce4
 picom.conf
 picom-extended.conf
 libinput-gestures.conf
+dejima
 "
 # Files and directories under ~/.claude
 # Whole-item symlinks for anything directly under claude/ that isn't itself
 # a shared directory another tool also drops files into (hooks/ is handled
-# separately below, per-file, since a standalone claude-sandbox install
+# separately below, per-file, since a standalone dejima install
 # also symlinks into ~/.claude/hooks).
 claude_configs="
 statusline.sh
@@ -298,7 +299,7 @@ function link_dotfiles {
             ln -s $config_dir/claude/CLAUDE.md $HOME/.claude/CLAUDE.md
         fi
         # ~/.claude/hooks is a real directory, not a single symlink: other
-        # installs (e.g. a standalone claude-sandbox checkout) also drop
+        # installs (e.g. a standalone dejima checkout) also drop
         # their own hook files in there, so dotfiles only ever links its own
         # individual files into it, never claims the whole directory.
         mkdir -p "$HOME/.claude/hooks"

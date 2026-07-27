@@ -74,7 +74,7 @@ opt.shortmess:append("c")
 -- reply, so use the terminal's own native paste (e.g. Ctrl-Shift-V)
 -- instead. Guarded on executable() rather than assumed present - not every
 -- machine this config runs on has the rest of dotfiles checked out too
--- (e.g. claude-sandbox mounts in only this nvim config directory), and
+-- (e.g. dejima mounts in only this nvim config directory), and
 -- without the guard vim.g.clipboard would point at a script that isn't
 -- there, erroring on every yank instead of just falling back to nvim's
 -- default clipboard handling.

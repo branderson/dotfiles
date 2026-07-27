@@ -1,6 +1,0 @@
-# The claude-sandbox build context is this whole repo (so it can COPY
-# bin/gitea-pr into the image), but it only needs a couple of paths from it.
-**
-!bin/gitea-pr
-!docker/claude-sandbox/**
-!config/nvim/**

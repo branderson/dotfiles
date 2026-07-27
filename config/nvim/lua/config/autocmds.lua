@@ -33,14 +33,14 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufReadPre", "FileReadPre", "BufEnt
   end,
 })
 
--- claude-sandbox (docker/claude-sandbox) sets CLAUDE_SANDBOX, never present
--- on a normal host session, so this only fires inside the sandbox: open
--- claudecode.nvim's terminal on startup rather than requiring <leader>ac,
--- since starting a Claude session is the entire point of being in there.
+-- dejima sets DEJIMA, never present on a normal host session, so this only
+-- fires inside the sandbox: open claudecode.nvim's terminal on startup
+-- rather than requiring <leader>ac, since starting a Claude session is the
+-- entire point of being in there.
 -- :ClaudeCode is defined by the plugin itself, so it doesn't exist until
 -- claudecode.nvim has actually loaded - it's lazy-loaded on the <leader>ac
 -- keymap only (no `cmd` in its lazy.nvim spec), so force that load first.
-if vim.env.CLAUDE_SANDBOX then
+if vim.env.DEJIMA then
   vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
     callback = function()
