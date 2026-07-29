@@ -21,7 +21,32 @@ return {
         -- Disabling this shortcut makes every Esc pass through raw to the
         -- CLI; ,, (config/keymaps.lua) remains the deliberate way to reach
         -- Normal mode in this terminal.
-        snacks_win_opts = { keys = { term_normal = false } },
+        snacks_win_opts = {
+          keys = {
+            term_normal = false,
+            -- Per :help terminal-mode, when the running program hasn't enabled
+            -- its own mouse reporting (the claude CLI doesn't), any mouse event
+            -- over the terminal -- including the scroll wheel -- drops terminal
+            -- focus to Neovim's Normal mode instead of being forwarded, leaving
+            -- you stuck there (invisibly, since showmode is off) until you press
+            -- 'i' again -- and clicks meant for the CLI (e.g. approval prompts)
+            -- land as buffer-cursor movement in the meantime. Intercept the
+            -- wheel so it scrolls the window and silently returns to terminal
+            -- mode, instead of leaving that to the default behavior.
+            scroll_up = {
+              "<ScrollWheelUp>",
+              "<C-\\><C-n><ScrollWheelUp>i",
+              mode = "t",
+              desc = "Scroll up without leaving terminal mode",
+            },
+            scroll_down = {
+              "<ScrollWheelDown>",
+              "<C-\\><C-n><ScrollWheelDown>i",
+              mode = "t",
+              desc = "Scroll down without leaving terminal mode",
+            },
+          },
+        },
       },
       diff_opts = {
         keep_terminal_focus = true,
