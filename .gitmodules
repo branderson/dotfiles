@@ -22,3 +22,6 @@
 [submodule "dependencies/fzf"]
 	path = dependencies/fzf
 	url = https://github.com/junegunn/fzf.git
+[submodule "config/tmux/plugins/tmux-fzf"]
+	path = config/tmux/plugins/tmux-fzf
+	url = https://github.com/sainnhe/tmux-fzf
