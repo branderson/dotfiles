@@ -47,6 +47,16 @@ if vim.env.DEJIMA then
       vim.schedule(function()
         require("lazy").load({ plugins = { "claudecode.nvim" } })
         vim.cmd("ClaudeCode")
+        -- :ClaudeCode leaves the terminal window focused, so `tab split` gives
+        -- the same terminal buffer a full-screen window in its own tab while
+        -- the original tab keeps the narrow split next to the editor - one tab
+        -- to work in Claude, one to work side-by-side. Window-local options are
+        -- inherited by the split, and snacks' auto_insert (buffer-local) puts
+        -- the new window back into terminal mode on entry.
+        local claude_buf = require("claudecode.terminal").get_active_terminal_bufnr()
+        if claude_buf and vim.api.nvim_get_current_buf() == claude_buf then
+          vim.cmd("tab split")
+        end
       end)
     end,
   })
