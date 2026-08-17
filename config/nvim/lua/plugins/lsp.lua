@@ -1,4 +1,21 @@
-local servers = { "basedpyright", "ruff" }
+-- ruff is a prebuilt GitHub release binary, but mason installs basedpyright
+-- from PyPI into a venv. Debian ships venv's ensurepip separately
+-- (python3-venv), and without it every startup fails the install.
+local servers = { "ruff" }
+
+local function has_python_venv()
+  if vim.fn.executable("python3") ~= 1 then
+    return false
+  end
+  vim.fn.system({ "python3", "-c", "import ensurepip" })
+  return vim.v.shell_error == 0
+end
+
+if has_python_venv() then
+  table.insert(servers, "basedpyright")
+else
+  vim.notify("python3 venv unavailable (install python3-venv): skipping LSP server basedpyright", vim.log.levels.WARN)
+end
 
 local npm_servers = { "ts_ls", "svelte", "html", "cssls", "bashls" }
 local function has_public_npm()
