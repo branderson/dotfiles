@@ -6,6 +6,9 @@ powerline
 thefuck
 tree
 nodejs
+# Debian splits venv's ensurepip out of python3; mason needs `python3 -m venv`
+# to install PyPI-sourced LSP servers (basedpyright)
+python3-venv
 zsh
 htop
 jq
